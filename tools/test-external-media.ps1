@@ -6,6 +6,7 @@ param(
     [string]$ShippingDirectory
 )
 $ErrorActionPreference = 'Stop'
+Add-Type -AssemblyName System.IO.Compression.FileSystem
 $root = Split-Path $PSScriptRoot -Parent
 if (-not $Lovec) { $Lovec = "$Love/build/love/Release/lovec.exe" }
 if (-not $ShippingDirectory) { $ShippingDirectory = "$Love/build-vmonly-shipping/love/Release" }
@@ -24,6 +25,7 @@ public^let^load = p^{
  vp.media.prepare()
  let^media = love.filesystem.read("assets/probe.txt")
  if^media != "media" { panic^"Wrong media" }
+ if^love.filesystem.read("assets/えこ/probe.txt") != "media" { panic^"Wrong non-ASCII media path" }
  if^love.filesystem.read("data/probe.txt") != "internal" { panic^"External data replaced internal data" }
  if^love.filesystem.getInfo("outside.txt") != nil^ { panic^"Executable directory mount leaked" }
  print("EXTERNAL_MEDIA_OK") love.event.quit()
@@ -33,6 +35,8 @@ public^let^draw = p^{}
 'modules = { window = false^, graphics = false^, audio = false^ },' | Set-Content -LiteralPath "$source/conf.lton"
 [IO.File]::WriteAllText("$source/data/probe.txt", 'internal')
 [IO.File]::WriteAllText("$source/assets/probe.txt", 'media')
+New-Item -ItemType Directory -Force "$source/assets/えこ" | Out-Null
+[IO.File]::WriteAllText("$source/assets/えこ/probe.txt", 'media')
 foreach ($f in 'data/_conversion/excluded.txt', 'data/skills/excluded.txt', 'data/data.lton', 'data/support-source.lton') {
  [IO.File]::WriteAllText("$source/$f", 'excluded')
 }
@@ -70,14 +74,35 @@ function Run([string]$Expected) {
   Write-Host "PASS: $Expected"
  } finally { $process.Dispose() }
 }
+function Write-AssetsZip([string]$Text) {
+ $zip = [IO.Compression.ZipFile]::Open("$run/assets.zip", [IO.Compression.ZipArchiveMode]::Create)
+ try {
+  $entry = $zip.CreateEntry('probe.txt', [IO.Compression.CompressionLevel]::NoCompression)
+  $writer = [IO.StreamWriter]::new($entry.Open())
+  try { $writer.Write($Text) } finally { $writer.Dispose() }
+  $entry = $zip.CreateEntry('えこ/probe.txt', [IO.Compression.CompressionLevel]::NoCompression)
+  $writer = [IO.StreamWriter]::new($entry.Open())
+  try { $writer.Write($Text) } finally { $writer.Dispose() }
+ } finally { $zip.Dispose() }
+}
 Package $false
-Run 'assets folder is missing beside the game'
-New-Item -ItemType Directory -Force "$run/assets", "$run/data" | Out-Null
-[IO.File]::WriteAllText("$run/assets/probe.txt", 'media')
+Run 'assets.zip is missing beside the game'
+New-Item -ItemType Directory -Force "$run/data" | Out-Null
 [IO.File]::WriteAllText("$run/data/probe.txt", 'external')
 [IO.File]::WriteAllText("$run/outside.txt", 'must not be exposed')
+Write-AssetsZip 'media'
+Run 'EXTERNAL_MEDIA_OK'
+Remove-Item -LiteralPath "$run/assets.zip"
+New-Item -ItemType Directory -Force "$run/assets/えこ" | Out-Null
+[IO.File]::WriteAllText("$run/assets/probe.txt", 'media')
+[IO.File]::WriteAllText("$run/assets/えこ/probe.txt", 'media')
+Run 'EXTERNAL_MEDIA_OK'
+[IO.File]::WriteAllText("$run/assets/probe.txt", 'folder must not override assets.zip')
+Write-AssetsZip 'media'
 Run 'EXTERNAL_MEDIA_OK'
 Package $true
 [IO.File]::WriteAllText("$run/assets/probe.txt", 'must not override embedded assets')
+Remove-Item -LiteralPath "$run/assets.zip"
+Write-AssetsZip 'must not override embedded assets'
 Run 'EXTERNAL_MEDIA_OK'
-Write-Host "PASS: default exclusion, fused external assets, missing assets, internal data precedence, embedded option ($work)"
+Write-Host "PASS: default exclusion, fused assets.zip, assets folder fallback, zip precedence, missing assets, internal data precedence, embedded option ($work)"

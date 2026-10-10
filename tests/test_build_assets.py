@@ -6,8 +6,10 @@ import struct
 import sys
 import tempfile
 import unittest
+import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools/fm2k_convert'))
+import build_assets
 from build_assets import build, load_recipe, game_directory
 from raw_media import unpack_sprite, image_key
 
@@ -39,10 +41,44 @@ class BuildAssetsTest(unittest.TestCase):
             self.assertTrue((root / 'assets/supports/えこ/images/test.png').read_bytes().startswith(b'\x89PNG'))
             with self.assertRaises(FileExistsError):
                 build(game, root / 'assets', recipe)
+            with redirect_stdout(io.StringIO()):
+                build(game, root / 'assets.zip', recipe)
+            with zipfile.ZipFile(root / 'assets.zip') as z:
+                self.assertEqual(z.namelist(), ['supports/えこ/images/test.dds', 'supports/えこ/images/test.png'])
+                self.assertTrue(all(i.compress_type == zipfile.ZIP_STORED for i in z.infolist()))
+                self.assertEqual(z.read('supports/えこ/images/test.dds'), (root / 'assets/supports/えこ/images/test.dds').read_bytes())
+            self.assertEqual(sorted(p.name for p in root.iterdir()), ['assets', 'assets.zip', 'original', 'recipe.json'])
+            with self.assertRaises(FileExistsError):
+                build(game, root / 'assets.zip', recipe)
             recipe.write_text(json.dumps({'version': 1, 'media': {'a' * 40: ['missing.dds']}}))
             with redirect_stdout(io.StringIO()), self.assertRaises(ValueError):
                 build(game, root / 'failed', recipe)
             self.assertFalse((root / 'failed').exists())
+
+    def test_dropped_source_defaults_beside_executable(self):
+        executable, frozen = sys.executable, getattr(sys, 'frozen', None)
+        try:
+            sys.frozen = True
+            sys.executable = str(Path('game/BuildAssets.exe').absolute())
+            self.assertEqual(build_assets.default_destination(), Path('game/assets.zip').absolute())
+        finally:
+            sys.executable = executable
+            if frozen is None:
+                del sys.frozen
+            else:
+                sys.frozen = frozen
+
+    def test_messages_follow_os_language(self):
+        original = build_assets.japanese
+        try:
+            build_assets.japanese = lambda: False
+            self.assertEqual(build_assets.message('close'), 'Press Enter to close.')
+            build_assets.japanese = lambda: True
+            self.assertEqual(build_assets.message('close'), 'Enter キーで閉じます。')
+            self.assertIn('x.zip', build_assets.message('exists', path='x.zip'))
+        finally:
+            build_assets.japanese = original
+        self.assertIsInstance(build_assets.japanese(), bool)
 
     def test_recipe_paths_and_ambiguous_source(self):
         with tempfile.TemporaryDirectory() as temp:

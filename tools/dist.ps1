@@ -71,7 +71,7 @@ if (Test-Path -LiteralPath $out) {
     if ((Split-Path $resolvedOut -Parent) -ine [IO.Path]::GetFullPath((Join-Path $root 'dist'))) { throw 'Unsafe output directory' }
     if ((Get-Item -LiteralPath $out -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Linked output directory' }
     foreach ($item in Get-ChildItem -LiteralPath $out -Force) {
-        if ($item.Name -eq 'assets') { continue }
+        if ($item.Name -in 'assets', 'assets.zip') { continue }
         if ($item.PSIsContainer) { Clear-GeneratedDirectory $item.FullName $out }
         else { Remove-Item -LiteralPath $item.FullName -Force }
     }

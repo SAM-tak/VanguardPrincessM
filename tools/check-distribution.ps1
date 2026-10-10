@@ -12,7 +12,9 @@ try {
     }
 } finally { $archive.Dispose() }
 $out = if ($DistributionDirectory) { $DistributionDirectory } else { Join-Path $root 'dist/VanguardPrincess' }
-if (Test-Path -LiteralPath (Join-Path $out 'assets')) { throw 'Public distribution contains external assets' }
+foreach ($media in 'assets', 'assets.zip') {
+    if (Test-Path -LiteralPath (Join-Path $out $media)) { throw 'Public distribution contains external assets' }
+}
 $builder = if ($IsWindows) { 'BuildAssets.exe' } else { 'BuildAssets' }
 $programs = @(
     $builder

@@ -208,3 +208,5 @@
 - [0135-windows-compiler-unicode-output.md](0135-windows-compiler-unicode-output.md) — 非UTF-8のWindows環境でlovecの出力パスが文字化けする問題を再現。alpha.2で解決。
 
 - [0136-unix-distribution.md](0136-unix-distribution.md) — Linux/macOSへ配布ビルドを拡張。macOSは署名済み.appの隣に.loveとlauncherを置く。
+
+- [0137-assets-zip.md](0137-assets-zip.md) — 外部assetsをフォルダからzipへ。Windowsの初回ロードでのスキャン待ちを回避。BuildAssetsがSTORED zipを出力。

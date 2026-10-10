@@ -56,7 +56,7 @@ if ($IsWindows) {
     $launcher = Join-Path $OutputDirectory "$Name.command"
     $script = @(
         '#!/bin/sh'
-        "# Starts $Name.love with the bundled engine. Keep assets/ in this folder."
+        "# Starts $Name.love with the bundled engine. Keep assets.zip in this folder."
         'here=$(cd "$(dirname "$0")" && pwd)'
         "exec `"`$here/lhat-love.app/Contents/MacOS/love`" --fused `"`$here/$Name.love`" `"`$@`""
     ) -join "`n"

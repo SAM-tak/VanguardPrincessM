@@ -1,4 +1,6 @@
 # Mount only external assets, never neighboring scripts or definitions.
+# assets.zip is preferred: a single archive is scanned once by anti-malware
+# services, whereas thousands of loose files stall the first loads on Windows.
 module^vp.media
 import^love.filesystem
 var^ready = false^
@@ -10,8 +12,9 @@ public^let^prepare = p^{
     # mount resolves physical paths relative to the real directory, so expose
     # the base briefly at root, append-only, before mounting assets separately.
     if^!love.filesystem.mount(base, "", true^) { panic^"Could not access the executable directory for external assets." }
-    let^mounted = love.filesystem.mount("assets", "assets", true^)
+    var^mounted = love.filesystem.mount("assets.zip", "assets", true^)
+    if^!mounted { mounted := love.filesystem.mount("assets", "assets", true^) }
     love.filesystem.unmount(base)
-    if^!mounted { panic^"assets folder is missing beside the game. Build it into the game folder as described in ASSETS.md." }
+    if^!mounted { panic^"assets.zip is missing beside the game. Build it into the game folder as described in ASSETS.md." }
     ready := true^
 }
