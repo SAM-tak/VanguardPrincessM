@@ -8,9 +8,9 @@
 
 `LHATOVE_GC_STATS=1` により、毎描画フレームの累計回収数と現在のGC対象数を記録。タイトル復帰後30／90描画で明示的GCを行い、比較点を揃えた。プロセスのprivate bytesは外部から約250ms以上の間隔でサンプリングした観測値であり、瞬間的な真の最大値を保証しない。
 
-- 前回：`build/gc-audit.log`／`.csv`（検索最適化前）
-- 今回：`build/core-member-after.log`／`.csv`
-- 今回の実行スクリプト：`build/gc-audit.lh` をルートの一時エントリにコピーして実行
+- 前回：`TechnicalDocuments/evidence/0065/gc-audit.log`／`.csv`（検索最適化前）
+- 今回：`TechnicalDocuments/evidence/0065/core-member-after.log`／`.csv`
+- 今回の実行スクリプト：`TechnicalDocuments/evidence/0065/gc-audit.lh` をルートの一時エントリにコピーして実行
 
 前回ログはステージの乱数を固定しておらず、今回は42に固定。弱参照表の修正も含む新しいビルドであり、単一変更だけを切り替えた厳密なA/B測定ではない。GC回収数は一時オブジェクト生成量の目安であって、今回、種別別の生成カウンターは再挿入していない。
 
@@ -33,7 +33,7 @@
 
 ## 更新時間
 
-別の1試合実行で、テスト用ラッパーから `main.update` を計時した。`build/core-member-timing.log` と `build/core-timing-run.lh`。
+別の1試合実行で、テスト用ラッパーから `main.update` を計時した。`TechnicalDocuments/evidence/0065/core-member-timing.log` と `TechnicalDocuments/evidence/0065/core-timing-run.lh`。
 
 - 7,345回のupdate合計：38.4257秒。
 - 試合進行側のupdate最大：0.189656秒。
@@ -54,7 +54,7 @@
 
 同日、ユーザーが再ビルドした `love.dll`（更新時刻14:02:53、10,185,728 bytes）で再計測。今回もコア／エンジン／ゲームのソース変更・再ビルドは行わず、提供済みバイナリで実行した。
 
-直前の `core-member-after` と**同じスクリプト、キャラ、乱数シード42、3試合、GC比較点**を使用。ログは `build/core-member-rebuilt.log`／`.csv`、集計は `build/core-member-rebuilt-summary.json`。
+直前の `core-member-after` と**同じスクリプト、キャラ、乱数シード42、3試合、GC比較点**を使用。ログは `TechnicalDocuments/evidence/0065/core-member-rebuilt.log`／`.csv`、集計は `TechnicalDocuments/evidence/0065/core-member-rebuilt-summary.json`。
 
 | 指標 | 12:53版 | 14:02版 | 変化 |
 |---|---:|---:|---:|
@@ -66,7 +66,7 @@
 | 同・3周目 | 820.1MB | 821.0MB | ほぼ同じ |
 | 3周目GC後のオブジェクト数 | 89,024 | 89,026 | ほぼ同じ |
 
-更新時間も同じ1試合用ハーネスで再計測した。`build/core-member-rebuilt-timing.log`。
+更新時間も同じ1試合用ハーネスで再計測した。`TechnicalDocuments/evidence/0065/core-member-rebuilt-timing.log`。
 
 | 指標 | 12:53版 | 14:02版 |
 |---|---:|---:|

@@ -1,0 +1,63 @@
+module^vp.sweepprobe
+import^love.event
+require^"src/preload.lh"
+require^"src/resource.lh"
+require^"src/script.lh"
+require^"src/fighter.lh"
+let^loadout = vp.preload.Load.new("sweep-probe")
+var^done = false^
+public^let^load = p^{
+    for^name in^{"ゆい", "サキ", "えり"} { loadout.add($"assets/characters/{name}", false^) }
+}
+let^run = p^name:string^{
+    let^dir = $"assets/characters/{name}"
+    let^sc = vp.script.load($"{dir}/script.lton")
+    let^ds = vp.script.load("assets/characters/ゆい/script.lton")
+    if^sc is^nil^ or^ds is^nil^ { panic^"data" }
+    let^p = vp.fighter.Fighter.new(dir, 370, 920)
+    let^d = vp.fighter.Fighter.new("assets/characters/ゆい", 480, 920)
+    sc.install(p) ds.install(d)
+    p.enemy := d d.enemy := p d.facing := -1 d.life := 100000
+    p.begin(239) d.begin(1)
+    var^old = -1
+    var^count = 0
+    for^frame from^0 to^450 {
+        p.step() d.step() p.stepObjects() d.stepObjects()
+        if^p.finished() { p.begin(239) }
+        if^d.finished() { if^d.airborne() { d.start(7, 0) else^: d.begin(1) } }
+        if^d.skillNo != old {
+            old := d.skillNo
+            if^old = 164 {
+                print($"DOWN {name} frame={frame}")
+                for^slot, h in^d.hurts { if^h != nil^ { print($"HURT {slot} y={h.y} h={h.h} body={h.body}") } }
+            }
+        }
+        var^hit = false^
+        for^slot, box in^p.hits {
+            if^box != nil^ and^!hit and^p.canHit(box, d) {
+                for^hs, hurt in^d.hurts {
+                    if^hurt != nil^ and^!hit and^(!hurt.body or^hurt.flags.find("damaged") != nil^) {
+                        let^ax, ay, aw, ah = p.rect(box)
+                        let^bx, by, bw, bh = d.rect(hurt)
+                        if^ax < bx + bw and^bx < ax + aw and^ay < by + bh and^by < ay + ah {
+                            print($"HIT {name} f={frame} defender={d.skillNo} y={d.y} atkSlot={slot} hurtSlot={hs} hurtY={hurt.y} hurtH={hurt.h}")
+                            p.struck(box, d, hurt.rate, false^) hit := true^ count += 1
+                        }
+                    }
+                }
+            }
+        }
+        p.pushAgainst(d)
+    }
+    print($"TOTAL {name} {count}")
+}
+public^let^update = p^dt:number^{
+    vp.resource.pump(0.006)
+    if^!done and^loadout.ready() {
+        done := true^
+        for^name in^{"ゆい", "サキ", "えり"} { run(name) }
+        love.event.quit()
+    }
+}
+public^let^draw = p^{}
+public^let^quit = p^-> bool^{ vp.resource.stop() return^false^ }

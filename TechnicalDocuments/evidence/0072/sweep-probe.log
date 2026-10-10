@@ -1,0 +1,48 @@
+HIT ゆい f=34 defender=1 y=920 atkSlot=0 hurtSlot=2 hurtY=-19 hurtH=43
+DOWN ゆい frame=122
+HURT 0 y=-10 h=40 body=true
+HURT 2 y=-19 h=43 body=false
+HURT 3 y=-167 h=60 body=false
+HURT 19 y=9899 h=118 body=false
+HIT ゆい f=126 defender=164 y=920 atkSlot=0 hurtSlot=2 hurtY=-19 hurtH=43
+DOWN ゆい frame=214
+HURT 0 y=-10 h=40 body=true
+HURT 2 y=-19 h=43 body=false
+HURT 3 y=-167 h=60 body=false
+HURT 19 y=9899 h=118 body=false
+TOTAL ゆい 2
+HIT サキ f=11 defender=1 y=920 atkSlot=0 hurtSlot=1 hurtY=-110 hurtH=51
+DOWN サキ frame=57
+HURT 0 y=-10 h=40 body=true
+HURT 2 y=-19 h=43 body=false
+HURT 3 y=-167 h=60 body=false
+HURT 19 y=9899 h=118 body=false
+HIT サキ f=86 defender=164 y=920 atkSlot=0 hurtSlot=2 hurtY=-19 hurtH=43
+DOWN サキ frame=132
+HURT 0 y=-10 h=40 body=true
+HURT 2 y=-19 h=43 body=false
+HURT 3 y=-167 h=60 body=false
+HURT 19 y=9899 h=118 body=false
+HIT サキ f=161 defender=164 y=920 atkSlot=0 hurtSlot=2 hurtY=-19 hurtH=43
+TOTAL サキ 3
+HIT えり f=13 defender=1 y=920 atkSlot=0 hurtSlot=1 hurtY=-110 hurtH=51
+DOWN えり frame=59
+HURT 0 y=-10 h=40 body=true
+HURT 2 y=-19 h=43 body=false
+HURT 3 y=-167 h=60 body=false
+HURT 19 y=9899 h=118 body=false
+HIT えり f=75 defender=164 y=920 atkSlot=0 hurtSlot=2 hurtY=-19 hurtH=43
+DOWN えり frame=121
+HURT 0 y=-10 h=40 body=true
+HURT 2 y=-19 h=43 body=false
+HURT 3 y=-167 h=60 body=false
+HURT 19 y=9899 h=118 body=false
+HIT えり f=137 defender=164 y=920 atkSlot=0 hurtSlot=2 hurtY=-19 hurtH=43
+HIT えり f=383 defender=179 y=920 atkSlot=0 hurtSlot=1 hurtY=-88 hurtH=32
+DOWN えり frame=429
+HURT 0 y=-10 h=40 body=true
+HURT 2 y=-17 h=45 body=false
+HURT 3 y=-100 h=120 body=true
+HURT 19 y=9899 h=118 body=false
+HIT えり f=445 defender=164 y=920 atkSlot=0 hurtSlot=2 hurtY=-17 hurtH=45
+TOTAL えり 5

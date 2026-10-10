@@ -8,4 +8,4 @@ main.lhのtoSelectでreleaseBattle前に両者のキャラ番号から選択行�
 
 ## 確認
 
-一時的な検証用mainから実際のtoSelectを実行。全10キャラを両サイドで使用し、復帰直後と数フレーム後のrow、顔グラのdir、カーソル座標、未確定状態、初期パレットを確認。続けて上下操作による再選択と、新規VS選択がゆいから始まることを確認。build/return-select.logに11件のPASS。
+一時的な検証用mainから実際のtoSelectを実行。全10キャラを両サイドで使用し、復帰直後と数フレーム後のrow、顔グラのdir、カーソル座標、未確定状態、初期パレットを確認。続けて上下操作による再選択と、新規VS選択がゆいから始まることを確認。TechnicalDocuments/evidence/0116/return-select.logに11件のPASS。

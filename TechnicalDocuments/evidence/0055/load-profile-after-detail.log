@@ -1,0 +1,63 @@
+PROFILE 4.61ms completeLoad boot
+boot frames=38
+PROFILE 7.07ms dependencies select
+PROFILE 7.44ms queue slice select
+PROFILE 14.61ms completeLoad select
+PROFILE 7.09ms queue slice select
+PROFILE 7.15ms completeLoad select
+PROFILE 5.83ms queue slice select
+PROFILE 5.89ms completeLoad select
+PROFILE 15.84ms queue slice select
+PROFILE 15.89ms completeLoad select
+PROFILE 4.53ms queue slice select
+PROFILE 4.57ms completeLoad select
+PROFILE 6.48ms queue slice select
+PROFILE 6.54ms completeLoad select
+PROFILE 6.50ms queue slice select
+PROFILE 6.55ms completeLoad select
+PROFILE 5.99ms queue slice select
+PROFILE 6.04ms completeLoad select
+PROFILE 5.70ms queue slice select
+PROFILE 5.75ms completeLoad select
+PROFILE 4.82ms queue slice select
+PROFILE 4.86ms completeLoad select
+PROFILE 6.78ms queue slice select
+PROFILE 6.86ms completeLoad select
+PROFILE 8.42ms completeLoad select
+select frames=183
+PROFILE 7.20ms completeLoad match-stage
+cancel in-flight match
+PROFILE 5.34ms dependencies select
+PROFILE 6.36ms queue slice select
+PROFILE 11.79ms completeLoad select
+PROFILE 4.73ms queue slice select
+PROFILE 4.78ms completeLoad select
+PROFILE 6.52ms queue slice select
+PROFILE 6.59ms completeLoad select
+PROFILE 5.20ms queue slice select
+PROFILE 5.24ms completeLoad select
+PROFILE 6.00ms queue slice select
+PROFILE 6.04ms completeLoad select
+PROFILE 4.36ms queue slice select
+PROFILE 4.41ms completeLoad select
+PROFILE 4.92ms queue slice select
+PROFILE 4.96ms completeLoad select
+PROFILE 29.84ms queue slice select
+PROFILE 29.89ms completeLoad select
+PROFILE 5.66ms queue slice select
+PROFILE 5.70ms completeLoad select
+PROFILE 4.07ms queue slice select
+PROFILE 4.11ms completeLoad select
+PROFILE 4.16ms completeLoad select
+PROFILE 6.11ms completeLoad match-stage
+PROFILE 67.00ms queue slice match-characters
+PROFILE 67.05ms completeLoad match
+PROFILE 11.74ms completeLoad match
+match frames=654 elapsed=8.77131 worst=0.0689183
+1: #31  x=500 y=920 facing=1
+VS reveal frame=231 opponentX=770.206
+262: #18  x=500 y=920 facing=1
+511: #8  x=500 y=920 facing=1
+512: #1  x=500 y=920 facing=1
+PASS: cancel, retry, two fighters, D support attack, pause/freeze/resume, battle drawing, missing asset; frames=1257; synchronous fallback reads=0
+lovec exit code: 0

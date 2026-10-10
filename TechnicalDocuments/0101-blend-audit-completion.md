@@ -30,7 +30,7 @@
 - 加算上限・減算下限、補正のclamp、透明度端点を含む。
 - 許容誤差は8bit換算で2階調。原作の低ビット色演算ではなく、維持するフルカラー合成式が参照値。
 
-`build/sprite-blend-audit.log`: PASS。テスト以外の描画コードは変更していない。
+`TechnicalDocuments/evidence/0101/sprite-blend-audit.log`: PASS。テスト以外の描画コードは変更していない。
 
 ## 完了範囲
 

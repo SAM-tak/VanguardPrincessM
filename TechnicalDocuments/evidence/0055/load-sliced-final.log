@@ -1,0 +1,11 @@
+boot frames=41
+select frames=171
+cancel in-flight match
+match frames=623 elapsed=8.26771 worst=0.0150384
+1: #31  x=500 y=920 facing=1
+VS reveal frame=231 opponentX=770.206
+262: #18  x=500 y=920 facing=1
+511: #8  x=500 y=920 facing=1
+512: #1  x=500 y=920 facing=1
+PASS: cancel, retry, two fighters, D support attack, pause/freeze/resume, battle drawing, missing image and typed script; frames=1228; synchronous fallback reads=0
+lovec exit code: 0

@@ -31,4 +31,4 @@
 
 出力は8,822ファイルと1空ディレクトリ、配布EXEは約252.4 MiB。実ゲームの全操作の回帰試験を行ったという意味ではない。
 
-実ゲームの最終ZIPについても、214個のコンパイル済みファイルと8,608個の元素材を全件SHA-256で照合し一致した。以前の `build/parallel-baseline` とファイル名集合も一致し、配布EXEの先頭がshipping VM、その後が検証済みZIPと完全一致することを確認した（検証スクリプト: `build/verify-direct-package.py`）。
+実ゲームの最終ZIPについても、214個のコンパイル済みファイルと8,608個の元素材を全件SHA-256で照合し一致した。以前の `build/parallel-baseline` とファイル名集合も一致し、配布EXEの先頭がshipping VM、その後が検証済みZIPと完全一致することを確認した（検証スクリプト: `TechnicalDocuments/evidence/0110/verify-direct-package.py`）。

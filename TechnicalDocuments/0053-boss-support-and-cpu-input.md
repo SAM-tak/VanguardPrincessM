@@ -11,7 +11,7 @@
 - #709 では通常サポートと攻撃要求の割り当てが異なる。
 - #710 等では通常サポートと同名でも画像を画面外へ置く指定、生成する演出の位置・開始ブロック、音声などが異なる。
 
-ボスを通常5種の共通化対象から除外し、元の806技をボス自身の定義として復元した。共通化前の保存データ `build/support-originals/ヒルダ/script.lton` を復旧に使用し、欠けていた81個のEB拡張引数は `assets/characters/ヒルダ/skills/*.lton` の抽出データと照合して補った。復旧後の変換入力は `data/_conversion/characters/ヒルダ/support-source.lton` に保存済みで、今後の再生成にbuildのバックアップは不要。
+ボスを通常5種の共通化対象から除外し、元の806技をボス自身の定義として復元した。共通化前の保存データ `TechnicalDocuments/evidence/0053/support-originals/ヒルダ/script.lton` を復旧に使用し、欠けていた81個のEB拡張引数は `assets/characters/ヒルダ/skills/*.lton` の抽出データと照合して補った。復旧後の変換入力は `data/_conversion/characters/ヒルダ/support-source.lton` に保存済みで、今後の再生成にbuildのバックアップは不要。
 
 ランタイムは `fixedSupport = true^` と明示し、共有サポートパッケージをリンクしない。元の番号と内部参照を維持するため、今回は未使用候補の技を含めて保持している。ボスの素材先読みもボス自身の全定義を対象とする。専用経路だけに削減する解析は今回行っていない。
 

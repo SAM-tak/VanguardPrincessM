@@ -14,7 +14,7 @@ LÔVEの `src/lh/Boot.cpp` の `copyRest` はファイルを直列に走査し�
 
 ## 並列コンパイルの実測
 
-`build/measure-lton.ps1` で既存stageのLTONを相対パスを保ったまま独立した入力ディレクトリへ分配し、それぞれに最小のmain.lhを置いて `--compile-game` を実行した。大きいファイルから、累積入力サイズが最も小さいワーカーへ配分した。準備のコピー時間は測定に含めず、コンパイラプロセスの起動から全プロセスの終了までを測定した。
+`TechnicalDocuments/evidence/0108/measure-lton.ps1` で既存stageのLTONを相対パスを保ったまま独立した入力ディレクトリへ分配し、それぞれに最小のmain.lhを置いて `--compile-game` を実行した。大きいファイルから、累積入力サイズが最も小さいワーカーへ配分した。準備のコピー時間は測定に含めず、コンパイラプロセスの起動から全プロセスの終了までを測定した。
 
 | 同時プロセス数 | 経過時間 |
 | --- | --- |
@@ -23,7 +23,7 @@ LÔVEの `src/lh/Boot.cpp` の `copyRest` はファイルを直列に走査し�
 
 この一回の比較では約1.70倍、約6.10秒短縮。生成されたLTON 196ファイルすべてのSHA-256が一致した。測定は1並列→6並列の順で、キャッシュや他の処理の影響を分離した厳密なベンチマークではない。ゲームの実行試験ではない。
 
-結果: `build/lton-timing-531db94aa240474b812fbd63d0e0150d/results.json`。
+結果: `TechnicalDocuments/evidence/0108/lton-timing-531db94aa240474b812fbd63d0e0150d/results.json`。
 
 同じ既存stage全体を別出力 `build/parallel-full-timing` に `--compile-game` した測定は120.719秒、終了コード0。18ユニットと8,804ファイルを出力した。別試行の起動トレースではmainのcheckからcompile開始まで約680msで、出力途中にはLTONに到達する前に多数の素材をコピーしていた。LTON単独の時間との差から、素材コピー側が大きく寄与していると推測できる。ただし各処理区間を直接計測した値ではなく、I/O待ちの内訳までは未確認。LTON単独の約6秒短縮を全体へ単純に当てはめても、短縮は約5%に留まる。
 
@@ -31,7 +31,7 @@ LÔVEの `src/lh/Boot.cpp` の `copyRest` はファイルを直列に走査し�
 
 ### 追測による訂正（同日）
 
-最初の一回の1.70倍を並列化の限界と判断することはできない。`build/measure-lton-scaling.ps1` で6・3・2・1・1・2・3・6並列の順に、子プロセスごとのCPU使用時間と開始・終了時刻も測定した。DドライブはST2000DM001-1ER164（HDD）、CドライブはSanDisk SSD PLUS 2000GB（SSD）とOSの情報で確認した。
+最初の一回の1.70倍を並列化の限界と判断することはできない。`TechnicalDocuments/evidence/0108/measure-lton-scaling.ps1` で6・3・2・1・1・2・3・6並列の順に、子プロセスごとのCPU使用時間と開始・終了時刻も測定した。DドライブはST2000DM001-1ER164（HDD）、CドライブはSanDisk SSD PLUS 2000GB（SSD）とOSの情報で確認した。
 
 HDDでの2巡目は1並列9.220秒、2並列5.335秒、3並列3.717秒、6並列3.045秒（約3.03倍）。最初の6並列も3.289秒で、先の8.715秒は再現しなかった。3並列の1巡目は6.882秒、2巡目は3.717秒で、経過時間の変動が大きい。
 
@@ -48,7 +48,7 @@ SSDの試行1で、CPU使用時間の合計は1並列9.109秒、6並列13.281秒
 
 結果ファイル:
 
-- HDD: `build/lton-timing-6f973beb1d414f85b57544b1fda870ee/results.json`
+- HDD: `TechnicalDocuments/evidence/0108/lton-timing-6f973beb1d414f85b57544b1fda870ee/results.json`
 - SSD: `C:/Users/Owner/source/repos/lhat-love/build/lton-timing-032cce1733804f67ac3bfb58308d5b90/results.json`
 
 ### 方針

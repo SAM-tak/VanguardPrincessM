@@ -37,7 +37,7 @@ outSkillを指定する実データは14件。カテジナの被弾・復帰、�
 - `tests/object-vm.lh`: DB全条件・反転・無効指定・interpreter、Oの削除／置換／存在時分岐／子からの操作／終了後スロット解放／depth、素材走査、hRatio読み込み・端数・威力0・削りKO。
 - `tests/test_fa_flags.py`: 生DBの条件・フラグ・16ビット技番号・ブロック番号復元、FAの0x0004と0x8000の独立性。
 - combat-flow、support-flow、events、yui-link、effects-flow、eri-contactの回帰。全10キャラへの6B→214B、250サポート入力等を維持。
-- アプリ起動確認。ログは `build/vm-next-*.log`。
+- アプリ起動確認。ログは `TechnicalDocuments/evidence/0084/vm-next-*.log`。
 
 監査の再実行：
 

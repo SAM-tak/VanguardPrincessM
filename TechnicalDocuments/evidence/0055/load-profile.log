@@ -1,0 +1,57 @@
+PROFILE 5.06ms await script assets/system/ヴァンガードプリンセス/script.lton
+PROFILE 5.17ms resource pump
+PROFILE 487.00ms completeLoad boot
+boot frames=56
+PROFILE 5.95ms queue media assets/characters/ゆい
+PROFILE 4.94ms queue media assets/characters/はるか
+PROFILE 5.11ms queue media assets/characters/リリス
+PROFILE 6.35ms queue media assets/characters/ルナ
+PROFILE 4.19ms queue media assets/characters/くるみ
+PROFILE 6.82ms queue media assets/characters/サキ
+PROFILE 14.73ms queue media assets/characters/かえで
+PROFILE 4.04ms queue media assets/characters/カテジナ
+PROFILE 4.71ms queue media assets/characters/えり
+PROFILE 4.53ms queue media assets/characters/あやね
+PROFILE 4.41ms queue media assets/characters/ヒルダ
+PROFILE 73.14ms completeLoad select
+PROFILE 5.85ms completeLoad select
+select frames=204
+PROFILE 4.65ms completeLoad match-stage
+cancel in-flight match
+PROFILE 4.09ms await script assets/characters/はるか/script.lton
+PROFILE 4.17ms resource pump
+PROFILE 4.17ms queue media assets/characters/ゆい
+PROFILE 7.61ms queue media assets/characters/はるか
+PROFILE 4.43ms queue media assets/characters/リリス
+PROFILE 6.31ms queue media assets/characters/ルナ
+PROFILE 5.00ms queue media assets/characters/くるみ
+PROFILE 4.79ms queue media assets/characters/サキ
+PROFILE 5.91ms queue media assets/characters/かえで
+PROFILE 4.41ms queue media assets/characters/カテジナ
+PROFILE 5.46ms queue media assets/characters/えり
+PROFILE 31.47ms queue media assets/characters/あやね
+PROFILE 89.34ms completeLoad select
+PROFILE 6.87ms completeLoad select
+PROFILE 6.78ms completeLoad match-stage
+PROFILE 25.45ms await script assets/characters/はるか/script.lton
+PROFILE 25.53ms resource pump
+PROFILE 20.94ms await script assets/characters/ゆい/script.lton
+PROFILE 21.01ms resource pump
+PROFILE 4.13ms await script assets/supports/えこ/script.lton
+PROFILE 4.21ms resource pump
+PROFILE 4.04ms await script assets/supports/シエラ/script.lton
+PROFILE 4.11ms resource pump
+PROFILE 5.54ms resource pump
+PROFILE 103.04ms queue media assets/characters/ゆい
+PROFILE 114.61ms queue media assets/characters/はるか
+PROFILE 217.73ms completeLoad match
+PROFILE 4.52ms resource pump
+PROFILE 13.60ms completeLoad match
+match frames=680 elapsed=9.79645 worst=0.487312
+1: #31  x=500 y=920 facing=1
+VS reveal frame=231 opponentX=770.206
+262: #18  x=500 y=920 facing=1
+511: #8  x=500 y=920 facing=1
+512: #1  x=500 y=920 facing=1
+PASS: cancel, retry, two fighters, D support attack, pause/freeze/resume, battle drawing, missing asset; frames=1283; synchronous fallback reads=0
+lovec exit code: 0

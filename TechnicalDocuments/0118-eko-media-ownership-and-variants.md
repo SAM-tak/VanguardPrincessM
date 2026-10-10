@@ -24,7 +24,7 @@
 ## 重複候補の自動調査
 
 ```
-python tools/fm2k_convert/audit_support_images.py assets --support えこ --out build/eko-image-comparison.json
+python tools/fm2k_convert/audit_support_images.py assets --support えこ --out TechnicalDocuments/evidence/0118/eko-image-comparison.json
 python tools/fm2k_convert/organize_support_media.py assets --owned-only --apply
 ```
 
@@ -38,5 +38,5 @@ python tools/fm2k_convert/organize_support_media.py assets --owned-only --apply
 - --owned-only再実行で差分なし。
 - test_organize_support_media.py: 4件成功。新規明示所有・同内容維持・再生成後の再配置・既存の排他判定を含む。
 - test_share_assets.py: 3件成功。
-- selective-preloadの検証を全10キャラのえこ選択へ適用。各サポート定義に含まれる全画像・音声のロードと、他サポートの素材が混入しないことを確認。build/eko-media-load.log: PASS。
-- build/eko-image-comparison.json: 寸法、各画像の定義参照元、候補、各キャラ各パレットの差分画素数。
+- selective-preloadの検証を全10キャラのえこ選択へ適用。各サポート定義に含まれる全画像・音声のロードと、他サポートの素材が混入しないことを確認。TechnicalDocuments/evidence/0118/eko-media-load.log: PASS。
+- TechnicalDocuments/evidence/0118/eko-image-comparison.json: 寸法、各画像の定義参照元、候補、各キャラ各パレットの差分画素数。

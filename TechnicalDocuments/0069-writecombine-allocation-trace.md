@@ -24,7 +24,7 @@
 
 ゲーム画像のnewImageから次の経路を直接確認した。
 
-```
+```text
 lh_newImage
   Graphics::vulkan::newTexture
   Texture::vulkan::loadVolatile
@@ -59,4 +59,4 @@ LÖVEリリースDLLにはデバッグ情報がなかったため、既存オブ
 
 診断DLLの固定ログ領域等による計測自体のメモリ負荷がある。各GDI確保の前後にはプロセス全体の領域を比較するので、別スレッドから同時確保される場合の厳密な帰属には限界がある。画像部分は別実行のvkAllocateMemory引数・スタック・増加量でも照合した。
 
-生ログ・診断コードは無視対象のbuild/wc-*、build/classify-wc.py、build/linkprobe/に保存。フックは自分で起動した計測プロセス内だけで、終了後には残らない。配布用実装へのフック・GC強制・メモリ設定変更は行っていない。
+生ログ・診断コードは無視対象のTechnicalDocuments/evidence/0069/wc-*、TechnicalDocuments/evidence/0069/classify-wc.py、TechnicalDocuments/evidence/0069/linkprobe/に保存。フックは自分で起動した計測プロセス内だけで、終了後には残らない。配布用実装へのフック・GC強制・メモリ設定変更は行っていない。

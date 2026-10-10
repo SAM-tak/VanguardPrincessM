@@ -1,0 +1,46 @@
+{
+  "core-member-after": {
+    "gc_collected": 73970611,
+    "max_gc_objects": 5741420,
+    "private_peak": 1368285184,
+    "titles": [
+      {
+        "cycle": "AUDIT title cycle=1 idle=30",
+        "private_median": 781447168,
+        "gc_survivors": 89023
+      },
+      {
+        "cycle": "AUDIT title cycle=2 idle=30",
+        "private_median": 825511936,
+        "gc_survivors": 89024
+      },
+      {
+        "cycle": "AUDIT title cycle=3 idle=30",
+        "private_median": 820080640.0,
+        "gc_survivors": 89024
+      }
+    ]
+  },
+  "core-member-rebuilt": {
+    "gc_collected": 9908560,
+    "max_gc_objects": 1764722,
+    "private_peak": 1306279936,
+    "titles": [
+      {
+        "cycle": "AUDIT title cycle=1 idle=30",
+        "private_median": 766681088.0,
+        "gc_survivors": 89026
+      },
+      {
+        "cycle": "AUDIT title cycle=2 idle=30",
+        "private_median": 822235136.0,
+        "gc_survivors": 89025
+      },
+      {
+        "cycle": "AUDIT title cycle=3 idle=30",
+        "private_median": 820994048,
+        "gc_survivors": 89026
+      }
+    ]
+  }
+}

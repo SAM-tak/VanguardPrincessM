@@ -1,0 +1,55 @@
+PROFILE 4.22ms await script assets/system/ヴァンガードプリンセス/script.lton
+PROFILE 4.32ms resource pump
+PROFILE 6.03ms completeLoad boot
+boot frames=39
+PROFILE 5.01ms queue media assets/characters/ゆい
+PROFILE 5.34ms queue media assets/characters/はるか
+PROFILE 4.05ms queue media assets/characters/リリス
+PROFILE 5.44ms queue media assets/characters/くるみ
+PROFILE 13.46ms queue media assets/characters/かえで
+PROFILE 4.58ms queue media assets/characters/えり
+PROFILE 4.16ms queue media assets/characters/あやね
+PROFILE 63.18ms load.ready select
+PROFILE 63.20ms completeLoad select
+PROFILE 4.98ms completeLoad select
+select frames=178
+PROFILE 5.34ms completeLoad match-stage
+cancel in-flight match
+PROFILE 4.23ms await script assets/characters/ゆい/script.lton
+PROFILE 4.31ms resource pump
+PROFILE 4.21ms queue media assets/characters/ゆい
+PROFILE 4.90ms queue media assets/characters/はるか
+PROFILE 4.01ms queue media assets/characters/リリス
+PROFILE 6.59ms queue media assets/characters/くるみ
+PROFILE 4.25ms queue media assets/characters/サキ
+PROFILE 6.44ms queue media assets/characters/かえで
+PROFILE 6.52ms queue media assets/characters/カテジナ
+PROFILE 4.41ms queue media assets/characters/えり
+PROFILE 28.75ms queue media assets/characters/あやね
+PROFILE 4.61ms queue media assets/characters/ヒルダ
+PROFILE 84.37ms load.ready select
+PROFILE 84.38ms completeLoad select
+PROFILE 4.43ms completeLoad select
+PROFILE 5.93ms completeLoad match-stage
+PROFILE 22.57ms await script assets/characters/ゆい/script.lton
+PROFILE 22.65ms resource pump
+PROFILE 18.75ms await script assets/characters/はるか/script.lton
+PROFILE 18.82ms resource pump
+PROFILE 7.31ms await script assets/supports/シエラ/script.lton
+PROFILE 11.37ms resource pump
+PROFILE 5.01ms resource pump
+PROFILE scan assets/characters/ゆい: blocks=24418, mediaCalls=9636, jobs=1385, ms=90.37
+PROFILE 91.13ms queue media assets/characters/ゆい
+PROFILE scan assets/characters/はるか: blocks=24092, mediaCalls=9716, jobs=628, ms=89.17
+PROFILE 90.14ms queue media assets/characters/はるか
+PROFILE 181.30ms load.ready match
+PROFILE 181.31ms completeLoad match
+PROFILE 13.24ms completeLoad match
+match frames=641 elapsed=8.75318 worst=0.185268
+1: #31  x=500 y=920 facing=1
+VS reveal frame=231 opponentX=770.206
+262: #18  x=500 y=920 facing=1
+511: #8  x=500 y=920 facing=1
+512: #1  x=500 y=920 facing=1
+PASS: cancel, retry, two fighters, D support attack, pause/freeze/resume, battle drawing, missing asset; frames=1244; synchronous fallback reads=0
+lovec exit code: 0

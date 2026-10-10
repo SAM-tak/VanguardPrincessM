@@ -1,0 +1,49 @@
+# Diagnostic: enter the support selector and HUD normally before sending D.
+module^vp.sakihildatest
+import^love.event
+import^love.timer
+require^"src/preload.lh"
+require^"src/script.lh"
+require^"src/fighter.lh"
+require^"src/resource.lh"
+let^batch = vp.preload.Load.new("saki-hilda-audit")
+public^let^load = p^{
+    batch.character("assets/characters/サキ", 105)
+    batch.character("assets/characters/ゆい", 105)
+}
+public^let^update = p^dt:number^{
+    vp.resource.pump(0.006)
+    if^!batch.ready() { return^ }
+    for^name in^{"ゆい", "サキ"} {
+        let^dir = $"assets/characters/{name}"
+        let^sc = vp.script.loadFor($"{dir}/script.lton", 105)
+        if^sc is^nil^ { panic^"Missing script" }
+        for^side in^{1, -1} {
+            for^direction in^{5, 2, 3, 6, 4} {
+                let^p = vp.fighter.Fighter.new(dir, 600, 920)
+                sc.install(p)
+                p.enemy := vp.fighter.Fighter.new(dir, 900, 920)
+                p.facing := side
+                p.setv(70, if^side = 1: 100 el^: 200;)
+                p.setv(73, 105)
+                p.setv(71, 100)
+                let^actor = p.makeObject(451, 0, 600, 920, 69)
+                p.slots[5] := actor
+                let^hud = p.makeObject(403, 0, 0, 0, 100)
+                for^i from^0 to^999 { p.record(5, 0) p.stepObjects() }
+                print($"IDLE {name} side={side} skill={actor.skillNo} image={actor.image} v76={p.v(76)} hud={hud.skillNo}")
+                p.record(direction, 8)
+                var^acted = false^
+                for^i from^0 to^99 {
+                    p.stepObjects()
+                    if^actor.skillNo >= 50710 { acted := true^ }
+                    p.record(direction, 0)
+                }
+                print($"INPUT {name} side={side} {direction}D acted={acted} skill={actor.skillNo} v76={p.v(76)}")
+            }
+        }
+    }
+    love.event.quit()
+}
+public^let^draw = p^{}
+public^let^quit = p^-> bool^{ vp.resource.stop() return^false^ }

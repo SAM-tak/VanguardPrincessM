@@ -2,7 +2,7 @@
 
 2026-10-08。0105の追加修正。
 
-ユーザー動画 `Vanguard Princess 2026-10-08 16-43-47.mp4` の約4.2～4.9秒で、ゆいがルナを飛び越し、#232（兜割り／空中C）から#224（地上C）を相手と逆向きに出している。動画のデバッグ表示でも技番号を確認。解析用フレームはbuild/facing-detail.jpgとbuild/facing-debug.png。
+ユーザー動画 `Vanguard Princess 2026-10-08 16-43-47.mp4` の約4.2～4.9秒で、ゆいがルナを飛び越し、#232（兜割り／空中C）から#224（地上C）を相手と逆向きに出している。動画のデバッグ表示でも技番号を確認。解析用フレームはTechnicalDocuments/evidence/0107/facing-detail.jpgとTechnicalDocuments/evidence/0107/facing-debug.png。
 
 ## 原因
 
@@ -18,11 +18,11 @@
 
 ## 検証
 
-- tests/turn-result.lhに実データの#232→#10:57→#224を追加。修正前は `Air C -> landing -> ground C still faces away` で失敗（build/facing-video-before.log）。修正後は左右両方で通過。
+- tests/turn-result.lhに実データの#232→#10:57→#224を追加。修正前は `Air C -> landing -> ground C still faces away` で失敗（TechnicalDocuments/evidence/0107/facing-video-before.log）。修正後は左右両方で通過。
 - 実落下技#7で、床を越えた直後・landing処理前にCを入力するケースも追加。地上技開始を保留し、#9の着地処理後に先行入力が保持され、正しい向きで#224へ進むことを確認。
-- 既存の通常着地、空中・攻撃中の向き維持、KO後の超必殺技完了待ちも通過（build/facing-video-after.log）。
-- combat-flowおよびvm-auditの戦闘・入力・イベント回帰も通過（build/facing-combat.log、build/facing-vm.log）。
+- 既存の通常着地、空中・攻撃中の向き維持、KO後の超必殺技完了待ちも通過（TechnicalDocuments/evidence/0107/facing-video-after.log）。
+- combat-flowおよびvm-auditの戦闘・入力・イベント回帰も通過（TechnicalDocuments/evidence/0107/facing-combat.log、TechnicalDocuments/evidence/0107/facing-vm.log）。
 
 動画の不具合経路を実データで再現したテストによる検証。原作と全技の振り向きタイミングをフレーム単位で比較したものではない。
 
-実mainを通すattract-flowも通過（build/facing-main.log）。
+実mainを通すattract-flowも通過（TechnicalDocuments/evidence/0107/facing-main.log）。

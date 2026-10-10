@@ -39,4 +39,4 @@ mainの一時コピーに、control、スクリプト、FA接触、通常命中�
 - `tests/yui-link.lh`: 全10キャラ、左右の連続技を確認。
 - `tests/support-flow.lh`: 250サポート入力、CPUとボスの専用処理を確認。
 
-ログは `build/petals-many-before.log`, `petals-many-after2.log`, `petals-combo-full-before.log`, `petals-combo-full-after.log`, `petals-combo-final.log`, `petals-check-*.log`。計測用mainと自動操作は `build/petals-instrumented-main.lh`, `build/petals-instrumented-test.lh` に保存（実行時はルートへコピー）。比較用 `build/petals-baseline` のassets/dataは作業ツリーへのジャンクションなので再帰削除に注意。
+ログは `TechnicalDocuments/evidence/0087/petals-many-before.log`, `petals-many-after2.log`, `petals-combo-full-before.log`, `petals-combo-full-after.log`, `petals-combo-final.log`, `petals-check-*.log`。計測用mainと自動操作は `TechnicalDocuments/evidence/0087/petals-instrumented-main.lh`, `TechnicalDocuments/evidence/0087/petals-instrumented-test.lh` に保存（実行時はルートへコピー）。比較用 `build/petals-baseline` のassets/dataは作業ツリーへのジャンクションなので再帰削除に注意。

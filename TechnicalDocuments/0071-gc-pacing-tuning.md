@@ -48,12 +48,12 @@ GC統計のサンプル中最大個数は、既定1,567,419、150/400では853,2
 
 再測定例:
 
-```
-tools/fm2k_convert/.venv/Scripts/python.exe build/run-gc-tuning.py 200,200,10 150,400,10 120,800,10
+```sh
+tools/fm2k_convert/.venv/Scripts/python.exe TechnicalDocuments/evidence/0071/run-gc-tuning.py 200,200,10 150,400,10 120,800,10
 ```
 
 ## 実装後の確認
 
 設定を上書きしない本体起動経路、別のseed 43で60秒CPU戦を実行。画像2078個/286,284,013 bytesの別組み合わせでも、working setは開始391.4MB、最大445.0MB。平均update＋draw 7.29ms、p99 17.1ms、最大43.83ms。終了後タイトル待機で354.1MB。gc-tuning-confirm-120-800-10.json/.logに保存した。
 
-既存のattract-flowとvs-memory-returnも採用設定で成功。前者はCPUデモ開始・終了・入力による中断・ロードキャンセル・タイトル復帰、後者は通常VS戦の終了→キャラセレ→モード→タイトルを3回反復し、対戦リソース参照とキャッシュが残らないことを確認した。エントリ直起動では../requireの解決に失敗するため、ルートの一時エントリへコピーしてrequireの../だけを除去して実行し、終了後削除した。生ログはbuild/gc-tuned-attract-test.log、build/gc-tuned-vs-test.log。
+既存のattract-flowとvs-memory-returnも採用設定で成功。前者はCPUデモ開始・終了・入力による中断・ロードキャンセル・タイトル復帰、後者は通常VS戦の終了→キャラセレ→モード→タイトルを3回反復し、対戦リソース参照とキャッシュが残らないことを確認した。エントリ直起動では../requireの解決に失敗するため、ルートの一時エントリへコピーしてrequireの../だけを除去して実行し、終了後削除した。生ログはTechnicalDocuments/evidence/0071/gc-tuned-attract-test.log、TechnicalDocuments/evidence/0071/gc-tuned-vs-test.log。

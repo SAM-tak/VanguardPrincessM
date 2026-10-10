@@ -4,7 +4,7 @@
 
 ## 原作の計算順序
 
-`build/original-corner-disasm.txt` の `0x40F786–0x40F808`。攻撃側のプレイヤー設定combo（`+0x7CA8`）と被弾側のカウンタ（`+0xDF01`）を使う。0x40F786のesp+0x28は、直前の2回の呼出しで計16バイトの引数が残っているため、通常時のesp+0x18（攻撃側データのオフセット）に相当する。
+`TechnicalDocuments/evidence/0073/original-corner-disasm.txt` の `0x40F786–0x40F808`。攻撃側のプレイヤー設定combo（`+0x7CA8`）と被弾側のカウンタ（`+0xDF01`）を使う。0x40F786のesp+0x28は、直前の2回の呼出しで計16バイトの引数が残っているため、通常時のesp+0x18（攻撃側データのオフセット）に相当する。
 
 非ガードかつFA威力が非0のとき、命中前のヒット数をnとする。
 
@@ -38,6 +38,6 @@
 - `tests/combo-correction.lh`: 100→92→84…→1、被弾側カウンタ、FD/低体力の計算順、ガード/威力0/生成物の除外、生成物側の設定でなく本体設定を使用、最上位E終了・SC復帰・SG/DS継続。
 - `tests/life-correction.lh`: 0088の回帰。
 - `tests/combat-flow.lh`: カテジナの2ヒット技は100+31から100+(31-floor(31*8/100))=129へ期待値を更新。メルトショット終端の別試験では「初段を食らわなかった相手」の条件に合わせてカウンタを0へ戻す。
-- combat-flow、yui-link（全10キャラ左右）、support-flow（250入力）を回帰。ログ `build/combo-*.log`。
+- combat-flow、yui-link（全10キャラ左右）、support-flow（250入力）を回帰。ログ `TechnicalDocuments/evidence/0089/combo-*.log`。
 
 入力詳細、SC/SF制御フロー、固定小数点丸め、Rnd/ゲージ等の残件を完了扱いにはしない。

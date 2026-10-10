@@ -1,0 +1,21 @@
+cycle,privateBytes,workingBytes
+MEM cycle=0 textures=353 bytes=55703509 scripts=1 worstUpdate=0.0062402,591499264,430223360
+MEM cycle=1 textures=356 bytes=55745589 scripts=1 worstUpdate=0.491568,825929728,390524928
+MEM cycle=2 textures=356 bytes=55749397 scripts=1 worstUpdate=0.760394,857440256,423137280
+MEM cycle=3 textures=356 bytes=55749397 scripts=1 worstUpdate=0.760394,890515456,455086080
+MEM cycle=4 textures=354 bytes=55736277 scripts=1 worstUpdate=0.760394,1089298432,514932736
+MEM cycle=5 textures=356 bytes=55749397 scripts=1 worstUpdate=0.760394,973688832,525987840
+MEM cycle=6 textures=356 bytes=55745509 scripts=1 worstUpdate=0.760394,1080999936,533360640
+MEM cycle=7 textures=354 bytes=55736277 scripts=1 worstUpdate=0.760394,975101952,533991424
+MEM cycle=8 textures=354 bytes=55736277 scripts=1 worstUpdate=0.760394,1115279360,673439744
+MEM cycle=9 textures=356 bytes=55753317 scripts=1 worstUpdate=0.760394,1128804352,685768704
+MEM cycle=10 textures=356 bytes=55749397 scripts=1 worstUpdate=0.760394,928940032,492728320
+MEM cycle=11 textures=356 bytes=55749397 scripts=1 worstUpdate=0.760394,1101950976,656277504
+MEM cycle=12 textures=356 bytes=55745509 scripts=1 worstUpdate=0.760394,1030287360,493789184
+MEM cycle=13 textures=356 bytes=55758469 scripts=1 worstUpdate=0.760394,1138753536,691961856
+MEM cycle=14 textures=356 bytes=55745189 scripts=1 worstUpdate=0.760394,1156284416,714145792
+MEM cycle=15 textures=356 bytes=55745189 scripts=1 worstUpdate=0.760394,1296142336,722030592
+MEM cycle=16 textures=356 bytes=55745509 scripts=1 worstUpdate=0.760394,1170178048,730542080
+MEM cycle=17 textures=356 bytes=55745509 scripts=1 worstUpdate=0.760394,1161277440,722558976
+MEM cycle=18 textures=356 bytes=55745509 scripts=1 worstUpdate=0.760394,1318420480,745496576
+MEM cycle=19 textures=356 bytes=55745189 scripts=1 worstUpdate=0.760394,1162817536,725454848

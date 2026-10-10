@@ -1,6 +1,6 @@
 # P2: V演算・座標読み取り・変数の寿命
 
-2026-10-07。0074のP2を実装。根拠は原作 `vanpri108/ヴァンガードプリンセス/ヴァンガードプリンセス.exe` の `build/original-corner-disasm.txt`。別ビルドの推測からではなく、使用している原作EXEを照合した。
+2026-10-07。0074のP2を実装。根拠は原作 `vanpri108/ヴァンガードプリンセス/ヴァンガードプリンセス.exe` の `TechnicalDocuments/evidence/0073/original-corner-disasm.txt`。別ビルドの推測からではなく、使用している原作EXEを照合した。
 
 ## 確認した処理
 
@@ -29,7 +29,7 @@ V198の時計・V199のラウンド番号、コンボ表示用V128のスナッ�
 
 ## 検証
 
-`tests/variable-flow.lh`をLÔVEで実行し完走。`build/p2-variable.log`。
+`tests/variable-flow.lh`をLÔVEで実行し完走。`TechnicalDocuments/evidence/0076/p2-variable.log`。
 
 - 各bankの先頭・末尾6スロットで±30000、±32768、符号付きword折返し、飽和後の逆方向加算。
 - 正負の小数座標、ゼロ付近、親と祖先の区別、座標本体の非変更。
@@ -37,4 +37,4 @@ V198の時計・V199のラウンド番号、コンボ表示用V128のスナッ�
 - 通常開始／SG／DS／被弾開始でタスク値を保持し、新規生成には引き継がない。
 - 実際の`Script.run`経由で加算→飽和→条件分岐→座標変数代入を実行。
 
-既存回帰は `tests/vm-audit.lh`、`tests/combat-flow.lh`、`tests/sweep-down.lh`、`tests/support-flow.lh`。出力は `build/p2-*.log`。原作の全技・全シーンとの一致を証明するテストではない。
+既存回帰は `tests/vm-audit.lh`、`tests/combat-flow.lh`、`tests/sweep-down.lh`、`tests/support-flow.lh`。出力は `TechnicalDocuments/evidence/0076/p2-*.log`。原作の全技・全シーンとの一致を証明するテストではない。

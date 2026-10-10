@@ -1,0 +1,11 @@
+PASS: ゆい: all three throws, both facings, reactions resist command input; same damage with and without repeated input
+PASS: えり: all three throws, both facings, reactions resist command input; same damage with and without repeated input
+PASS: はるか: all three throws, both facings, reactions resist command input; same damage with and without repeated input
+PASS: サキ: all three throws, both facings, reactions resist command input; same damage with and without repeated input
+PASS: リリス: all three throws, both facings, reactions resist command input; same damage with and without repeated input
+PASS: かえで: all three throws, both facings, reactions resist command input; same damage with and without repeated input
+PASS: ナタリア: all three throws, both facings, reactions resist command input; same damage with and without repeated input
+PASS: ルナ: all three throws, both facings, reactions resist command input; same damage with and without repeated input
+PASS: くるみ: all three throws, both facings, reactions resist command input; same damage with and without repeated input
+PASS: あやね: all three throws, both facings, reactions resist command input; same damage with and without repeated input
+PASS: reaction-script COM still permits intended air recovery

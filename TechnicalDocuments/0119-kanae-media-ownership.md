@@ -10,4 +10,4 @@ support_media_owners.txtに12枚の所有者を記録。既存の明示所有者
 
 - 12枚すべて移動前後のSHA-256一致。
 - 旧共有ファイルを指す画像一覧がないことを確認して旧ファイルを削除。
-- 元の11画像一覧・全132スロットをLÔVEのSheet.imageでロード成功。build/kanae-media-load.log: PASS。
+- 元の11画像一覧・全132スロットをLÔVEのSheet.imageでロード成功。TechnicalDocuments/evidence/0119/kanae-media-load.log: PASS。

@@ -1,0 +1,1289 @@
+# The opening, mode menu, then story or VS. Story uses one player selection,
+# difficulty, introduction, loading, CPU fights and the original story demos.
+# VS supports two human players. The skills run from the converted FM2K
+# data (assets/…/script.lton through src/script.lh, TechnicalDocuments/0012).
+#
+#   select         up / down a character, left / right its support, a button
+#                  confirms (its colour); each player chooses independently
+#   arrows         move / jump / crouch (and command motions)
+#   z x c a s d    buttons A B C D E F
+#   u h j k        2P up / left / down / right
+#   l ; ' o p [    2P buttons A B C D E F
+#   F1             show boxes      1-8         palette
+#   F2             opponent at 1 life (the next hit KOs); F3 sound log
+#   t              (select screen) the stage: random, or one of them in turn
+#   escape         back (quit on title); pause/resume during battle
+#   return         confirm menus; pause/resume during battle (gamepad Start)
+#
+# What a button or motion does comes from the character's command table.
+module^vp.main
+
+import^love.graphics
+import^love.keyboard
+import^love.event
+import^love.timer
+import^love.math
+import^love.audio
+import^std.math
+
+require^"src/arena.lh"
+require^"src/fighter.lh"
+require^"src/shake.lh"
+require^"src/sprite.lh"
+require^"src/script.lh"
+require^"src/stage.lh"
+require^"src/hud.lh"
+require^"src/round.lh"
+require^"src/select.lh"
+require^"src/title.lh"
+require^"src/preload.lh"
+require^"src/resource.lh"
+require^"src/story.lh"
+require^"src/cpu.lh"
+require^"src/input.lh"
+
+let^Fighter = vp.fighter.Fighter
+let^Key = love.keyboard.Key
+
+let^FRAME = 1 / 100          # FM2K runs at 100 fps
+
+# The world is the stage's 1280x960. The original shows a 640x480 part of it at
+# 1:1 and scrolls; the window here is that view at twice the size.
+let^WORLD_W = 1280
+let^WORLD_H = 960
+let^VIEW_W = 640
+let^VIEW_H = 480
+let^SCALE = 2
+# Measured in the original's memory (TechnicalDocuments/0011).
+let^GROUND = 920
+let^WALL_GROUND = 50         # x stays in [50, 1230] on the ground, [64, 1216] in the air
+let^WALL_AIR = 64
+let^START_X = 270            # the round starts with 1P / 2P at 640 -/+ this
+let^VIEW_EDGE = 50           # how close to the view's edge a fighter may go
+
+let^SYSTEM = "assets/system/ヴァンガードプリンセス"
+let^STAGES : t^{string^[]} = { "スクール", "プール", "神社", "瓦礫", "夜", "丘", "ラスト" }
+
+# The match's fighters and stage are made when a battle starts.
+var^me = Fighter.new("assets/characters/ゆい", WORLD_W / 2 - START_X, GROUND)
+var^foe = Fighter.new("assets/characters/ゆい", WORLD_W / 2 + START_X, GROUND)
+var^hud = vp.hud.Hud.new()
+var^flow = vp.round.Round.new()
+var^stage = vp.stage.Stage.new()
+var^selecting : vp.select.Select|nil^= nil^    # the select screen, while it is up
+var^demos = vp.title.Demos.new()
+var^scene : vp.title.Scene|nil^= nil^           # the opening or the title screen
+var^opening = true^                              # which of the two it is
+var^stageChoice = 0            # T on the select screen: 0 random, 1.. a fixed stage (debugging)
+var^upPressed = false^
+var^downPressed = false^
+var^leftPressed = false^
+var^rightPressed = false^
+var^pressed2 = 0
+var^upPressed2 = false^
+var^downPressed2 = false^
+let^clear2 = p^{ pressed2 := 0 upPressed2 := false^ downPressed2 := false^ }
+var^storyMode = true^
+var^campaign : vp.story.State|nil^= nil^
+var^brain : vp.cpu.Brain|nil^= nil^
+var^demoBrain : vp.cpu.Brain|nil^= nil^
+var^attract = false^
+var^attractLoaded = false^
+var^attractSeconds = 0
+var^attractNames : t^{string^[]} = {}
+var^attractSupports : t^{number^[]} = {}
+var^matchSeconds = 60
+var^paused = false^
+
+let^inBattle = f^-> bool^{
+    let^st = campaign
+    return^initialized and^scene is^nil^ and^selecting is^nil^ and^pending is^nil^ and^(st is^nil^ or^st.phase = "battle")
+}
+let^togglePause = p^{
+    paused := !paused
+    let^sound = vp.arena.sound($"{SYSTEM}/sounds/0002.wav", false^)
+    if^sound != nil^ { sound.setLooping(false^) sound.play() }
+    clock := 0
+    pressed := 0
+    upPressed := false^
+    downPressed := false^
+    leftPressed := false^
+    rightPressed := false^
+    clear2()
+}
+
+# FM2K skill numbers: the character's built-in skills (its .player settings)
+# and what its commands map A / B / C to.
+let^STAND = 1
+let^FORWARD = 2
+let^BACK = 3
+let^JUMP_UP = 4
+let^JUMP_FORWARD = 5
+let^JUMP_BACK = 6
+let^FALL = 7
+let^CROUCH_DOWN = 11
+let^CROUCH = 12
+let^STAND_UP = 13
+let^START = 21
+let^SHADOW = 28          # the built-in shadow skill
+
+let^ROUND_SECONDS = 60   # as the original shows (the time is not in its data files)
+var^clock = 0
+var^camX = (WORLD_W - VIEW_W) / 2    # the view's top-left in the world
+var^camY = WORLD_H - VIEW_H
+var^aimX = camX                      # where the camera heads next frame
+var^aimY = camY
+# The round's clock, 100 frames a second; it runs only while they fight. It
+# shows 60 through the start and 59 from the fight's first frame (as the
+# original); the round time the skills read is one frame behind (59 through
+# the start: the system's layout 5 checks for it to show "60", else "∞").
+var^roundFrames = ROUND_SECONDS * 100
+var^frame = 0
+var^matchLoading = false^
+var^introCatchup = 0
+var^matchArena : vp.arena.Arena|nil^= nil^
+var^matchIntro = false^      # shared VS presentation during asynchronous loading
+let^LOAD_SLICE = 0.004        # main-thread adoption / GPU upload budget per update
+var^pending : vp.preload.Load|nil^= nil^
+var^pendingKind = ""
+var^initialized = false^
+var^matchStage = 0
+# Let the second choice's flash and sound play before preparing the match.
+let^LOAD_DELAY = 50
+var^wasTiming = false^
+var^lastSkill = ""            # skill changes are printed to the console, for debugging
+var^showBoxes = false^
+var^pressed = 0               # buttons pressed since the last frame (A = 1 ... F = 32)
+var^dummyGuard = 0            # G cycles: 0 no guard, 1 standing guard, 2 crouching guard
+var^soundLog = false^         # L: print every sound to the console
+let^GUARD_NAMES : t^{string^[]} = { "off", "standing", "crouching" }
+
+# Skills the player may leave at any moment on the ground / in the air.
+let^groundIdle = f^n:number^-> bool^{
+    return^n = STAND or^n = FORWARD or^n = BACK or^n = CROUCH or^n = CROUCH_DOWN or^n = STAND_UP
+}
+let^airIdle = f^n:number^-> bool^{
+    return^n = JUMP_UP or^n = JUMP_FORWARD or^n = JUMP_BACK or^n = FALL
+}
+let^crouching = f^n:number^-> bool^{
+    return^n = CROUCH or^n = CROUCH_DOWN
+}
+
+# Skills that end in a crouch: crouching and the command table's crouching moves.
+let^endsCrouched = p^p:Fighter, n:number^-> bool^{
+    if^crouching(n) { return^true^ }
+    for^c in^p.commands {
+        if^c.crouch = n and^c.stand != n { return^true^ }
+    }
+    return^false^
+}
+
+# What the built-in part of FM2K does: pick the next skill from the input.
+# forward / back are relative to the way the fighter faces.
+let^control = p^p:Fighter, up:bool^, down:bool^, forward:bool^, back:bool^, buttons:number^{
+    let^n = p.skillNo
+    let^air = p.airborne()
+
+    let^dx = if^forward: 1 el^back: -1 el^: 0;
+    let^dy = if^up: 1 el^down: -1 el^: 0;
+    p.record(5 + dx + 3 * dy, buttons)
+
+    # The command table (buttons, motions, jumps), where the running skill allows it.
+    let^wanted = p.fromCommands(down)
+    if^wanted > 0 and^wanted != n and^p.mayStart(wanted) {
+        p.begin(wanted)
+        return^
+    }
+
+    if^p.finished() {
+        if^air {
+            p.blocking := false^
+            p.receiving := false^
+            p.start(FALL, 0)           # the jump's motion and landing handler carry on
+            return^
+        }
+        # On the ground, pick from this frame's input (below) rather than going
+        # through standing first: a walk that runs off its end starts again at once.
+        p.skillNo := -1
+    elseif^air or^!groundIdle(n):
+        return^
+    }
+    let^m = p.skillNo
+
+    let^wasCrouched = m < 0 and^endsCrouched(p, n)
+    if^down {
+        if^!crouching(m) { p.begin(if^wasCrouched: CROUCH el^: CROUCH_DOWN;) }
+    elseif^crouching(m) or^wasCrouched:
+        p.begin(STAND_UP)
+    elseif^forward:
+        if^m != FORWARD { p.begin(FORWARD) }
+    elseif^back:
+        if^m != BACK { p.begin(BACK) }
+    elseif^m != STAND and^m != STAND_UP:
+        p.begin(STAND)
+    }
+}
+
+# Turning: on the ground and free to move, a fighter faces the other one. The
+# FM2K turn skills (#16, #17) are empty, so turning is just the flip.
+let^face = p^p:Fighter, other:Fighter{
+    if^p.airborne() or^!groundIdle(p.skillNo) { return^}
+    if^other.x > p.x + 1 { p.facing := 1 }
+    if^other.x < p.x - 1 { p.facing := -1 }
+}
+
+# Hits: an attack box of a over a hurt box (not a push-only one) of b.
+# vp.fighter.struck plays it out on both sides.
+let^overlaps = p^a:Fighter, ba:vp.fighter.Box, b:Fighter, bb:vp.fighter.Box-> bool^{
+    let^al, at, aw, ah = a.rect(ba)
+    let^bl, bt, bw, bh = b.rect(bb)
+    return^al < bl + bw and^bl < al + aw and^at < bt + bh and^bt < at + ah
+}
+
+let^strike = p^a:Fighter, b:Fighter{
+    for^s1, atk in^a.hits {
+        if^atk fits^vp.fighter.Box {
+            for^s2, hurt in^b.hurts {
+                if^hurt fits^vp.fighter.Box {
+                    if^!hurt.body or^hurt.flags.find("damaged") != nil^ {
+                        if^a.canHit(atk, b) and^overlaps(a, atk, b, hurt) {
+                            # the spark goes where the two boxes meet
+                            let^al, at, aw, ah = a.rect(atk)
+                            let^bl, bt, bw, bh = b.rect(hurt)
+                            let^hx = (std.math.max(al, bl) + std.math.min(al + aw, bl + bw)) / 2
+                            let^hy = (std.math.max(at, bt) + std.math.min(at + ah, bt + bh)) / 2
+                            # a hit count goes at the hurt box that was hit (its offset, not
+                            # its middle), from where the defender stood (0018)
+                            let^cx = b.x + hurt.x * b.facing
+                            let^cy = b.y + hurt.y
+                            let^guarded, spark = a.struck(atk, b, hurt.rate, endsCrouched(b, b.skillNo))
+                            if^!guarded {
+                                b.combo += 1
+                                if^b.combo >= 2 { flow.showCombo(b.combo, cx, cy) }
+                            }
+                            # The attacker's spark, run as the attacker's object (0008).
+                            if^spark > 0 { a.makeObject(spark, 0, hx, hy, 127) }
+                            let^what = if^guarded: "guard" el^: "hit";
+                            print($"{frame}: {what} {a.skillName} -> {b.skillName}  life {b.life}  spark {spark}")
+                            return^
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+# Puts a fighter where a round starts: its objects (and so its part of the
+# HUD) go, its built-in start skill brings them back.
+let^place = p^p:Fighter, x:number^, facing:number^{
+    p.x := x
+    p.y := GROUND
+    p.vx := 0
+    p.vy := 0
+    p.ax := 0
+    p.ay := 0
+    p.facing := facing
+    p.life := p.lifeMax
+    p.objects := {}
+    p.slots := {}
+    p.hurts := {}
+    p.hits := {}
+    p.stop := 0
+    p.combo := 0
+    # A round starts clean: the character's variables (its objects and its
+    # support read them; kept, the support stood frozen in last round's
+    # win / loss pose) and whatever it left on the stage.
+    p.vars := {}
+    p.onSkill := {}
+    p.onBlock := {}
+    # and its look: はるか's victory (#22) fades her out (COLOR alpha 32) and
+    # nothing in the next round's start sets COLOR again.
+    p.blend := 0
+    p.alpha := 1
+    p.tintR := 0
+    p.tintG := 0
+    p.tintB := 0
+    # The round starts with each character's built-in start skill, which also
+    # puts up its part of the HUD (support gauge, stun, hit count, ...).
+    p.begin(START)
+    p.castShadow(SHADOW)
+}
+
+let^characterCode = p^p:Fighter-> number^{
+    for^i, name in^vp.select.CHARACTERS {
+        if^p.dir = $"assets/characters/{name}" { return^(i + 1) * 100 }
+    }
+    if^p.dir = "assets/characters/ヒルダ" { return^1100 }
+    panic^$"Unknown match character: {p.dir}"
+}
+
+# Follow the fighters with the original integer half-step camera lag.
+let^halfway = f^from:number^, to:number^-> number^{
+    let^d = (to - from) / 2
+    return^from + if^d < 0: d.ceil() el^: d.floor();
+}
+
+# It lags a frame: it heads for where the fighters were the frame before.
+let^followCamera = p^{
+    camX := halfway(camX, aimX).clamp(0, WORLD_W - VIEW_W)
+    camY := halfway(camY, aimY).clamp(0, WORLD_H - VIEW_H)
+    aimX := (me.x + foe.x) / 2 - VIEW_W / 2
+    aimY := std.math.min(me.y, foe.y) - 320
+}
+
+# Shared fixed-step simulation also catches up newly loaded entrants, hidden.
+let^stepFighters = p^{
+    # The stage's walls, and the camera's: nobody leaves the view.
+    for^p in^{ me, foe } {
+        p.minX := std.math.max(WALL_GROUND, camX + VIEW_EDGE)
+        p.maxX := std.math.min(WORLD_W - WALL_GROUND, camX + VIEW_W - VIEW_EDGE)
+        p.minXAir := std.math.max(WALL_AIR, camX + VIEW_EDGE)
+        p.maxXAir := std.math.min(WORLD_W - WALL_AIR, camX + VIEW_W - VIEW_EDGE)
+    }
+    me.step()
+    foe.step()
+    me.stepObjects()
+    foe.stepObjects()
+    # a combo is over once its target is free to move again
+    for^p in^{ me, foe } {
+        if^groundIdle(p.skillNo) or^airIdle(p.skillNo) {
+            p.combo := 0
+            p.receiving := false^
+            p.blocking := false^
+        }
+    }
+    strike(me, foe)
+    strike(foe, me)
+    for^o in^me.objects { strike(o, foe) }
+    for^o in^foe.objects { strike(o, me) }
+    me.pushAgainst(foe)
+    # Keep both fighters inside the current world and camera bounds.
+    for^p in^{ me, foe } {
+        if^p.airborne() { p.x := p.x.clamp(p.minXAir, p.maxXAir) else^: p.x := p.x.clamp(p.minX, p.maxX) }
+    }
+    followCamera()
+    face(me, foe)
+    face(foe, me)
+}
+
+let^startRound = p^{
+    vp.shake.horizontal.reset()
+    vp.shake.vertical.reset()
+    # The demo bypasses portrait #25, which normally initializes variable 129.
+    # Set both identities before any HUD layer can choose its name image.
+    me.setv(129, characterCode(me))
+    me.setv(130, characterCode(foe))
+    hud.restart()
+    place(me, WORLD_W / 2 - START_X, 1)
+    place(foe, WORLD_W / 2 + START_X, -1)
+    roundFrames := if^matchSeconds = 0: 100000000 el^: matchSeconds * 100;
+    let^cpu = brain
+    if^cpu != nil^ { cpu.reset() }
+    let^firstCPU = demoBrain
+    if^firstCPU != nil^ { firstCPU.reset() }
+    camX := (WORLD_W - VIEW_W) / 2
+    camY := WORLD_H - VIEW_H
+    aimX := camX
+    aimY := camY
+}
+
+# Back to the select screen after a match: the match's arena goes (what it
+# loaded), the select screen's is still there (TechnicalDocuments/0023).
+let^endAttract = p^animate:bool^{
+    let^l = pending
+    if^l != nil^ { l.batch.cancel() pending := nil^ }
+    love.audio.stop()
+    if^attractLoaded { vp.arena.pop() }
+    vp.arena.pop() # Previous opening scene.
+    attract := false^
+    attractLoaded := false^
+    demoBrain := nil^
+    brain := nil^
+    paused := false^
+    clock := 0
+    pressed := 0
+    upPressed := false^
+    downPressed := false^
+    leftPressed := false^
+    rightPressed := false^
+    clear2()
+    vp.fighter.clearSystemVars()
+    opening := true^
+    vp.arena.push("opening")
+    scene := vp.title.openingScreen(animate)
+}
+
+let^toSelect = p^{
+    if^attract { endAttract(true^) return^ }
+    love.audio.stop()              # the match's music and sounds end with it
+    vp.arena.pop()
+    matchArena := nil^
+    matchLoading := false^
+    let^st = campaign
+    if^st != nil^ {
+        if^flow.wins1 >= flow.toWin { st.advance()
+        else^: st.enter("continue") st.continueChoice := 0 }
+        return^
+    }
+    selecting := vp.select.load(SYSTEM, storyMode)
+}
+
+# Select owns the small portrait scripts. The stage is ready before this
+# shared presentation; character and support resources load underneath it.
+let^beginPresentation = p^name1:string^, colour1:number^, name2:string^, colour2:number^, stageName:string^, seconds:number^{
+    matchIntro := true^
+    love.audio.stop()
+    roundFrames := if^seconds = 0: 100000000 el^: seconds * 100;
+    vp.fighter.setRound(roundFrames, 1)
+    flow := vp.round.load(SYSTEM)
+    flow.preparing := true^
+    flow.externalPresentation := true^
+    flow.portrait(name1, colour1, 0)
+    flow.portrait(name2, if^name1 = name2 and^colour1 = colour2: (colour2 + 1) % 8 el^: colour2;, 1)
+    for^side from^0 to^1 {
+        let^name = if^side = 0: name1 el^: name2;
+        var^code = 1100
+        for^i, candidate in^vp.select.CHARACTERS { if^candidate = name { code := (i + 1) * 100 } }
+        me.setv(129 + side, code)
+    }
+    stage := vp.stage.load($"assets/stages/{stageName}")
+    for^layer in^stage.layers { layer.mutedSounds[1] := true^ }
+    camX := (WORLD_W - VIEW_W) / 2
+    camY := WORLD_H - VIEW_H
+    stage.step()
+    let^music = vp.arena.sound($"assets/stages/{stageName}/sounds/0001.wav", true^)
+    flow.music := music
+    if^music != nil^ { music.play() }
+}
+
+let^loadMatch = p^s:vp.select.Select{
+    if^s.story {
+        let^name, colour = s.chosen(0)
+        let^st = vp.story.State.new(name, colour, me.v(142))
+        campaign := st
+        let^l = vp.preload.Load.new("story")
+        l.batch.request(st.intro, "image", false^)
+        pending := l
+        pendingKind := "briefing"
+        matchLoading := true^
+        return^
+    }
+    matchLoading := true^
+    matchStage := if^stageChoice > 0: stageChoice - 1 el^: love.math.random(0, STAGES.length^ - 1);
+    let^l = vp.preload.Load.new("match")
+    l.add($"assets/stages/{STAGES[matchStage] ?? "スクール"}", false^)
+    pending := l
+    pendingKind := "match-stage"
+}
+
+# The chosen characters, their colours and a stage at random; the supports
+# chosen on the select screen are in system variables 142 / 143.
+let^startBattle = p^s:vp.select.Select{
+    brain := nil^
+    matchSeconds := ROUND_SECONDS
+    let^name1, colour1 = s.chosen(0)
+    let^name2, colour2 = s.chosen(1)
+    if^!matchIntro { love.audio.stop() }
+    me := Fighter.new($"assets/characters/{name1}", WORLD_W / 2 - START_X, GROUND)
+    foe := Fighter.new($"assets/characters/{name2}", WORLD_W / 2 + START_X, GROUND)
+    (vp.select.scriptOf(name1)).install(me)
+    (vp.select.scriptOf(name2)).install(foe)
+    me.palette := colour1
+    foe.palette := if^name1 = name2 and^colour1 = colour2: (colour2 + 1) % 8 el^: colour2;
+    me.enemy := foe
+    foe.enemy := me
+    me.externalIntroPortrait := true^
+    foe.externalIntroPortrait := true^
+    flow.preparing := false^
+    matchIntro := false^
+    selecting := nil^
+    startRound()
+    introCatchup := flow.presentationFrames
+}
+
+let^queueAttract = p^{
+    attract := true^
+    attractLoaded := false^
+    attractSeconds := 0
+    attractNames := {}
+    attractSupports := {}
+    matchStage := love.math.random(0, STAGES.length^ - 1)
+    let^l = vp.preload.Load.new("attract")
+    for^k from^0 to^1 {
+        let^name = vp.select.CHARACTERS[love.math.random(0, 9)] ?? "ゆい"
+        let^support = love.math.random(101, 105)
+        attractNames.push^(name)
+        attractSupports.push^(support)
+        l.character($"assets/characters/{name}", support)
+        l.batch.request($"assets/characters/{name}/cpu.lton", "lton", false^)
+    }
+    l.add($"assets/stages/{STAGES[matchStage] ?? "スクール"}", false^)
+    pending := l
+    pendingKind := "attract"
+}
+
+let^startAttract = p^{
+    let^name1 = attractNames[0] ?? "ゆい"
+    let^name2 = attractNames[1] ?? "ゆい"
+    vp.fighter.clearSystemVars()
+    me.setv(142, attractSupports[0] ?? 101)
+    me.setv(143, attractSupports[1] ?? 101)
+    me := Fighter.new($"assets/characters/{name1}", WORLD_W / 2 - START_X, GROUND)
+    foe := Fighter.new($"assets/characters/{name2}", WORLD_W / 2 + START_X, GROUND)
+    (vp.select.scriptOf(name1)).install(me)
+    (vp.select.scriptOf(name2)).install(foe)
+    foe.palette := if^name1 = name2: 1 el^: 0;
+    me.enemy := foe
+    foe.enemy := me
+    demoBrain := vp.cpu.Brain.new(name1, 100)
+    brain := vp.cpu.Brain.new(name2, 100)
+    campaign := nil^
+    selecting := nil^
+    matchSeconds := ROUND_SECONDS
+    stage := vp.stage.load($"assets/stages/{STAGES[matchStage] ?? "スクール"}")
+    flow := vp.round.load(SYSTEM)
+    flow.toWin := 2
+    scene := nil^
+    attractLoaded := true^
+    wasTiming := false^
+    startRound()
+}
+
+# Only real fights and authored demos remain in the converted story routes.
+let^queueStory = p^st:vp.story.State{
+    let^e = st.current()
+    if^e is^nil^ { st.enter("complete") return^ }
+    st.loadImage := if^love.math.random(1, 10) = 1: 2 el^: 1;
+    let^l = vp.preload.Load.new(if^e.kind = "fight": "match" el^: "story-event";)
+    if^e.kind = "fight" {
+        st.enemySupport := if^e.name = "ヒルダ": 100 el^: love.math.random(101, 104);
+        l.add($"assets/stages/{e.stage}", false^)
+        pendingKind := "story-stage"
+    else^:
+        if^e.name = "ゆい勝ち" {
+            l.victory($"assets/demos/{e.name}", me.v(129))
+        else^:
+            l.add($"assets/demos/{e.name}", false^)
+        }
+        pendingKind := "story-demo"
+    }
+    pending := l
+    st.enter("loading")
+}
+
+let^startStoryBattle = p^st:vp.story.State, e:vp.story.Event{
+    me := Fighter.new($"assets/characters/{st.name}", WORLD_W / 2 - START_X, GROUND)
+    foe := Fighter.new($"assets/characters/{e.name}", WORLD_W / 2 + START_X, GROUND)
+    (vp.select.scriptOf(st.name)).install(me)
+    (vp.select.scriptOf(e.name)).install(foe)
+    me.palette := st.colour
+    foe.palette := if^st.name = e.name: (st.colour + 1) % 8 el^: 0;
+    me.enemy := foe
+    foe.enemy := me
+    brain := vp.cpu.Brain.new(e.name, e.level)
+    matchSeconds := e.seconds
+    me.externalIntroPortrait := true^
+    foe.externalIntroPortrait := true^
+    flow.preparing := false^
+    matchIntro := false^
+    wasTiming := false^
+    st.enter("battle")
+    startRound()
+    introCatchup := flow.presentationFrames
+}
+
+# Load metadata and decode assets without pausing the scene being left.
+let^prepare = p^kind:string^{
+    let^l = vp.preload.Load.new(if^kind = "boot": "system" el^: kind;)
+    if^kind = "boot" {
+        l.add(SYSTEM, false^)
+        l.batch.request($"{SYSTEM}/demos.lton", "lton", false^)
+        let^dir = "assets/demos/タイトル"
+        for^n from^0 to^16 {
+            if^n < 2 or^n >= 5 { l.batch.request($"{dir}/images/{n:%04d}.png", "image", false^) }
+        }
+        l.batch.request($"{dir}/sounds/0001.wav", "stream", false^)
+        l.batch.request($"{dir}/images/0004.png", "image", false^)
+        l.batch.request($"{dir}/sounds/0002.wav", "sound", false^)
+        for^n from^0 to^2 { l.batch.request($"assets/characters/だみー/images/{n:%04d}.png", "image", false^) }
+        for^n from^1 to^3 { l.batch.request($"assets/characters/だみー/sounds/{n:%04d}.wav", "sound", false^) }
+        l.batch.request("assets/shared/images/14b0d852366fe1b37f61dce36c1e4f482cb96ea1.png", "image", false^)
+        l.batch.request("assets/demos/コンテニュー/images/0000.png", "image", false^)
+    elseif^kind = "title":
+        l.add($"assets/demos/{demos.title}", false^)
+    elseif^kind = "select":
+        l.add("assets/demos/キャラセレ", false^)
+        for^name in^vp.select.CHARACTERS {
+            l.add($"assets/characters/{name}", true^)
+            l.batch.request($"assets/characters/{name}/story.lton", "lton", false^)
+        }
+        l.add("assets/characters/ヒルダ", true^)
+    }
+    pending := l
+    pendingKind := kind
+}
+
+public^let^load = p^{ prepare("boot") }
+
+let^sceneDone = p^{
+    if^pending != nil^ { return^ }
+    let^sc = scene
+    if^!opening and^sc != nil^ { storyMode := sc.item = 0 }
+    prepare(if^opening: "title" el^: "select";)
+}
+
+let^completeLoad = p^{
+    let^l = pending
+    if^l is^nil^ or^!l.ready() { return^ }
+    let^kind = pendingKind
+    let^st = campaign
+    let^s = selecting
+    if^(kind = "match" or^kind = "match-stage") and^(s is^nil^ or^!s.done) { return^ }
+    if^kind = "briefing" and^(s is^nil^ or^!s.done) { return^ }
+    if^(kind = "story-demo" or^kind = "story-stage") and^st != nil^ and^st.age < 0.3 { return^ }
+    pending := nil^
+    clear2()
+    upPressed := false^
+    downPressed := false^
+    leftPressed := false^
+    rightPressed := false^
+    pressed := 0
+    clock := 0
+    if^!matchIntro { love.audio.stop() }
+    if^kind = "boot" {
+        l.batch.arena.attach() # persistent system and opening assets
+        hud := vp.hud.load(SYSTEM)
+        flow := vp.round.load(SYSTEM)
+        demos := vp.title.loadDemos(SYSTEM)
+        vp.arena.push("opening")
+        scene := vp.title.openingScreen(true^)
+        initialized := true^
+    elseif^kind = "attract":
+        l.batch.arena.attach()
+        startAttract()
+    elseif^kind = "briefing":
+        l.batch.arena.attach()
+        selecting := nil^
+        if^st != nil^ { st.enter("difficulty") }
+    elseif^kind = "match-stage" or^kind = "story-stage":
+        l.batch.arena.attach()
+        matchArena := l.batch.arena
+        let^fighters = vp.preload.Load.new("match-characters")
+        if^kind = "match-stage" and^s != nil^ {
+            let^name1, colour1 = s.chosen(0)
+            let^name2, colour2 = s.chosen(1)
+            beginPresentation(name1, colour1, name2, colour2, STAGES[matchStage] ?? "スクール", ROUND_SECONDS)
+            fighters.character($"assets/characters/{name1}", me.v(142))
+            fighters.character($"assets/characters/{name2}", me.v(143))
+            pendingKind := "match"
+        elseif^st != nil^:
+            let^e = st.current()
+            if^e is^nil^ { panic^"Missing story match" }
+            me.setv(139, 0)
+            me.setv(140, (st.difficulty + 1) * 1000)
+            me.setv(134, 0)
+            me.setv(141, 0)
+            me.setv(142, st.support)
+            me.setv(143, st.enemySupport)
+            beginPresentation(st.name, st.colour, e.name, 0, e.stage, e.seconds)
+            flow.toWin := e.rounds
+            fighters.character($"assets/characters/{st.name}", st.support)
+            fighters.character($"assets/characters/{e.name}", st.enemySupport)
+            fighters.batch.request($"assets/characters/{e.name}/cpu.lton", "lton", false^)
+            pendingKind := "story-match"
+            st.enter("match-intro")
+        }
+        pending := fighters
+    elseif^kind = "story-match" or^kind = "story-demo":
+        if^kind = "story-match" {
+            let^arena = matchArena
+            if^arena is^nil^ { panic^"Missing prepared stage arena" }
+            arena.absorb(l.batch.arena)
+        else^: l.batch.arena.attach() }
+        if^st != nil^ {
+            let^running : vp.story.State = st
+            let^e = running.current()
+            if^e != nil^ {
+                if^kind = "story-match" { startStoryBattle(running, e)
+                else^:
+                    running.demo := demos.play(e.name)
+                    running.enter("event")
+                }
+            }
+        }
+    elseif^kind = "match":
+        let^arena = matchArena
+        if^arena is^nil^ { panic^"Missing prepared stage arena" }
+        arena.absorb(l.batch.arena)
+        if^s != nil^ { startBattle(s) }
+    else^:
+        vp.arena.pop()
+        l.batch.arena.attach()
+        if^kind = "title" {
+            selecting := nil^
+            opening := false^
+            vp.fighter.clearSystemVars()
+            let^system = vp.script.load($"{SYSTEM}/script.lton") ?? vp.script.Script.new()
+            scene := demos.titleScreen(SYSTEM, system)
+        else^:
+            scene := nil^
+            selecting := vp.select.load(SYSTEM, storyMode)
+        }
+    }
+}
+
+let^goBack = p^{
+    clear2()
+    if^!initialized { love.event.quit() return^ }
+    let^sc = scene
+    if^sc != nil^ and^sc.customOpening { love.event.quit() return^ }
+    let^st = campaign
+    if^st != nil^ and^selecting is^nil^ {
+        if^st.phase = "battle" or^st.phase = "gameover" or^st.phase = "return-title" { return^ }
+        if^st.phase = "intro" { st.enter("difficulty") return^ }
+        let^l = pending
+        if^l != nil^ { l.batch.cancel() pending := nil^ }
+        love.audio.stop()
+        if^matchArena != nil^ { vp.arena.pop() matchArena := nil^ }
+        if^st.phase = "event" { vp.arena.pop() }
+        vp.arena.pop()
+        campaign := nil^
+        brain := nil^
+        matchLoading := false^
+        matchIntro := false^
+        flow.preparing := false^
+        flow.externalPresentation := false^
+        selecting := vp.select.load(SYSTEM, true^)
+        pressed := 0
+        leftPressed := false^
+        rightPressed := false^
+        upPressed := false^
+        downPressed := false^
+        return^
+    }
+    # Battle will get its own pause screen later.
+    if^sc is^nil^ and^selecting is^nil^{ return^ }
+    let^l = pending
+    if^l != nil^ { l.batch.cancel() pending := nil^ }
+    if^matchArena != nil^ { love.audio.stop() vp.arena.pop() matchArena := nil^ }
+    campaign := nil^
+    upPressed := false^
+    downPressed := false^
+    pressed := 0
+    clock := 0
+    matchLoading := false^
+    matchIntro := false^
+    flow.preparing := false^
+    flow.externalPresentation := false^
+    if^selecting != nil^ {
+        prepare("title")
+    else^:
+        love.audio.stop()
+        vp.arena.pop()
+        vp.fighter.clearSystemVars()
+        opening := true^
+        vp.arena.push("opening")
+        scene := vp.title.openingScreen(false^)
+    }
+}
+
+public^let^quit = p^-> bool^{
+    let^l = pending
+    if^l != nil^ { l.batch.cancel() }
+    vp.resource.stop()
+    return^false^
+}
+
+# Read-only diagnostics for flow regression checks and development tools.
+public^let^status = f^{
+    let^st = campaign
+    let^cpu = brain
+    let^sc = scene
+    let^firstCPU = demoBrain
+    let^support = me.slots[5]
+    let^cue = sc?.confirmSound
+    var^selectCue = false^
+    let^selectDemo = selecting?.demo
+    var^nameImage = -1
+    for^layer in^hud.layers { if^layer.skillNo = 59 { nameImage := layer.image } }
+    if^selectDemo != nil^ {
+        for^layer in^selectDemo.layers {
+            if^layer.sounds[2] != nil^ or^layer.sounds[3] != nil^ { selectCue := true^ }
+        }
+    }
+    var^duplicatePortraits = 0
+    for^p in^{me, foe} {
+        if^p.externalIntroPortrait {
+            for^o in^p.objects { if^o.onScreen and^o.depth = 117 { duplicatePortraits += 1 } }
+        }
+    }
+    return^{ duplicatePortraits = duplicatePortraits, introPortraits = flow.portraits.length^, introMusicPlaying = matchIntro and^flow.music != nil^ and^flow.music.isPlaying(),
+        phase = if^matchIntro: "match-intro" el^selecting != nil^: "select" el^st != nil^: st.phase el^scene != nil^: "title" el^: "battle";,
+        backgroundOnly = flow.backgroundOnly(), presentationFrames = flow.presentationFrames, introCatchup = introCatchup,
+        roundPhase = flow.phase, presentationLeft = flow.left,
+        matchMusicPlaying = matchArena != nil^ and^flow.music != nil^ and^flow.music.isPlaying(),
+        loadingKind = pendingKind, stagePrepared = matchArena != nil^ and^stage.layers.length^ > 0,
+        story = storyMode, cpuActions = if^cpu != nil^: cpu.actions el^: 0;,
+        enemyX = foe.x, enemyLife = foe.life, playerLife = me.life, enemySkill = foe.skillNo,
+        paused = paused, roundFrames = roundFrames,
+        modeExitFrames = if^sc != nil^: sc.exitFrames el^: -1;,
+        modeCuePlaying = cue != nil^ and^cue.isPlaying(), selectCuePlayed = selectCue,
+        attract = attract, attractLoaded = attractLoaded, attractSeconds = attractSeconds,
+        firstCPUActions = if^firstCPU != nil^: firstCPU.actions el^: 0;,
+        playerDir = me.dir, playerCode = me.v(129), enemyCode = me.v(130), playerNameImage = nameImage,
+        firstCPULevel = if^firstCPU != nil^: firstCPU.level el^: 0;,
+        secondCPULevel = if^cpu != nil^: cpu.level el^: 0;,
+        openingAnimated = sc != nil^ and^sc.customOpening and^!sc.titleShown,
+        supportSkill = if^support != nil^: support.skillNo el^: -1;,
+        wins = flow.wins1, losses = flow.wins2,
+        difficulty = if^st != nil^: st.difficulty el^: -1;,
+        event = if^st != nil^: st.at el^: -1; }
+}
+
+# One fixed simulation tick for the current scene.
+let^tick = p^{
+    let^sc = scene
+    if^sc != nil^ {
+        sc.step(upPressed, downPressed, pressed)
+        upPressed := false^
+        downPressed := false^
+        pressed := 0
+        if^sc.done { sceneDone() }
+        return^
+    }
+    if^matchIntro {
+        let^before = flow.presentationFrames
+        flow.step(me, foe, false^, p^{}, p^{})
+        if^flow.presentationFrames != before { stage.step() }
+        clear2()
+        return^
+    }
+    let^s = selecting
+    if^s != nil^ {
+        let^dx = if^vp.input.isDown(Key.right): 1 el^vp.input.isDown(Key.left): -1 el^: 0;
+        let^dy = if^vp.input.isDown(Key.up): 1 el^vp.input.isDown(Key.down): -1 el^: 0;
+        let^dx2 = if^vp.input.isDown(Key.k): 1 el^vp.input.isDown(Key.h): -1 el^: 0;
+        let^dy2 = if^vp.input.isDown(Key.u): 1 el^vp.input.isDown(Key.j): -1 el^: 0;
+        s.step(upPressed, downPressed, 5 + dx + 3 * dy, pressed, upPressed2, downPressed2, 5 + dx2 + 3 * dy2, pressed2)
+        clear2()
+        upPressed := false^
+        downPressed := false^
+        pressed := 0
+        let^canLoad = if^s.story: s.bothChosen() and^s.wait >= LOAD_DELAY el^: s.done;
+        if^canLoad and^!matchLoading and^pending is^nil^ { loadMatch(s) }
+        # The completed match continues the already-running VS presentation.
+        return^
+    }
+    let^story = campaign
+    if^story != nil^ and^story.phase != "battle" { return^ }
+    let^right = vp.input.isDown(Key.right)
+    let^left = vp.input.isDown(Key.left)
+    let^forward = if^me.facing > 0: right el^: left;
+    let^back = if^me.facing > 0: left el^: right;
+    # Only while they fight does input count.
+    let^live = flow.fighting()
+    let^firstCPU = demoBrain
+    var^firstInput : vp.cpu.Input = {dir = 5, skill = 0, guard = false^, buttons = 0}
+    if^firstCPU != nil^ {
+        if^live { firstInput := firstCPU.step(me, foe) }
+        let^d = firstInput.dir
+        control(me, live and^d >= 7, live and^d <= 3, live and^d % 3 = 0, live and^d % 3 = 1, firstInput.buttons)
+        if^live and^firstInput.skill > 0 and^(me.skillNo != firstInput.skill or^me.finished()) and^me.mayStart(firstInput.skill) {
+            me.begin(firstInput.skill)
+            firstCPU.actions += 1
+        }
+    else^:
+        control(me, live and^vp.input.isDown(Key.up), live and^vp.input.isDown(Key.down), live and^forward, live and^back, if^live: pressed el^: 0;)
+    }
+    # Discard menu direction presses during battle so they cannot reach select.
+    upPressed := false^
+    downPressed := false^
+    leftPressed := false^
+    rightPressed := false^
+    pressed := 0
+    let^cpu = brain
+    var^cpuInput : vp.cpu.Input = {dir = 5, skill = 0, guard = false^, buttons = 0}
+    let^forward2 = if^foe.facing > 0: vp.input.isDown(Key.k) el^: vp.input.isDown(Key.h);
+    let^back2 = if^foe.facing > 0: vp.input.isDown(Key.h) el^: vp.input.isDown(Key.k);
+    if^cpu != nil^ and^live { cpuInput := cpu.step(foe, me) }
+    if^cpu != nil^ {
+        let^d = cpuInput.dir
+        control(foe, live and^d >= 7, live and^d <= 3, live and^d % 3 = 0, live and^d % 3 = 1, cpuInput.buttons)
+        if^live and^cpuInput.skill > 0 and^(foe.skillNo != cpuInput.skill or^foe.finished()) and^foe.mayStart(cpuInput.skill) {
+            foe.begin(cpuInput.skill)
+            cpu.actions += 1
+        }
+    else^:
+        control(foe, live and^vp.input.isDown(Key.u), live and^(vp.input.isDown(Key.j) or^dummyGuard = 2), live and^forward2, live and^back2, if^live: pressed2 el^: 0;)
+    }
+    clear2()
+
+    # Holding back works both while free and throughout a guard reaction.
+    # The dummy guards while `dummyGuard` is on (G), crouching for 2.
+    let^free = f^p:Fighter-> bool^{ return^groundIdle(p.skillNo) or^airIdle(p.skillNo) }
+    me.updateGuard(live and^(if^firstCPU != nil^: firstInput.guard el^: back;), me.inputDirection() <= 3, free(me))
+    foe.updateGuard(live and^(if^cpu != nil^: cpuInput.guard el^: back2 or^dummyGuard > 0;), foe.inputDirection() <= 3, free(foe))
+
+    # The clock runs while they fight and the timer shows (system variable
+    # 128, which FIGHT clears a couple of frames after its show time).
+    let^timing = live and^me.v(128) <= 9999
+    if^timing and^roundFrames > 0 and^matchSeconds > 0 { roundFrames -= 1 }
+    vp.fighter.setRound(roundFrames, flow.number)
+    flow.step(me, foe, roundFrames <= 0, startRound, toSelect)
+    if^scene != nil^ or^selecting != nil^ or^(story != nil^ and^story.phase != "battle") { return^ }
+    vp.shake.horizontal.step()
+    vp.shake.vertical.step()
+    stage.step()
+    if^timing and^!wasTiming { hud.fightBegins() }
+    wasTiming := timing
+    # The digits follow the round time the scripts read (59 through the
+    # start, hidden then; layout 5 shows "60").
+    hud.step(me, foe, if^matchSeconds = 0: -1 el^: (std.math.max(roundFrames - 1, 0) / 100).floor();)
+    stepFighters()
+
+    frame += 1
+    if^me.skillName != lastSkill {
+        print($"{frame}: {me.skillName}  x={me.x:%.0f} y={me.y:%.0f} facing={me.facing}")
+        lastSkill := me.skillName
+    }
+}
+
+public^let^update = p^dt:number^{
+    for^key in^vp.input.poll() { keypressed(key, love.keyboard.Scancode.unknown, false^) }
+    if^paused { return^ }
+    vp.resource.pump(LOAD_SLICE)
+    completeLoad()
+    if^pending != nil^ or^scene != nil^ or^(campaign != nil^ and^selecting is^nil^) { clear2() }
+    if^!initialized { return^ }
+    if^introCatchup > 0 {
+        # Bound catch-up work to keep rendering responsive after a slow load.
+        let^until = love.timer.getTime() + 0.002
+        repeat^while^introCatchup > 0 and^love.timer.getTime() < until {
+            stepFighters()
+            hud.step(me, foe, if^matchSeconds = 0: -1 el^: matchSeconds;)
+            introCatchup -= 1
+        }
+        return^
+    }
+    if^attractLoaded {
+        attractSeconds += dt
+        if^attractSeconds >= 60 { endAttract(true^) return^ }
+    }
+    let^st = campaign
+    if^st != nil^ and^selecting is^nil^ and^st.phase != "battle" and^!matchIntro {
+        let^running : vp.story.State = st
+        running.step(dt, leftPressed or^(running.phase = "continue" and^upPressed), rightPressed or^(running.phase = "continue" and^downPressed), pressed)
+        if^running.phase = "event" {
+            let^demo = running.demo
+            clock += dt
+            if^clock > 2 * FRAME { clock := 2 * FRAME }
+            repeat^while^clock >= FRAME {
+                clock -= FRAME
+                if^demo != nil^ { demo.step(false^, false^, pressed) }
+                pressed := 0
+            }
+            if^demo != nil^ and^demo.done {
+                love.audio.stop()
+                running.demo := nil^
+                vp.arena.pop()
+                running.advance()
+            }
+        }
+        if^running.phase = "queue" and^pending is^nil^ { queueStory(running) }
+        if^running.phase = "complete" or^running.phase = "return-title" {
+            love.audio.stop()
+            vp.arena.pop()          # story introduction
+            vp.arena.pop()          # character select
+            campaign := nil^
+            brain := nil^
+            matchLoading := false^
+            selecting := nil^
+            vp.fighter.clearSystemVars()
+            opening := true^
+            clock := 0
+            vp.arena.push("opening")
+            scene := vp.title.openingScreen(false^)
+        }
+        upPressed := false^
+        downPressed := false^
+        leftPressed := false^
+        rightPressed := false^
+        pressed := 0
+        return^
+    }
+    if^pending != nil^ {
+        upPressed := false^
+        downPressed := false^
+        pressed := 0
+    }
+    let^sc = scene
+    if^sc != nil^ and^sc.customOpening {
+        sc.updateOpening(dt, pressed)
+        upPressed := false^
+        downPressed := false^
+        pressed := 0
+        clock := 0
+        if^sc.done { sceneDone()
+        elseif^sc.attractReady and^pending is^nil^: queueAttract() }
+        return^
+    }
+    clock += dt
+    # At most two frames of catching up after a slow frame: the game slows
+    # down instead of skipping what it did not show.
+    if^clock > 2 * FRAME { clock := 2 * FRAME }
+    repeat^while^clock >= FRAME {
+        clock -= FRAME
+        tick()
+    }
+}
+
+# A plain life bar, 500 px wide; the dummy's drains from the other end.
+let^lifeBar = p^p:Fighter, x:number^, y:number^, mirrored:bool^{
+    let^w = 500 * p.life / p.lifeMax
+    love.graphics.setColor(0.2, 0.2, 0.2, 0.8)
+    love.graphics.rectangle(love.graphics.DrawMode.fill, x, y, 500, 16)
+    love.graphics.setColor(1, 0.85, 0.2, 1)
+    love.graphics.rectangle(love.graphics.DrawMode.fill, if^mirrored: x el^: x + 500 - w;, y, w, 16)
+    love.graphics.setColor(1, 1, 1, 1)
+}
+
+let^cross = p^p:Fighter{
+    love.graphics.setColor(1, 1, 0, 1)
+    love.graphics.line(p.x - 8, p.y, p.x + 8, p.y)
+    love.graphics.line(p.x, p.y - 8, p.x, p.y + 8)
+}
+
+# Debugging text, outlined in black so it reads over bright scenes too, in
+# a font with Japanese (LÖVE's default has none; the default is kept when
+# the font is missing).
+var^debugFont : love.graphics.Font|nil^= nil^
+var^debugFontTried = false^
+
+let^debugText = p^text:string^, x:number^, y:number^{
+    if^!debugFontTried {
+        debugFontTried := true^
+        let^f = love.graphics.newFont("assets/NotoSansMonoCJKjp-Regular.otf", 13) catch^nil^
+        if^f fits^love.graphics.Font { debugFont := f }
+    }
+    let^font = debugFont
+    if^font != nil^ { love.graphics.setFont(font) }
+    love.graphics.setColor(0, 0, 0, 1)
+    for^dx from^-1 to^1 {
+        for^dy from^-1 to^1 {
+            if^dx != 0 or^dy != 0 { love.graphics.print(text, x + dx, y + dy) }
+        }
+    }
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.print(text, x, y)
+}
+
+public^let^draw = p^{
+    if^paused {
+        let^tex = vp.arena.texture($"{SYSTEM}/images/0165.png")
+        if^tex != nil^ {
+            let^w, h = love.graphics.getDimensions()
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.draw(tex, 0, 0, 0, w / 640, h / 480)
+        }
+        return^
+    }
+    if^!initialized {
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.print("Loading...", 24, 24)
+        return^
+    }
+    let^st = campaign
+    if^st != nil^ and^selecting is^nil^ and^st.phase != "battle" and^!matchIntro {
+        love.graphics.push()
+        love.graphics.scale(SCALE)
+        let^demo = st.demo
+        if^st.phase = "event" and^demo != nil^ { demo.draw()
+        else^: st.draw() }
+        love.graphics.pop()
+        return^
+    }
+    let^sc = scene
+    if^sc != nil^ {
+        love.graphics.push()
+        love.graphics.scale(SCALE)
+        sc.draw()
+        love.graphics.pop()
+        return^
+    }
+    if^matchIntro or^flow.backgroundOnly() {
+        love.graphics.push()
+        love.graphics.scale(SCALE)
+        love.graphics.translate(-camX, -camY)
+        stage.draw(camX, camY, 0, stage.layers.length^)
+        love.graphics.translate(camX, camY)
+        vp.fighter.setView(0, 0)
+        let^items = flow.items()
+        vp.round.byDepth(items)
+        for^i in^items { i.draw() }
+        love.graphics.pop()
+        return^
+    }
+    let^s = selecting
+    if^s != nil^ {
+        love.graphics.push()
+        love.graphics.scale(SCALE)
+        s.draw()
+        love.graphics.pop()
+        let^stageName = if^stageChoice > 0: STAGES[stageChoice - 1] ?? "" el^: "random";
+        debugText($"t stage: {stageName}", 16, 16)
+        return^
+    }
+    love.graphics.push()
+    love.graphics.scale(SCALE)
+    love.graphics.translate(-camX + vp.shake.horizontal.offset, -camY + vp.shake.vertical.offset)
+    love.graphics.setColor(1, 1, 1, 1)
+    vp.fighter.setView(camX, camY)
+    stage.draw(camX, camY, 0, stage.players)
+    # The round's things below the characters (KO's burst of light at 50
+    # replaces the stage's back layers, 12, behind the fighters and the
+    # stage's front, 100) and those between the fighters and the front.
+    let^roundItems = flow.items()
+    vp.round.byDepth(roundItems)
+    let^roundBetween = p^from:number^, to:number^{
+        love.graphics.push()
+        love.graphics.translate(camX - vp.shake.horizontal.offset, camY - vp.shake.vertical.offset)
+        for^i in^roundItems {
+            if^i.depth >= from and^i.depth < to { i.draw() }
+        }
+        love.graphics.pop()
+    }
+    roundBetween(0, 70)
+    foe.drawObjects(false^)
+    me.drawObjects(false^)
+    foe.draw()
+    me.draw()
+    foe.drawObjects(true^)
+    me.drawObjects(true^)
+    roundBetween(70, 100)
+    if^showBoxes {
+        foe.drawBoxes()
+        me.drawBoxes()
+        cross(foe)
+        cross(me)
+    }
+    stage.draw(camX, camY, stage.players, stage.layers.length^)
+    love.graphics.pop()
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.push()
+    love.graphics.scale(SCALE)
+    # In view coordinates, by depth: the HUD (100), the characters' screen
+    # objects in front of them (their part of the HUD, cut-ins) and the
+    # round's from 100 on (VS screen, READY / FIGHT, KO, victory marks).
+    var^list : t^{vp.round.Item[]} = {}
+    for^i in^roundItems {
+        if^i.depth >= 100 { list.push^(i) }
+    }
+    list.push^(vp.round.Item.new())          # f nil^: the system HUD
+    let^last = list[list.length^ - 1]
+    if^last != nil^ { last.depth := 100 }
+    for^p in^{ foe, me } {
+        for^o in^p.objects {
+            if^o.onScreen and^o.depth > 80 {
+                let^i = vp.round.Item.new()
+                i.depth := o.depth
+                i.f := o
+                list.push^(i)
+            }
+        }
+    }
+    vp.round.byDepth(list)
+    vp.fighter.setView(0, 0)
+    for^i in^list {
+        if^i.f is^nil^ {
+            hud.draw(me, foe)
+        elseif^i.world:
+            love.graphics.push()
+            love.graphics.translate(-camX + vp.shake.horizontal.offset, -camY + vp.shake.vertical.offset)
+            i.draw()
+            love.graphics.pop()
+        else^:
+            love.graphics.push()
+            let^object = i.f
+            if^!object.system { love.graphics.translate(vp.shake.horizontal.offset, vp.shake.vertical.offset) }
+            i.draw()
+            love.graphics.pop()
+        }
+    }
+    vp.fighter.setView(camX, camY)
+    if^attractLoaded and^(attractSeconds / 0.25).floor() % 2 = 0 {
+        let^prompt = vp.arena.texture("assets/demos/タイトル/images/0001.png")
+        if^prompt != nil^ {
+            love.graphics.setBlendMode(love.graphics.BlendMode.subtract)
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.draw(prompt, 171, 421)
+            love.graphics.setBlendMode(love.graphics.BlendMode.alpha)
+        }
+    }
+    love.graphics.pop()
+    debugText($"{me.skillName}  image {me.image}  palette {me.palette + 1}  fps {love.timer.getFPS()}", 16, 16)
+    debugText($"arrows move  z x c a s d = A-F  F1 boxes  1-8 palette  F2 opponent at 1  g dummy guard: {GUARD_NAMES[dummyGuard] ?? ""}", 16, 36)
+}
+
+# The palette keys 1-8.
+let^PALETTE_KEYS : t^{love.keyboard.Key[]} = {
+    Key.digit1, Key.digit2, Key.digit3, Key.digit4, Key.digit5, Key.digit6, Key.digit7, Key.digit8,
+}
+
+# A keyboard and pad pressing the same button must not become another bit.
+let^addButton = f^mask:number^, bit:number^-> number^{
+    return^if^(mask / bit).floor() % 2 = 0: mask + bit el^: mask;
+}
+
+public^let^keypressed = p^key:love.keyboard.Key, scancode:love.keyboard.Scancode, isrepeat:bool^{
+    if^attract {
+        let^action = key = Key.z or^key = Key.x or^key = Key.c or^key = Key.a or^key = Key.s or^key = Key.d or^
+            key = Key.l or^key = Key.semicolon or^key = Key.quote or^key = Key.o or^key = Key.p or^key = Key.leftbracket or^key = Key.return
+        if^!isrepeat and^action { endAttract(false^) prepare("title") }
+        return^
+    }
+    let^openingScene = scene
+    if^!isrepeat and^openingScene != nil^ and^openingScene.customOpening { openingScene.idleSeconds := 0 }
+    # Gamepad Start is mapped to Return by vp.input.
+    if^(key = Key.escape or^key = Key.return) and^inBattle() {
+        if^!isrepeat { togglePause() }
+        return^
+    }
+    if^paused { return^ }
+    if^key = Key.escape {
+        if^!isrepeat { goBack() }
+        return^
+    }
+    if^!isrepeat and^key = Key.up { upPressed := true^ }
+    if^!isrepeat and^key = Key.down { downPressed := true^ }
+    if^!isrepeat and^key = Key.left { leftPressed := true^ }
+    if^!isrepeat and^key = Key.right { rightPressed := true^ }
+    if^!isrepeat {
+        if^key = Key.z { pressed := addButton(pressed, 1) }
+        if^key = Key.x { pressed := addButton(pressed, 2) }
+        if^key = Key.c { pressed := addButton(pressed, 4) }
+        if^key = Key.a { pressed := addButton(pressed, 8) }
+        if^key = Key.s { pressed := addButton(pressed, 16) }
+        if^key = Key.d { pressed := addButton(pressed, 32) }
+        if^key = Key.u { upPressed2 := true^ }
+        if^key = Key.j { downPressed2 := true^ }
+        if^key = Key.l { pressed2 := addButton(pressed2, 1) }
+        if^key = Key.semicolon { pressed2 := addButton(pressed2, 2) }
+        if^key = Key.quote { pressed2 := addButton(pressed2, 4) }
+        if^key = Key.o { pressed2 := addButton(pressed2, 8) }
+        if^key = Key.p { pressed2 := addButton(pressed2, 16) }
+        if^key = Key.leftbracket { pressed2 := addButton(pressed2, 32) }
+        if^key = Key.return and^(scene != nil^ or^selecting != nil^ or^(campaign != nil^ and^!flow.fighting())) { pressed := addButton(pressed, 1) }
+    }
+    if^key = Key.f1 { showBoxes := !showBoxes }
+    if^key = Key.g { dummyGuard := (dummyGuard + 1) % 3 }
+    if^key = Key.f2 { foe.life := 1 }
+    if^key = Key.t and^selecting != nil^ { stageChoice := (stageChoice + 1) % (STAGES.length^ + 1) }        # the next hit is a KO (for trying the round flow)
+    if^key = Key.f3 {
+        soundLog := !soundLog
+        vp.fighter.setSoundLog(soundLog)
+    }
+    for^v in^PALETTE_KEYS {
+        if^key = v { me.palette := index^ }
+    }
+}

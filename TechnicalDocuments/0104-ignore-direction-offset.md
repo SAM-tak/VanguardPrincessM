@@ -12,11 +12,11 @@ drawとcaptureTrailの両方で、既存のface（fixedなら1、それ以外は
 
 検証:
 
-- tests/image-position.lh: GPU readbackで左右向き×ignoreDirection有無×報告の2つのオフセットを確認。カメラ平行移動の相殺、通常反転の維持、残像の位置も確認。build/image-position.log: PASS。
-- tests/effects-flow.lh: 実データの残像描画、姿勢・色補間・RP等の回帰。build/image-effects.log: PASS。
+- tests/image-position.lh: GPU readbackで左右向き×ignoreDirection有無×報告の2つのオフセットを確認。カメラ平行移動の相殺、通常反転の維持、残像の位置も確認。TechnicalDocuments/evidence/0104/image-position.log: PASS。
+- tests/effects-flow.lh: 実データの残像描画、姿勢・色補間・RP等の回帰。TechnicalDocuments/evidence/0104/image-effects.log: PASS。
 
 テストの画素は位置を明確に検証する1px画像を使用。指定PNGの原作とのスクリーンショット比較や、発生条件がリフレクトガード成功そのものかの検証までは行っていない。
 
 追加調査: 2Pの位置修正を実機で確認後、1Pでは表示されないという報告を調査。
 画像は「GET BONUS!!／サポートゲージ回復」。ゆい#255の終端はV71 < -20500なら表示せず終了、それ以外でV71 < 11のときだけ#401を生成する。#401はV71を15にする。リフレクトガード成功そのものを毎回通知する画像ではない。
-実際の#255条件分岐から#401を生成し、V70=100/200、V71=0で15フレーム進行後、指定PNGをCanvasに描画してreadbackした。両側とも画像1972・画面座標(320,163)・ignoreDirection=trueを確認し、1Pは1756画素、2Pは1715画素の非黒画素を検出（build/bonus.log）。条件を満たす1P側の生成・描画は確認できたため、追加の位置補正はしない。実戦での今回の不表示時のV71値までは取得していない。
+実際の#255条件分岐から#401を生成し、V70=100/200、V71=0で15フレーム進行後、指定PNGをCanvasに描画してreadbackした。両側とも画像1972・画面座標(320,163)・ignoreDirection=trueを確認し、1Pは1756画素、2Pは1715画素の非黒画素を検出（TechnicalDocuments/evidence/0104/bonus.log）。条件を満たす1P側の生成・描画は確認できたため、追加の位置補正はしない。実戦での今回の不表示時のV71値までは取得していない。

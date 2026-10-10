@@ -4,7 +4,7 @@
 
 ## 原作の条件
 
-対象は原作EXEの逆アセンブル `build/original-corner-disasm.txt`。
+対象は原作EXEの逆アセンブル `TechnicalDocuments/evidence/0073/original-corner-disasm.txt`。
 
 - `0x40F1B8`: 命中対象FDは属性 `0x06`（damagedまたはthrow）。collideのみ・属性なしは対象外。したがって `collide throw` も命中対象になる。
 - `0x40F6E6`: ガード成立は攻撃を出したオブジェクトの `+0x68`（defending）を消費して発火。守った側へのイベントではない。

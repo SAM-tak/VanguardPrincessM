@@ -1,0 +1,2 @@
+identity = "vanguard-engine-check",
+window = { title = "Engine check", width = 64, height = 64, visible = false },

@@ -1,0 +1,2 @@
+PASS: hit/guard/throw DS, priority, trade, consumption, frame reset, object ownership, real Kaede handler
+PASS: dedicated landing, pending DS before stop/landing, wall boundary and priority, object hits, projectile defending

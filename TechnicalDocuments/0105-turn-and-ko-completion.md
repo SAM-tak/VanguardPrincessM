@@ -21,11 +21,11 @@ KO・勝利・ラウンド終了中は通常入力処理と待機への復帰を
 
 ## 検証
 
-- tests/turn-result.lh: 実データのジャンプ・着地#9、硬直中のA入力、左右両方の飛び越し後の向き更新と攻撃開始。空中・実行中攻撃の向き維持。実データのゆい超必殺技とKO演出で1P/2P双方の勝利待ち、死亡側への追加命中防止。build/turn-result.log: PASS。
-- tests/combat-flow.lh: 多段ヒット、ガード、飛び道具、ゆい超必殺技、ダウン、壁反応等。build/combat-result.log: PASS。
-- tests/vm-audit.lh: DS、ヒットストップ、先行入力、実際のダウン技。build/vm-result.log: PASS。
-- tests/attract-flow.lh: 実mainでデモCPU、タイトルとの往復、入力中断。build/attract-result.log: PASS。
+- tests/turn-result.lh: 実データのジャンプ・着地#9、硬直中のA入力、左右両方の飛び越し後の向き更新と攻撃開始。空中・実行中攻撃の向き維持。実データのゆい超必殺技とKO演出で1P/2P双方の勝利待ち、死亡側への追加命中防止。TechnicalDocuments/evidence/0105/turn-result.log: PASS。
+- tests/combat-flow.lh: 多段ヒット、ガード、飛び道具、ゆい超必殺技、ダウン、壁反応等。TechnicalDocuments/evidence/0105/combat-result.log: PASS。
+- tests/vm-audit.lh: DS、ヒットストップ、先行入力、実際のダウン技。TechnicalDocuments/evidence/0105/vm-result.log: PASS。
+- tests/attract-flow.lh: 実mainでデモCPU、タイトルとの往復、入力中断。TechnicalDocuments/evidence/0105/attract-result.log: PASS。
 
 原作とのフレーム単位の映像比較は未実施。勝利演出の待機条件はユーザー報告に合わせた実装であり、原作のラウンド管理全体を完全に逆解析したものではない。
 
-追加検証: tests/vs-memory-return.lhを1周で実行し、時間切れによる2本決着からキャラセレ・タイトルへの復帰も確認。build/result-flow.log: PASS。
+追加検証: tests/vs-memory-return.lhを1周で実行し、時間切れによる2本決着からキャラセレ・タイトルへの復帰も確認。TechnicalDocuments/evidence/0105/result-flow.log: PASS。

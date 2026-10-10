@@ -7,7 +7,7 @@
 - 両方を同じfm2ndparserローカルビルドで別フォルダへ解析。KGTを伴わない単体解析なので共通技の名前解決警告が出るが、番号参照を使って比較。
 - バイナリの39バイト技ヘッダから各技の16バイトブロック列を切り出し、挿入による後続オフセットずれを除去。ヘッダの技名・属性は同一で、開始位置だけが変わる。バイナリで変わった技とLTON形式へ正規化後に変わった技の集合は全10キャラで一致。
 - 画像・音声はpointer等の格納情報を除いて比較。パレットは色データを比較。新旧の実行時意味を持つブロック列はgen_script.blockで正規化し、現在のscript.ltonの明示idと照合。
-- 再現用の作業物：`build/update-0117/audit.py`、`old-json/`、`new-json/`、全変更ブロックの`report.json`。
+- 再現用の作業物：`TechnicalDocuments/evidence/0058/update-0117/audit.py`、`old-json/`、`new-json/`、全変更ブロックの`report.json`。
 
 ## 素材・設定
 

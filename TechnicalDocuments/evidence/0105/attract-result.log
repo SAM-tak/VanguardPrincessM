@@ -1,0 +1,11 @@
+1: #21  x=370 y=920 facing=1
+PASS: music end -> CPU demo
+26: #31  x=500 y=920 facing=1
+367: #18  x=500 y=920 facing=1
+663: #8  x=500 y=920 facing=1
+664: #2  x=503 y=920 facing=1
+680: #272  x=548 y=920 facing=1
+697: #275  x=637 y=920 facing=1
+PASS: both CPUs act; timeout -> opening
+711: #21  x=370 y=920 facing=1
+PASS: looping, A-F and Start -> mode menu, other keys ignored, silent idle/reset, cancellation, cleanup, no sync reads

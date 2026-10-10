@@ -1,0 +1,6 @@
+side=100 objects=1 v71=15
+obj=401 x=320 y=163 ix=-220 image=1972 fixed=true screen=true
+pixels=1756
+side=200 objects=1 v71=15
+obj=401 x=320 y=163 ix=260 image=1972 fixed=true screen=true
+pixels=1715

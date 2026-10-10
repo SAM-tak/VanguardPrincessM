@@ -1,0 +1,22 @@
+spam=false t=0 a=218 d=172 y=920 life=1000
+spam=false t=30 a=218 d=45 y=920 life=1000
+spam=false t=58 a=218 d=175 y=920 life=1000
+spam=false t=68 a=218 d=46 y=920.0 life=1000
+spam=false t=168 a=218 d=772 y=920 life=1000
+spam=false t=238 a=218 d=164 y=920 life=825
+INPUT spam=true t=0 new=213
+spam=true t=0 a=218 d=172 y=920 life=1000
+INPUT spam=true t=30 new=213
+spam=true t=30 a=218 d=45 y=920 life=1000
+INPUT spam=true t=31 new=213
+spam=true t=31 a=218 d=213 y=920 life=1000
+INPUT spam=true t=59 new=213
+spam=true t=68 a=218 d=46 y=920.0 life=1000
+INPUT spam=true t=69 new=213
+spam=true t=69 a=218 d=213 y=920.0 life=1000
+INPUT spam=true t=97 new=213
+INPUT spam=true t=125 new=213
+INPUT spam=true t=153 new=213
+INPUT spam=true t=181 new=213
+INPUT spam=true t=209 new=213
+INPUT spam=true t=237 new=213

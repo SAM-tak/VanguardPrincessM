@@ -29,7 +29,7 @@ data/_conversion/characters/ゆい/support-source.lton
 - 通常10キャラ×5サポートの50ファイル。各ファイルは完全な命令列で、差分レシピを含まない。
 - 本体側は495〜499技。くるみの本体の合体攻撃は本体側に残す。
 - 各キャラの変換元`support-source.lton`は、ゆいに統一する前の原作の定義へ戻した。再分離の入力としてGitで管理。
-- 古い6個の共通script.ltonと、共通側の6個の中間定義は廃止。ローカルでは`build/legacy-yui-supports`に退避した。
+- 古い6個の共通script.ltonと、共通側の6個の中間定義は廃止。ローカルでは`TechnicalDocuments/evidence/0060/legacy-yui-supports`に退避した。
 - ボスヒルダの固定サポートは既存の専用実装のまま。
 
 ## 技番号と補助処理

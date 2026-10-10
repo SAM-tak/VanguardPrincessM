@@ -13,4 +13,4 @@
 
 次ラウンドの start へ移る際に `placeMarks` を呼び、現在の取得数に応じて #55 ON / #56 OFF を最初から実行する。新しいマークは画像未設定から始まり、表示・待ち時間・取得演出は元のシステムスクリプトに任せる。
 
-検証: `lovec --compile -o build/round-mark-check main.lh` 成功（10 units）。両側のスロット計算と決着・引き分け・次ラウンドの呼び出し経路をコード上で確認。実機での見た目と原作とのフレーム単位のタイミング比較は未実施。
+検証: `lovec --compile -o TechnicalDocuments/evidence/0025/round-mark-check main.lh` 成功（10 units）。両側のスロット計算と決着・引き分け・次ラウンドの呼び出し経路をコード上で確認。実機での見た目と原作とのフレーム単位のタイミング比較は未実施。

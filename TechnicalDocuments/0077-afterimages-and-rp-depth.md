@@ -40,4 +40,4 @@
 - `tests/vm-audit.lh`、`tests/variable-flow.lh`: P0/P2回帰が完走。
 - `python tools/fm2k_convert/audit_vm.py`: 全98ファイル・463915ブロックを再走査。
 
-ログ: `build/effects-*.log`。描画関数の実行まで確認したが、原作と並べたピクセル単位の一致確認は行っていない。相殺・投げイベント、OのoutSkillなど、0074の残件をすべて解消したという意味ではない。
+ログ: `TechnicalDocuments/evidence/0077/effects-*.log`。描画関数の実行まで確認したが、原作と並べたピクセル単位の一致確認は行っていない。相殺・投げイベント、OのoutSkillなど、0074の残件をすべて解消したという意味ではない。

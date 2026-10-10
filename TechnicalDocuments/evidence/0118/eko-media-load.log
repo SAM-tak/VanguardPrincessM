@@ -1,0 +1,11 @@
+PASS: selection case 0: images=1303, sounds=81
+PASS: selection case 1: images=1246, sounds=76
+PASS: selection case 2: images=1309, sounds=83
+PASS: selection case 3: images=1367, sounds=77
+PASS: selection case 4: images=1129, sounds=78
+PASS: selection case 5: images=1319, sounds=75
+PASS: selection case 6: images=1101, sounds=73
+PASS: selection case 7: images=1298, sounds=79
+PASS: selection case 8: images=1248, sounds=73
+PASS: selection case 9: images=1204, sounds=86
+PASS: Eko for all ten owners: all package media loaded; no other support media

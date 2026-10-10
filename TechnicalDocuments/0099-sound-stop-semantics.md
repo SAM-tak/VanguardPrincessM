@@ -32,6 +32,6 @@
 - 反復再生・停止でSource数不変。停止命令自体のSourceは作られない。
 - 従来の親子共有・相手側との独立・シーン変更後の再取得・同期フォールバック0件も通過。
 
-実行ログ: `build/sound-stop-audit.log`（PASS）。`audit_vm.py`にはS 0の定義位置をhandled_sitesとして記録した。
+実行ログ: `TechnicalDocuments/evidence/0099/sound-stop-audit.log`（PASS）。`audit_vm.py`にはS 0の定義位置をhandled_sitesとして記録した。
 
 音声Sの使用種別に関する照合は完了。未使用の別種音源は実装しない。0074の残件は合成描画・レイヤー挙動であり、全ゲーム演出の完全一致を意味するものではない。

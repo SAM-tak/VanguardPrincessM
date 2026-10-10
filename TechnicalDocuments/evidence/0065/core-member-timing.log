@@ -1,0 +1,15 @@
+AUDIT boot collected
+1: #31  x=500 y=920 facing=1
+205: #18  x=500 y=920 facing=1
+454: #8  x=500 y=920 facing=1
+455: #1  x=500 y=920 facing=1
+6553: #22  x=500 y=920 facing=1
+6765: #21  x=370 y=920 facing=1
+6796: #18  x=500 y=920 facing=1
+7107: #8  x=500 y=920 facing=1
+7108: #1  x=500 y=920 facing=1
+13208: #22  x=500 y=920 facing=1
+PASS: VS -> select -> ESC mode -> ESC title, cycle=1, scripts=1
+AUDIT title cycle=1 idle=30
+AUDIT title cycle=1 idle=90
+PROFILE updates=7345 updateSeconds=38.4257 worstUpdate=0.430914 battleUpdate=0.189656 sceneUpdate=0.430914 elapsed=45.9186

@@ -30,4 +30,4 @@
 - 所有先整理・共有素材・独立パレットの Python テスト計10件成功。
 - support-flow: 全250通りのサポート入力、固定ボス、CPU操作を含め成功。
 - support-palettes: 全11キャラの全8色描画、パレット先読みを確認。
-- 作業直前のローカル退避: `build/additional-media-before.zip`。
+- 作業直前のローカル退避: `TechnicalDocuments/evidence/0126/additional-media-before.zip`。

@@ -1,6 +1,6 @@
 # 残るイベント経路と戦闘フレーム順の実装
 
-2026-10-07。0082で挙げたlanding / attacking / defending / wallHittingの残件を実装した。根拠は原作EXEの逆アセンブル `build/original-corner-disasm.txt`。L^コア、lhat-love、キャラクターの技定義は変更していない。
+2026-10-07。0082で挙げたlanding / attacking / defending / wallHittingの残件を実装した。根拠は原作EXEの逆アセンブル `TechnicalDocuments/evidence/0073/original-corner-disasm.txt`。L^コア、lhat-love、キャラクターの技定義は変更していない。
 
 ## フレーム順と予約遷移
 
@@ -38,4 +38,4 @@
 - `tests/combat-flow.lh`, `tests/sweep-down.lh`, `tests/vm-audit.lh`, `tests/support-flow.lh`: 既存のガード・弾・超必・着地・壁反動・ダウン・命令・サポートの回帰。
 - `tests/test_fa_flags.py`: 0x0004と0x8000の独立した変換、元バイナリとのFA不一致の検出。
 
-ログは `build/remaining-*.log`。これは0082の残件への対応であり、FM2K全体の全属性・全スケジュールが完全一致したという意味ではない。halfedによる削り等、別の未実装属性は今回の範囲に含まない。
+ログは `TechnicalDocuments/evidence/0083/remaining-*.log`。これは0082の残件への対応であり、FM2K全体の全属性・全スケジュールが完全一致したという意味ではない。halfedによる削り等、別の未実装属性は今回の範囲に含まない。

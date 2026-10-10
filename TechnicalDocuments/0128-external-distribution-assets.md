@@ -36,7 +36,7 @@ assets がない場合は必要な配置を示すエラーを出す。正常に�
 
 - `tools/test-external-media.ps1`: VM-onlyエンジンへ実際にFuseし、素材なし時の案内、exe隣のassets、異なるカレントディレクトリ、内蔵data優先、親ディレクトリ解除、素材同梱オプションを確認。
 - パッケージ内の assets、_conversion、skills、変換用data.ltonとsupport-source.ltonの除外を確認。
-- 実ゲームのコード・dataをFuseし、exe隣のassetsから非同期ロードして `system / opening` 到達を確認（`build/fused-game-smoke.log`）。
+- 実ゲームのコード・dataをFuseし、exe隣のassetsから非同期ロードして `system / opening` 到達を確認（`TechnicalDocuments/evidence/0128/fused-game-smoke.log`）。
 - 配布ビルド成功。230エントリー、assets 0、生成パレット14枚。exe約5.7MiB。
 
 使用した lhat-love は mount/unmount 追加後のビルド。今回 lhat-love / 言語コアのソース変更は行っていない。

@@ -10,7 +10,7 @@ KO待ちで上限になった場合も勝利本数とマークを一度だけ加
 
 ## 原作調査
 
-原作EXEの0x4086A0にあるラウンド進行を直接逆アセンブルして確認した。調査ログはbuild/round-result-disasm.txt。所在地の手掛かりは[wanwanのround events解析](https://github.com/Armonte/wanwan/blob/main/docs/c3.5_round_events_ida_handoff.md)。
+原作EXEの0x4086A0にあるラウンド進行を直接逆アセンブルして確認した。調査ログはTechnicalDocuments/evidence/0120/round-result-disasm.txt。所在地の手掛かりは[wanwanのround events解析](https://github.com/Armonte/wanwan/blob/main/docs/c3.5_round_events_ida_handoff.md)。
 
 - 0x4068E0はシステム演出を生成し、先頭ブロックの16bit時間値を返す（0x406934、0x40695C）。
 - 勝利演出経路は返値をラウンド管理オブジェクト+0x156へ格納する（例0x40947A）。
@@ -21,7 +21,7 @@ KO待ちで上限になった場合も勝利本数とマークを一度だけ加
 
 ## 検証
 
-tests/turn-result.lhをLÔVEで実行し全項目PASS（build/turn-result.log）。
+tests/turn-result.lhをLÔVEで実行し全項目PASS（TechnicalDocuments/evidence/0105/turn-result.log）。
 
 - ゆいの実データの超必殺技をKO直後に中断しない。勝利ポーズへの切替はreadyForResult成立時のみ。
 - ルナの実データ#235→#234構えを維持し、299フレームまでは待機、300フレームでROUND_ENDへ進む。

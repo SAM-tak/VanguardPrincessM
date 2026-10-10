@@ -6,4 +6,4 @@
 
 再生成時はtools/fm2k_convert/patches/ルナ.pyがパーサJSONへ適用される。現在の実行用script.ltonとsupport-source.ltonにも同じ変換を反映。原作playerや画像は変更しない。
 
-検証: tests/luna-stance-ko.lhで8箇所それぞれ、KOなしで200フレーム待機が続くこと、V138=1後80フレーム以内に#240を完了すること、勝利ポーズ#22へ通常遷移することを確認。build/luna-stance-ko.log: PASS。tests/turn-result.lhの3秒上限テストは、終了しない構えを引き続き検証するためV138を明示的に0に保つ。既存の全項目もPASS。
+検証: tests/luna-stance-ko.lhで8箇所それぞれ、KOなしで200フレーム待機が続くこと、V138=1後80フレーム以内に#240を完了すること、勝利ポーズ#22へ通常遷移することを確認。TechnicalDocuments/evidence/0123/luna-stance-ko.log: PASS。tests/turn-result.lhの3秒上限テストは、終了しない構えを引き続き検証するためV138を明示的に0に保つ。既存の全項目もPASS。

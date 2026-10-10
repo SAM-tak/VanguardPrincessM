@@ -5,20 +5,20 @@
 ## 方法
 
 - 対象: 2026-10-06 14:02:53ビルドの `love.dll`（10,185,728 bytes）。コア／LÔVEのソース変更・再ビルドは行っていない。
-- `build/gc-audit.lh` を元に、ゆい同士のVS戦（seed 42）、2ラウンド決着、ESCでタイトル復帰を実行。
+- `TechnicalDocuments/evidence/0065/gc-audit.lh` を元に、ゆい同士のVS戦（seed 42）、2ラウンド決着、ESCでタイトル復帰を実行。
 - スナップショット前に明示的GCを行い、各時点で12秒間シミュレーション更新を止めて描画を継続する計測用エントリーを生成。通常ゲームの仕様は変更していない。
 - GetProcessMemoryInfoでprivate bytesとworking setを取得。VirtualQueryExでコミット済み領域と保護属性を記録。
 - Microsoft Sysinternals VMMapのCSVでヒープ、画像モジュール、その他private dataを分類。CSVの数値はKiB、以下は換算して十進MB。
-- 一時的な独立DLL `build/heap-snapshot.dll` を、自分で起動したテストプロセスにのみロード。GetProcessHeaps / HeapLock / HeapWalkで使用中ブロック量を採取。ゲームやコアのソースは書き換えていない。DLLはプロセス終了で消える。
+- 一時的な独立DLL `TechnicalDocuments/evidence/0067/heap-snapshot.dll` を、自分で起動したテストプロセスにのみロード。GetProcessHeaps / HeapLock / HeapWalkで使用中ブロック量を採取。ゲームやコアのソースは書き換えていない。DLLはプロセス終了で消える。
 - private bytesが1.15GBを超えた時点のヒープと領域を外部から記録し、その後テストエントリーへファイルで合図して `L^.gc.collect()` だけ行う比較も実施。
 - 全体ETWでの確保元スタック取得は管理者権限不足で使えなかった。既存のETWセッションの停止・設定変更はしていない。したがって、全領域の確保元関数まで特定した結果ではない。
 
-計測ツール: `build/capture-memory-map.py`, `build/remote-memory-audit.py`, `build/heap-snapshot.c`。出力: `build/map-forced-gc-run.log`, `build/map-*.csv`, `build/heap-*.csv`, `build/regions-*.json`, `build/memory-map-samples.json`, `build/memory-breakdown-summary.json`。これらはローカル調査用でbuild配下、配布物に含めない。終了時に一時エントリーと合図ファイルは削除。
+計測ツール: `TechnicalDocuments/evidence/0067/capture-memory-map.py`, `TechnicalDocuments/evidence/0067/remote-memory-audit.py`, `TechnicalDocuments/evidence/0067/heap-snapshot.c`。出力: `TechnicalDocuments/evidence/0067/map-forced-gc-run.log`, `TechnicalDocuments/evidence/0067/map-*.csv`, `TechnicalDocuments/evidence/0067/heap-*.csv`, `TechnicalDocuments/evidence/0067/regions-*.json`, `TechnicalDocuments/evidence/0067/memory-map-samples.json`, `TechnicalDocuments/evidence/0067/memory-breakdown-summary.json`。これらはローカル調査用でbuild配下、配布物に含めない。終了時に一時エントリーと合図ファイルは削除。
 
 ## 約1.15GBの内訳
 
 | 分類 | 試合中の高使用量時 | タイトル復帰後・落ち着いた時点 |
-|---|---:|---:|
+| --- | ---:  ---: |
 | 通常ヒープのコミット領域（空き・管理領域も含む） | 約583MB | 約247MB |
 | PAGE_WRITECOMBINE領域 | 約449MB | 約181MB |
 | それ以外のヒープ外private data | 約77MB | 約77MB |
@@ -45,7 +45,7 @@ GC後のヒープ計測まで約3秒描画を続けるため、差分は瞬間�
 最終測定の同じタイトルで:
 
 | 時点 | Private bytes | Working set | WriteCombine |
-|---|---:|---:|---:|
+| --- | ---: | ---: | ---: |
 | タイトル復帰後・計測開始 | 782.4MB | 378.8MB | 415.5MB |
 | 1秒後 | 782.4MB | 378.8MB | 415.5MB |
 | 計3秒後 | 547.1MB | 378.8MB | 180.6MB |

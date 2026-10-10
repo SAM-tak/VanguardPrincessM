@@ -1,0 +1,31 @@
+PID 11724
+SNAPSHOT boot textures=353 textureBytes=55703509 bufferBytes=589850
+before map {'private': 461262848, 'workingSet': 301592576}
+delayed 0 {'private': 461262848, 'workingSet': 301592576} WC 178520064
+delayed 1 {'private': 461262848, 'workingSet': 301596672} WC 178520064
+delayed 2 {'private': 461262848, 'workingSet': 301596672} WC 178520064
+after heap {'private': 461283328, 'workingSet': 301735936}
+map boot 0 True {'private': 463384576, 'workingSet': 303964160}
+SNAPSHOT battle0 textures=1903 textureBytes=249143059 bufferBytes=589850
+before map {'private': 878723072, 'workingSet': 446853120}
+delayed 0 {'private': 878723072, 'workingSet': 446853120} WC 449052672
+delayed 1 {'private': 878723072, 'workingSet': 446853120} WC 449052672
+delayed 2 {'private': 879849472, 'workingSet': 447954944} WC 449052672
+after heap {'private': 879853568, 'workingSet': 447959040}
+map battle0 0 True {'private': 886386688, 'workingSet': 454283264}
+PEAK SNAPSHOT {'private': 1151033344, 'workingSet': 710733824} {'private': 1152962560, 'workingSet': 712626176}
+SNAPSHOT peakgc textures=1903 textureBytes=249143059 bufferBytes=589850
+before map {'private': 888463360, 'workingSet': 455929856}
+delayed 0 {'private': 888467456, 'workingSet': 455933952} WC 449052672
+delayed 1 {'private': 888467456, 'workingSet': 455933952} WC 449052672
+delayed 2 {'private': 889954304, 'workingSet': 457371648} WC 449052672
+after heap {'private': 889987072, 'workingSet': 457404416}
+map peakgc 0 True {'private': 902578176, 'workingSet': 468074496}
+SNAPSHOT title1 textures=356 textureBytes=56973269 bufferBytes=589850
+before map {'private': 782397440, 'workingSet': 378769408}
+delayed 0 {'private': 782397440, 'workingSet': 378769408} WC 415498240
+delayed 1 {'private': 782397440, 'workingSet': 378769408} WC 415498240
+delayed 2 {'private': 547053568, 'workingSet': 378769408} WC 180617216
+after heap {'private': 547061760, 'workingSet': 378777600}
+map title1 0 True {'private': 547061760, 'workingSet': 378785792}
+EXIT 0

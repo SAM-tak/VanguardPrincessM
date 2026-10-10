@@ -1,0 +1,12 @@
+PASS: ゆい -> ゆい, pose=1: no down hit; recovery remains hittable
+PASS: ゆい -> ゆい, pose=12: no down hit; recovery remains hittable
+PASS: ゆい -> えり, pose=1: no down hit; recovery remains hittable
+PASS: ゆい -> えり, pose=12: no down hit; recovery remains hittable
+PASS: サキ -> ゆい, pose=1: no down hit; recovery remains hittable
+PASS: サキ -> ゆい, pose=12: no down hit; recovery remains hittable
+PASS: サキ -> えり, pose=1: no down hit; recovery remains hittable
+PASS: サキ -> えり, pose=12: no down hit; recovery remains hittable
+PASS: えり -> ゆい, pose=1: no down hit; recovery remains hittable
+PASS: えり -> ゆい, pose=12: no down hit; recovery remains hittable
+PASS: えり -> えり, pose=1: no down hit; recovery remains hittable
+PASS: えり -> えり, pose=12: no down hit; recovery remains hittable

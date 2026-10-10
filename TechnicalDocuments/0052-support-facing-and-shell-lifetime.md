@@ -14,7 +14,7 @@
 
 従来の `Fighter.step` はすべてのオブジェクトを床で停止させていた。このため二度目の着地で薬莢が固定され、画像ループだけが残っていた。
 
-FM2Kエディタエンジンの逆コンパイル資料 `ExecuteAnimationScript` では、オブジェクト（entity kind 1）は地面到達・下降中・着地ハンドラありの3条件でのみ床へ固定し、速度をゼロにする。ハンドラなしでは落下し続ける。さらに座標が x=-50..1330、y=-500..980 の範囲外なら `DestroyGameObject` を実行する（16.16固定小数の定数を換算）。参照元は [wanwan](https://github.com/Armonte/wanwan) のエディタエンジン解析資料。ローカル調査用コピーは `build/combat-investigation/editor_engine_core_decomp.json`。
+FM2Kエディタエンジンの逆コンパイル資料 `ExecuteAnimationScript` では、オブジェクト（entity kind 1）は地面到達・下降中・着地ハンドラありの3条件でのみ床へ固定し、速度をゼロにする。ハンドラなしでは落下し続ける。さらに座標が x=-50..1330、y=-500..980 の範囲外なら `DestroyGameObject` を実行する（16.16固定小数の定数を換算）。参照元は [wanwan](https://github.com/Armonte/wanwan) のエディタエンジン解析資料。ローカル調査用コピーは `TechnicalDocuments/evidence/0052/combat-investigation/editor_engine_core_decomp.json`。
 
 これに合わせ、ワールドオブジェクトの床停止は着地ハンドラがある場合に限り、上記の範囲外で破棄する。画面座標のHUD・システム・追従する組み込み影は範囲外破棄の対象外。キャラクター本体は従来通り床で停止する。独自の薬莢タイマーやフェードは追加しない。
 

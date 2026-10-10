@@ -39,4 +39,4 @@ LÔVEの `graphics/Texture.cpp` のdraw処理は、その呼び出し中にQuad�
 
 番号別とパス別キャッシュの世代更新は `freshSounds` にまとめ、Arena破棄後は両方をクリアする。旧実装は通常音声では初回取得をキャッシュしていたが、共通定義経由ではそれが抜けており、Arena.soundの「呼び出すたびに独立Sourceを作る」動作が毎回発生していた。
 
-検証: `vs-memory-return` が実際のHUD描画を含む対戦→タイトル復帰3周を通過。`sound-reuse` が200回の再生でSource数不変、子と親の共有、対戦相手との独立、シーン変更後の再取得、同期フォールバック0件を確認した。ログは `build/quad-reuse-vs.log` と `build/sound-reuse.log`。
+検証: `vs-memory-return` が実際のHUD描画を含む対戦→タイトル復帰3周を通過。`sound-reuse` が200回の再生でSource数不変、子と親の共有、対戦相手との独立、シーン変更後の再取得、同期フォールバック0件を確認した。ログは `TechnicalDocuments/evidence/0068/quad-reuse-vs.log` と `TechnicalDocuments/evidence/0068/sound-reuse.log`。

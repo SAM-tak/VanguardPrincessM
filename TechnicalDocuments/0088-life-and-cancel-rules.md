@@ -27,7 +27,7 @@
 
 - `tests/life-correction.lh`: 閾値直前/一致/直後、最大HP999、最低1、補正0、回復/上限、GP、FD倍率の二段階切り捨て、威力0、ガード削り/削りKO。
 - `tests/cancel-rules.lh`: 空振り、通常命中/ガード、Cレベル範囲と指定技、failsによる拒否、ゼロレベル範囲、FA消去/再設定、生成物から本体の確認。
-- object-vm、combat-flow、eri-contact、yui-link、support-flow、eventsを回帰。ログは `build/life-*.log`, `build/cancel-*.log`。
+- object-vm、combat-flow、eri-contact、yui-link、support-flow、eventsを回帰。ログは `TechnicalDocuments/evidence/0088/life-*.log`, `TechnicalDocuments/evidence/0088/cancel-*.log`。
 
 ## 次の対象
 

@@ -4,7 +4,7 @@
 
 ## 原作EXEで確認した処理
 
-対象はvanpri108/ヴァンガードプリンセス/ヴァンガードプリンセス.exe。llvm-objdumpで実行コードを逆アセンブルし、build/original-corner-disasm.txtへ保存した。
+対象はvanpri108/ヴァンガードプリンセス/ヴァンガードプリンセス.exe。llvm-objdumpで実行コードを逆アセンブルし、TechnicalDocuments/evidence/0073/original-corner-disasm.txtへ保存した。
 
 物理・衝突処理（0x40F910付近）の本体オブジェクト経路で:
 
@@ -49,9 +49,9 @@ Fighter.stepはxをminX/maxX（空中は別範囲）でclampするだけで、�
 - FD押し合い矩形なしで成立。保留量は停止中でも一度だけ消費し、相手の速度は保持する。
 - ゆいの実際の反応技#47を中央と左右の壁際で実行。両プレイヤー更新順で、中央での後退量と壁際で相手へ返した量が一致する。
 
-既存の連続ガード、メルトショットのヒット数、236ケースの着地、ゆい2C→超必殺技の全10段、カメラ揺れ、コンボ表示の回帰テストも通過。ログは`build/corner-combat-test.log`。
+既存の連続ガード、メルトショットのヒット数、236ケースの着地、ゆい2C→超必殺技の全10段、カメラ揺れ、コンボ表示の回帰テストも通過。ログは`TechnicalDocuments/evidence/0073/corner-combat-test.log`。
 
-`tests/sweep-down.lh`の全12ケースも通過し、ダウン中の再ヒット防止と起き上がり後の被弾が維持されることを確認した（`build/corner-sweep-test.log`）。
+`tests/sweep-down.lh`の全12ケースも通過し、ダウン中の再ヒット防止と起き上がり後の被弾が維持されることを確認した（`TechnicalDocuments/evidence/0073/corner-sweep-test.log`）。
 
 ## 追補：壁接触による後退停止
 
@@ -69,7 +69,7 @@ Fighter.stepはxをminX/maxX（空中は別範囲）でclampするだけで、�
 | #59 しゃがみ対空弱パンチやられ | 12f / 29.26px | 1f / 3.76px |
 | #185 対空弱パンチガード | 10f / 46.77px | 1f / 5.76px |
 
-壁DS切り替え、後退停止と既存の戦闘回帰テストが通過（`build/corner-wall-test.log`）。報告時のキャラ・技は未特定のため、この欠落だけで報告の全ケースが解消したとは未確認。
+壁DS切り替え、後退停止と既存の戦闘回帰テストが通過（`TechnicalDocuments/evidence/0073/corner-wall-test.log`）。報告時のキャラ・技は未特定のため、この欠落だけで報告の全ケースが解消したとは未確認。
 
 ## 追補：ゆい6B→えりの吹き飛びと空中境界
 
@@ -86,4 +86,4 @@ Fighter.stepはxをminX/maxX（空中は別範囲）でclampするだけで、�
 | 旧：空中64～1216 | なし | 63f / 247.00px | 799.00（画面内159.00） |
 | 修正：空中50～1230 | あり | 28f / 105.64px | 954.36（画面内314.36） |
 
-左右とも同じ期間・返却距離で、接触は1回のみ。修正後は画面中央付近で止まる。通常反応の壁DSテスト、ゆい2C→超必殺技の全段ヒット等も通過。ログは`build/yui-6b-wall-test.log`と`build/yui-6b-old-boundary-test.log`。
+左右とも同じ期間・返却距離で、接触は1回のみ。修正後は画面中央付近で止まる。通常反応の壁DSテスト、ゆい2C→超必殺技の全段ヒット等も通過。ログは`TechnicalDocuments/evidence/0073/yui-6b-wall-test.log`と`TechnicalDocuments/evidence/0073/yui-6b-old-boundary-test.log`。

@@ -1,0 +1,15 @@
+PERF steps=4 control=0 scripts=0.0013779 offset=0.0001474 strike=8.49e-05 move=0.000299 objects=8/8
+1: #31  x=500 y=920 facing=1
+PERF steps=293 control=0.0402527 scripts=0.213945 offset=0.104706 strike=0.121842 move=0.070967 objects=19/18
+FRAME updates=0.748965 draws=0.624799 fps=74
+205: #18  x=500 y=920 facing=1
+PERF steps=271 control=0.134947 scripts=0.306749 offset=0.26635 strike=0.22248 move=0.104967 objects=12/12
+FRAME updates=1.40695 draws=1.0379 fps=77
+454: #8  x=500 y=920 facing=1
+455: #1  x=500 y=920 facing=1
+PERF steps=342 control=0.167503 scripts=0.521804 offset=0.665133 strike=0.52694 move=0.192988 objects=42/42
+FRAME updates=2.48194 draws=1.03157 fps=56
+PERF steps=364 control=0.190696 scripts=0.623455 offset=0.805529 strike=0.628347 move=0.228707 objects=32/32
+FRAME updates=2.94703 draws=1.12751 fps=45
+PERF steps=345 control=0.160011 scripts=0.536306 offset=0.713934 strike=0.5503 move=0.194144 objects=42/42
+FRAME updates=2.53774 draws=1.02187 fps=45

@@ -1,0 +1,31 @@
+PASS: 足払い: 1 hits, 120 damage; fresh use can hit
+PASS: けつ昇竜: 2 hits, 131 damage; fresh use can hit
+PASS: continuous guard, low/standing guard, release, CPU hold, hitstun, grouped boxes
+PASS: Melt Shot projectile: one hit / 231 damage; late contact and FA target filters
+super contact 1: skill=292 power=1
+super contact 2: skill=292 power=1
+super contact 3: skill=292 power=1
+super contact 4: skill=292 power=1
+super contact 5: skill=292 power=1
+super contact 6: skill=292 power=1
+super contact 7: skill=292 power=1
+super contact 8: skill=292 power=1
+super contact 9: skill=235 power=1
+super contact 10: skill=236 power=255
+PASS: Yui super: eight rush hits, late DS trigger, tenth-hit finisher
+PASS: 236 diagonal jump A landing cases; low-air push, high jump, wall, no-box
+sweep-super 1: skill=239 power=55 x=340/510 y=920
+sweep-super 2: skill=292 power=1 x=340/510 y=919
+sweep-super 3: skill=292 power=1 x=530/661 y=919
+sweep-super 4: skill=292 power=1 x=721/852 y=919
+sweep-super 5: skill=292 power=1 x=912/1043 y=919
+sweep-super 6: skill=292 power=1 x=1085/1216 y=919
+sweep-super 7: skill=292 power=1 x=1085/1216 y=919
+sweep-super 8: skill=292 power=1 x=1085/1216 y=919
+sweep-super 9: skill=292 power=1 x=1085/1216 y=919
+sweep-super 10: skill=235 power=1 x=1112/1216 y=919
+sweep-super 11: skill=236 power=255 x=1127/1216 y=874
+PASS: real box overlap / motion: sweep -> all ten super hits
+PASS: shake envelopes, duration, independent axes, original EB execution
+PASS: original recovery/tumble scripts; simultaneous blue/red combo text and digits
+PASS: combat regressions

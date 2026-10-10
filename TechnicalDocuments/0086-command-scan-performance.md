@@ -35,4 +35,4 @@ LÔVEのRelease実行ファイルで、VSモードのゆい同士をメニュー
 - yui-link、support-flow、vm-auditで先行入力・連続技・250サポート入力・技内COMを回帰確認。
 - `tests/battle-performance.lh`: 通常のmainを通すCPUデモのupdate/draw時間計測。環境依存のFPS合格閾値は設定しない。
 
-詳細プロファイルはルート一時コピーへタイマーを挿入して計測し、本体mainへは混入させていない。コピーはbuildへ保存。ログは `build/fps-current-long.log`, `fps-head.log`, `fps-before.log`, `fps-fixed-idle.log`, `fps-fixed-cpu.log`, `fps-check-*.log`。
+詳細プロファイルはルート一時コピーへタイマーを挿入して計測し、本体mainへは混入させていない。コピーはbuildへ保存。ログは `TechnicalDocuments/evidence/0086/fps-current-long.log`, `fps-head.log`, `fps-before.log`, `fps-fixed-idle.log`, `fps-fixed-cpu.log`, `fps-check-*.log`。

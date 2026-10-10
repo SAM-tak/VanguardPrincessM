@@ -1,0 +1,21 @@
+PASS: DS same/different skill, ground/air, hitstop; SG preservation; COM time boundaries
+PASS: PS preserves and accumulates both players' remaining hitstop
+PASS: real recovery branch waits throughout hitstop, then resumes
+PASS: buffered commands survive hitstop, expire with their motion, and keep COM history
+COM えり #263:51, input age=0, window=25, accepted=true
+COM えり #263:51, input age=1, window=25, accepted=true
+COM えり #263:51, input age=2, window=25, accepted=true
+COM えり #263:51, input age=3, window=25, accepted=true
+COM かえで #262:48, input age=0, window=40, accepted=true
+COM かえで #262:48, input age=1, window=40, accepted=true
+COM かえで #262:48, input age=2, window=40, accepted=true
+COM かえで #262:48, input age=3, window=40, accepted=true
+DOWN ゆい reaction=155: damaged slots=0
+DOWN ゆい reaction=157: damaged slots=0
+DOWN ゆい reaction=138: damaged slots=0
+DOWN えり reaction=155: damaged slots=0
+DOWN えり reaction=157: damaged slots=0
+DOWN えり reaction=138: damaged slots=0
+DOWN かえで reaction=155: damaged slots=0
+DOWN かえで reaction=157: damaged slots=0
+DOWN かえで reaction=138: damaged slots=0

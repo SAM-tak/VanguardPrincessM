@@ -48,4 +48,4 @@
 調査は未加工のパーサーJSONを起点にし、変換後LTONとの違いを追う。
 JSONもパーサーによる解釈結果なので、欠落や誤解釈が疑われる場合は元のFM2Kファイルと原作実行時の挙動に戻る。
 旧キャラ別 `skills/NNNN.lton` は比較資料として当面残すが、実行・再生成の入力には使わない。
-今回の旧サポート `skills/script.lton` は `build/support-layout-archive` に退避した。
+今回の旧サポート `skills/script.lton` は `TechnicalDocuments/evidence/0045/support-layout-archive` に退避した。

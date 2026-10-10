@@ -1,0 +1,10 @@
+initialize=MH_OK
+hook NtAllocateVirtualMemory=MH_OK
+hook NtAllocateVirtualMemoryEx=MH_OK
+hook NtMapViewOfSection=MH_OK
+hook NtMapViewOfSectionEx=MH_OK
+hook NtGdiDdDDICreateAllocation=MH_OK
+hook NtGdiDdDDICreateAllocation2=MH_ERROR_FUNCTION_NOT_FOUND
+hook NtGdiDdDDILock2=MH_OK
+vkAllocateMemory=MH_OK
+enable=MH_OK

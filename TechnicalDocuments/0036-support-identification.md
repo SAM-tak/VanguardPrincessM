@@ -64,7 +64,7 @@ FM2Kの方向コードはテンキー表記と異なる。0は既定分岐（5D�
 `tools/fm2k_convert/supports.py` を追加。現在の11体分（カテジナを含む、だみーを除く）を対象に、名前で入口を解決して5体×5アクションの番号・要求値・COM位置をJSONへ抽出できる。読み取りのみであり、生成済み素材・実行処理は変更しない。
 
 ```text
-tools/fm2k_convert/.venv/Scripts/python tools/fm2k_convert/supports.py assets --out build/support-actions.json
+tools/fm2k_convert/.venv/Scripts/python tools/fm2k_convert/supports.py assets --out TechnicalDocuments/evidence/0036/support-actions.json
 ```
 
 - 本体ヒルダのサポート・ヒルダだけ、5Dは要求110、2Dは要求130を発行する。実行側も要求101を#710、150を#716へ振り替えている。両側が対応して変わっているため、今回の調査だけで単純なコピー事故と断定しない。

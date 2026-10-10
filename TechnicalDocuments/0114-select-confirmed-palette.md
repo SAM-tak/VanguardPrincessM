@@ -6,4 +6,4 @@ Select.stepは決定ボタンをSide.colourへ保存していたが、選択画�
 
 決定処理でportrait本体と既存の子オブジェクトに確定色を設定する。その後生成される子はFighter.makeObjectの既存処理により本体から確定色を継承する。アニメーションを作り直さず、決定したフレームから色を反映する。
 
-実際のportraitスクリプトで全10キャラのストーリー/VSを検証。子オブジェクト生成後に1PはC、2PはFで決定し、同フレームと以降8フレームの本体・全子オブジェクトのpalette、chosenの色、portrait個体の維持を確認。結果はbuild/select-palette.log（全10行PASS）。
+実際のportraitスクリプトで全10キャラのストーリー/VSを検証。子オブジェクト生成後に1PはC、2PはFで決定し、同フレームと以降8フレームの本体・全子オブジェクトのpalette、chosenの色、portrait個体の維持を確認。結果はTechnicalDocuments/evidence/0114/select-palette.log（全10行PASS）。

@@ -1,0 +1,39 @@
+boot frames=38
+PROFILE 9.31ms completeLoad select
+PROFILE 4.93ms completeLoad select
+PROFILE 5.43ms completeLoad select
+PROFILE 15.41ms completeLoad select
+PROFILE 6.58ms completeLoad select
+PROFILE 4.50ms completeLoad select
+PROFILE 5.29ms completeLoad select
+PROFILE 4.83ms completeLoad select
+PROFILE 5.95ms completeLoad select
+PROFILE 5.38ms completeLoad select
+PROFILE 4.75ms completeLoad select
+PROFILE 4.93ms completeLoad select
+select frames=177
+PROFILE 4.93ms completeLoad match-stage
+cancel in-flight match
+PROFILE 7.25ms resource pump
+PROFILE 11.54ms completeLoad select
+PROFILE 5.10ms completeLoad select
+PROFILE 4.45ms completeLoad select
+PROFILE 4.62ms completeLoad select
+PROFILE 5.34ms completeLoad select
+PROFILE 6.25ms completeLoad select
+PROFILE 4.16ms completeLoad select
+PROFILE 30.57ms completeLoad select
+PROFILE 6.49ms completeLoad select
+PROFILE 4.02ms completeLoad select
+PROFILE 5.94ms completeLoad select
+PROFILE 6.60ms completeLoad match-stage
+PROFILE 68.62ms completeLoad match
+PROFILE 12.35ms completeLoad match
+match frames=631 elapsed=8.46554 worst=0.0697659
+1: #31  x=500 y=920 facing=1
+VS reveal frame=231 opponentX=770.206
+262: #18  x=500 y=920 facing=1
+511: #8  x=500 y=920 facing=1
+512: #1  x=500 y=920 facing=1
+PASS: cancel, retry, two fighters, D support attack, pause/freeze/resume, battle drawing, missing asset; frames=1234; synchronous fallback reads=0
+lovec exit code: 0

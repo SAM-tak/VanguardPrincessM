@@ -1,0 +1,33 @@
+1: #31  x=500 y=920 facing=1
+205: #18  x=500 y=920 facing=1
+454: #8  x=500 y=920 facing=1
+455: #1  x=500 y=920 facing=1
+6553: #22  x=500 y=920 facing=1
+6765: #21  x=370 y=920 facing=1
+6796: #18  x=500 y=920 facing=1
+7107: #8  x=500 y=920 facing=1
+7108: #1  x=500 y=920 facing=1
+13208: #22  x=500 y=920 facing=1
+PASS: VS -> select -> ESC mode -> ESC title, cycle=1, scripts=1
+13420: #31  x=500 y=920 facing=1
+13624: #18  x=500 y=920 facing=1
+13873: #8  x=500 y=920 facing=1
+13874: #1  x=500 y=920 facing=1
+19972: #22  x=500 y=920 facing=1
+20184: #21  x=370 y=920 facing=1
+20215: #18  x=500 y=920 facing=1
+20526: #8  x=500 y=920 facing=1
+20527: #1  x=500 y=920 facing=1
+26627: #22  x=500 y=920 facing=1
+PASS: VS -> select -> ESC mode -> ESC title, cycle=2, scripts=1
+26839: #31  x=500 y=920 facing=1
+27043: #18  x=500 y=920 facing=1
+27292: #8  x=500 y=920 facing=1
+27293: #1  x=500 y=920 facing=1
+33391: #22  x=500 y=920 facing=1
+33603: #21  x=370 y=920 facing=1
+33634: #18  x=500 y=920 facing=1
+33945: #8  x=500 y=920 facing=1
+33946: #1  x=500 y=920 facing=1
+40046: #22  x=500 y=920 facing=1
+PASS: VS -> select -> ESC mode -> ESC title, cycle=3, scripts=1

@@ -1,0 +1,586 @@
+lhat at 'C:\Users\Owner\source\repos\lhat' is c0dcd6241, not the pinned 44aa33aba (lhat.rev). CI builds the pinned one; scripts\pin.ps1 lhat moves the pin.
+CMake Warning (deprecated) at CMakeLists.txt:6 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+-- CMAKE_CXX_FLAGS_RELEASE: /MD /O2 /Ob2 /DNDEBUG /MP
+-- CMAKE_C_FLAGS_RELEASE: /MD /O2 /Ob2 /DNDEBUG /MP
+-- Found VsDevCmd.bat
+-- Found MSVC Redist directory: C:/Program Files/Microsoft Visual Studio/18/Community/VC/Redist/MSVC/14.51.36231/x64/Microsoft.VC145.CRT
+-- Found 7 Visual C/C++ Runtime files
+-- -----------------------------------------------------
+-- Configuring: zlib 1.3.1
+-- -----------------------------------------------------
+-- -----------------------------------------------------
+-- Configuring: lua 5.1.5
+-- -----------------------------------------------------
+CMake Warning (deprecated) at libs/lua-5.1.5/CMakeLists.txt:1 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+-- -----------------------------------------------------
+-- Configuring: libogg 1.3.2
+-- -----------------------------------------------------
+CMake Warning (deprecated) at libs/libogg-1.3.2/CMakeLists.txt:1 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+-- -----------------------------------------------------
+-- Configuring: libvorbis 1.3.5
+-- -----------------------------------------------------
+CMake Warning (deprecated) at libs/libvorbis-1.3.5/CMakeLists.txt:1 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+-- -----------------------------------------------------
+-- Configuring: libtheora 1.1.1
+-- -----------------------------------------------------
+CMake Warning (deprecated) at libs/libtheora-1.1.1/CMakeLists.txt:1 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+-- -----------------------------------------------------
+-- Configuring: freetype 2.13.2
+-- -----------------------------------------------------
+CMake Warning (deprecated) at libs/freetype/CMakeLists.txt:113 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+-- Could NOT find PkgConfig (missing: PKG_CONFIG_EXECUTABLE) 
+CMake Warning at libs/freetype/builds/cmake/FindHarfBuzz.cmake:99 (message):
+  Required version (2.0.0) is higher than found version ()
+Call Stack (most recent call first):
+  libs/freetype/CMakeLists.txt:258 (find_package)
+
+
+-- Could NOT find PNG (missing: PNG_LIBRARY PNG_PNG_INCLUDE_DIR) 
+-- Could NOT find BZip2 (missing: BZIP2_LIBRARIES BZIP2_INCLUDE_DIR) 
+-- Could NOT find BrotliDec (missing: BROTLIDEC_INCLUDE_DIRS BROTLIDEC_LIBRARIES) 
+-- -----------------------------------------------------
+-- Configuring: harfbuzz
+-- -----------------------------------------------------
+WARNHarfBuzz has a Meson port and tries to migrate all the other build systems to it, please consider using it as we might remove our cmake port soon.
+Building introspection files on Windows requires BUILD_SHARED_LIBS to be enabled.
+-- -----------------------------------------------------
+-- Configuring: SDL3 3.4.10
+-- -----------------------------------------------------
+-- Could NOT find PkgConfig (missing: PKG_CONFIG_EXECUTABLE) 
+-- Could NOT find LibUSB (missing: LibUSB_LIBRARY LibUSB_INCLUDE_PATH) (found version "LibUSB_VERSION-NOTFOUND")
+-- 
+-- SDL3 was configured with the following options:
+-- 
+-- Platform: Windows-10.0.26200
+-- 64-bit:   TRUE
+-- Compiler: C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/Llvm/x64/bin/clang-cl.exe
+-- Revision: SDL-release-3.4.10-0-g8e37db5e7
+-- Vendor:   
+-- 
+-- Subsystems:
+--   Audio:    ON
+--   Video:    ON
+--   GPU:      ON
+--   Render:   ON
+--   Camera:   ON
+--   Joystick: ON
+--   Haptic:   ON
+--   Hidapi:   ON
+--   Power:    ON
+--   Sensor:   ON
+--   Dialog:   ON
+--   Tray:     ON
+-- 
+-- Options:
+--   SDL_ALSA                    (Wanted: OFF): OFF
+--   SDL_ALSA_SHARED             (Wanted: OFF): OFF
+--   SDL_ALTIVEC                 (Wanted: OFF): OFF
+--   SDL_ARMNEON                 (Wanted: OFF): OFF
+--   SDL_ASAN                    (Wanted: OFF): OFF
+--   SDL_ASSEMBLY                (Wanted: ON): ON
+--   SDL_ASSERTIONS              (Wanted: auto): auto
+--   SDL_AVX                     (Wanted: ON): ON
+--   SDL_AVX2                    (Wanted: ON): ON
+--   SDL_AVX512F                 (Wanted: ON): ON
+--   SDL_BACKGROUNDING_SIGNAL    (Wanted: OFF): OFF
+--   SDL_CCACHE                  (Wanted: OFF): OFF
+--   SDL_CLANG_TIDY              (Wanted: OFF): OFF
+--   SDL_CLOCK_GETTIME           (Wanted: OFF): OFF
+--   SDL_COCOA                   (Wanted: OFF): OFF
+--   SDL_DBUS                    (Wanted: OFF): OFF
+--   SDL_DEPS_SHARED             (Wanted: ON): OFF
+--   SDL_DIRECTX                 (Wanted: ON): ON
+--   SDL_DISKAUDIO               (Wanted: ON): ON
+--   SDL_DLOPEN_NOTES            (Wanted: OFF): OFF
+--   SDL_DUMMYAUDIO              (Wanted: ON): ON
+--   SDL_DUMMYCAMERA             (Wanted: ON): ON
+--   SDL_DUMMYVIDEO              (Wanted: ON): ON
+--   SDL_EXAMPLES                (Wanted: OFF): OFF
+--   SDL_EXAMPLES_LINK_SHARED    (Wanted: ON): OFF
+--   SDL_FOREGROUNDING_SIGNAL    (Wanted: OFF): OFF
+--   SDL_FRIBIDI                 (Wanted: OFF): OFF
+--   SDL_FRIBIDI_SHARED          (Wanted: OFF): OFF
+--   SDL_GCC_ATOMICS             (Wanted: ON): ON
+--   SDL_HIDAPI                  (Wanted: ON): ON
+--   SDL_HIDAPI_JOYSTICK         (Wanted: ON): ON
+--   SDL_HIDAPI_LIBUSB           (Wanted: ON): OFF
+--   SDL_HIDAPI_LIBUSB_SHARED    (Wanted: ON): OFF
+--   SDL_IBUS                    (Wanted: OFF): OFF
+--   SDL_INSTALL                 (Wanted: OFF): OFF
+--   SDL_INSTALL_TESTS           (Wanted: OFF): OFF
+--   SDL_JACK                    (Wanted: OFF): OFF
+--   SDL_JACK_SHARED             (Wanted: OFF): OFF
+--   SDL_KMSDRM                  (Wanted: OFF): OFF
+--   SDL_KMSDRM_SHARED           (Wanted: OFF): OFF
+--   SDL_LASX                    (Wanted: OFF): OFF
+--   SDL_LIBC                    (Wanted: ON): ON
+--   SDL_LIBICONV                (Wanted: OFF): OFF
+--   SDL_LIBTHAI                 (Wanted: OFF): OFF
+--   SDL_LIBTHAI_SHARED          (Wanted: OFF): OFF
+--   SDL_LIBUDEV                 (Wanted: ON): OFF
+--   SDL_LIBURING                (Wanted: OFF): OFF
+--   SDL_LSX                     (Wanted: OFF): OFF
+--   SDL_METAL                   (Wanted: OFF): OFF
+--   SDL_MMX                     (Wanted: ON): ON
+--   SDL_OFFSCREEN               (Wanted: ON): ON
+--   SDL_OPENGL                  (Wanted: ON): ON
+--   SDL_OPENGLES                (Wanted: ON): ON
+--   SDL_OPENVR                  (Wanted: OFF): OFF
+--   SDL_OSS                     (Wanted: OFF): OFF
+--   SDL_PIPEWIRE                (Wanted: OFF): OFF
+--   SDL_PIPEWIRE_SHARED         (Wanted: OFF): OFF
+--   SDL_PTHREADS                (Wanted: OFF): OFF
+--   SDL_PTHREADS_SEM            (Wanted: OFF): OFF
+--   SDL_PULSEAUDIO              (Wanted: OFF): OFF
+--   SDL_PULSEAUDIO_SHARED       (Wanted: OFF): OFF
+--   SDL_RENDER_D3D              (Wanted: ON): ON
+--   SDL_RENDER_D3D11            (Wanted: ON): ON
+--   SDL_RENDER_D3D12            (Wanted: ON): ON
+--   SDL_RENDER_GPU              (Wanted: ON): ON
+--   SDL_RENDER_METAL            (Wanted: OFF): OFF
+--   SDL_RENDER_VULKAN           (Wanted: ON): ON
+--   SDL_ROCKCHIP                (Wanted: OFF): OFF
+--   SDL_RPATH                   (Wanted: OFF): OFF
+--   SDL_RPI                     (Wanted: OFF): OFF
+--   SDL_SNDIO                   (Wanted: OFF): OFF
+--   SDL_SNDIO_SHARED            (Wanted: OFF): OFF
+--   SDL_SSE                     (Wanted: ON): ON
+--   SDL_SSE2                    (Wanted: ON): ON
+--   SDL_SSE3                    (Wanted: ON): ON
+--   SDL_SSE4_1                  (Wanted: ON): ON
+--   SDL_SSE4_2                  (Wanted: ON): ON
+--   SDL_SYSTEM_ICONV            (Wanted: OFF): OFF
+--   SDL_TESTS                   (Wanted: OFF): OFF
+--   SDL_TESTS_LINK_SHARED       (Wanted: ON): OFF
+--   SDL_UNINSTALL               (Wanted: OFF): OFF
+--   SDL_VIRTUAL_JOYSTICK        (Wanted: ON): ON
+--   SDL_VIVANTE                 (Wanted: OFF): OFF
+--   SDL_VULKAN                  (Wanted: ON): ON
+--   SDL_WASAPI                  (Wanted: ON): ON
+--   SDL_WAYLAND                 (Wanted: OFF): OFF
+--   SDL_WAYLAND_LIBDECOR        (Wanted: OFF): OFF
+--   SDL_WAYLAND_LIBDECOR_SHARED (Wanted: OFF): OFF
+--   SDL_WAYLAND_SHARED          (Wanted: OFF): OFF
+--   SDL_X11                     (Wanted: OFF): OFF
+--   SDL_X11_SHARED              (Wanted: OFF): OFF
+--   SDL_X11_XCURSOR             (Wanted: OFF): OFF
+--   SDL_X11_XDBE                (Wanted: OFF): OFF
+--   SDL_X11_XFIXES              (Wanted: OFF): OFF
+--   SDL_X11_XINPUT              (Wanted: OFF): OFF
+--   SDL_X11_XRANDR              (Wanted: OFF): OFF
+--   SDL_X11_XSCRNSAVER          (Wanted: OFF): OFF
+--   SDL_X11_XSHAPE              (Wanted: OFF): OFF
+--   SDL_X11_XSYNC               (Wanted: OFF): OFF
+--   SDL_X11_XTEST               (Wanted: OFF): OFF
+--   SDL_XINPUT                  (Wanted: ON): ON
+-- 
+--  Build Shared Library: ON
+--  Build Static Library: OFF
+-- 
+-- Enabled backends:
+--   Video drivers: dummy offscreen windows
+--   Render drivers: d3d d3d11 d3d12 gpu ogl ogl_es2 vulkan
+--   GPU drivers: d3d12 vulkan
+--   Audio drivers: disk dsound dummy wasapi
+--   Joystick drivers: dinput gameinput hidapi rawinput virtual wgi xinput
+--   Camera drivers: dummy mediafoundation
+-- 
+-- -----------------------------------------------------
+-- Configuring: openal-soft 1.24.3
+-- -----------------------------------------------------
+-- Could NOT find PkgConfig (missing: PKG_CONFIG_EXECUTABLE) 
+-- {fmt} version: 11.1.1
+-- Build type: RelWithDebInfo
+-- Could NOT find PulseAudio (missing: PULSEAUDIO_LIBRARY PULSEAUDIO_INCLUDE_DIR) 
+-- Could NOT find JACK (missing: JACK_LIBRARY JACK_INCLUDE_DIR) 
+-- Could NOT find OpenSL (missing: OPENSL_LIBRARY OPENSL_INCLUDE_DIR OPENSL_ANDROID_INCLUDE_DIR) 
+-- Could NOT find PortAudio (missing: PORTAUDIO_LIBRARY PORTAUDIO_INCLUDE_DIR) 
+-- 
+-- Building OpenAL with support for the following backends:
+--     WinMM, DirectSound, WASAPI, WaveFile, Null
+-- 
+-- Building with support for CPU extensions:
+--     Default, SSE, SSE2, SSE3, SSE4.1
+-- 
+-- Building with legacy EAX extension support
+-- 
+-- Embedding HRTF datasets
+-- 
+-- NOT installing library and headers
+-- 
+-- -----------------------------------------------------
+-- Configuring: libmodplug 0.8.8.4
+-- -----------------------------------------------------
+CMake Warning (deprecated) at libs/libmodplug-0.8.8.4/CMakeLists.txt:1 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+-- -----------------------------------------------------
+-- Configuring: LuaJIT 2.1.1734355927
+-- -----------------------------------------------------
+-- -----------------------------------------------------
+-- Configuring: love
+-- -----------------------------------------------------
+-- Version: 12.0
+-- lhat: C:/Users/Owner/source/repos/lhat
+-- Target platform: x64
+-- Runtime DLL: msvcp140.dll
+-- Runtime DLL: msvcp140_1.dll
+-- Runtime DLL: msvcp140_2.dll
+-- Runtime DLL: msvcp140_atomic_wait.dll
+-- Runtime DLL: msvcp140_codecvt_ids.dll
+-- Runtime DLL: vcruntime140_1.dll
+-- Runtime DLL: vcruntime140.dll
+-- Configuring done (8.1s)
+-- Generating done (4.1s)
+-- Build files have been written to: C:/Users/Owner/source/repos/lhat-love/build
+[1/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\source.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[2/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\code.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[3/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\rttype.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+C:\Users\Owner\source\repos\lhat\src\rttype.c(189,60): warning: missing field 'runtime' initializer [-Wmissing-field-initializers]
+  189 |             RtSeen within = { type->v.table.instance, seen };
+      |                                                            ^
+C:\Users\Owner\source\repos\lhat\src\rttype.c(76,13): warning: enumeration value 'LHAT_TYPE_ARGUMENT' not handled in switch [-Wswitch]
+   76 |     switch (type->kind) {
+      |             ^~~~~~~~~~
+C:\Users\Owner\source\repos\lhat\src\rttype.c(416,32): warning: missing field 'runtime' initializer [-Wmissing-field-initializers]
+  416 |     RtSeen here = { type, seen };
+      |                                ^
+3 warnings generated.
+[4/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\registry.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[5/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\vm_machine.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[6/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\message.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[7/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\vm_call.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[8/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\vm_host.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[9/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\vm_member.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[10/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\gc.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[11/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\vm_native.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[12/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\error.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[13/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\value.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[14/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\vm_table.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[15/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\debug.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[16/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\lexer.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[17/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\semantic.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[18/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\fix.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[19/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\check_stmt.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[20/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\object.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[21/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\completion.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[22/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\check_initialization.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[23/104] Building C object love\lhat\CMakeFiles\lhatstdlib.dir\Release\stdlib\error.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[24/104] Building C object love\lhat\CMakeFiles\lhatstdlib.dir\Release\stdlib\carry.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[25/104] Building C object love\lhat\CMakeFiles\lhatstdlib.dir\Release\stdlib\debug.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[26/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\serialize.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[27/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\check.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+C:\Users\Owner\source\repos\lhat\src\check.c(3817,29): warning: variable 'away' is uninitialized when passed as a const pointer argument here [-Wuninitialized-const-pointer]
+ 3817 |                            &away, annotation_removal(c, at, &away));
+      |                             ^~~~
+C:\Users\Owner\source\repos\lhat\src\check.c(3802,41): warning: variable 'away' is uninitialized when passed as a const pointer argument here [-Wuninitialized-const-pointer]
+ 3802 |                                length, &away, annotation_removal(c, at, &away));
+      |                                         ^~~~
+2 warnings generated.
+[28/104] Building C object love\lhat\CMakeFiles\lhatstdlib.dir\Release\stdlib\io.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[29/104] Building C object love\lhat\CMakeFiles\lhatstdlib.dir\Release\stdlib\load.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[30/104] Building C object love\lhat\CMakeFiles\lhatstdlib.dir\Release\stdlib\async.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[31/104] Building C object love\lhat\CMakeFiles\lhatstdlib.dir\Release\stdlib\mathcomplex.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[32/104] Building C object love\lhat\CMakeFiles\lhatstdlib.dir\Release\stdlib\math.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[33/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\type.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+C:\Users\Owner\source\repos\lhat\src\type.c(2776,13): warning: enumeration value 'LHAT_TYPE_ARGUMENT' not handled in switch [-Wswitch]
+ 2776 |     switch (type->kind) {
+      |             ^~~~~~~~~~
+1 warning generated.
+[34/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\vm.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[35/104] Building C object love\lhat\CMakeFiles\lhatstdlib.dir\Release\stdlib\channel.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[36/104] Building C object love\lhat\CMakeFiles\lhatstdlib.dir\Release\stdlib\json.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[37/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\program.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[38/104] Building C object love\lhat\CMakeFiles\lhatstdlib.dir\Release\stdlib\mathvector2.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[39/104] Building C object love\lhat\CMakeFiles\lhatstdlib.dir\Release\stdlib\random.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[40/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\check_expr.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+C:\Users\Owner\source\repos\lhat\src\check_expr.c(5522,25): warning: variable 'away' is uninitialized when passed as a const pointer argument here [-Wuninitialized-const-pointer]
+ 5522 |                        &away, marker_removal(entry, &away));
+      |                         ^~~~
+C:\Users\Owner\source\repos\lhat\src\check_expr.c(5599,32): warning: variable 'away' is uninitialized when passed as a const pointer argument here [-Wuninitialized-const-pointer]
+ 5599 |                            0, &away, marker_removal(entry, &away));
+      |                                ^~~~
+C:\Users\Owner\source\repos\lhat\src\check_expr.c(5582,32): warning: variable 'away' is uninitialized when passed as a const pointer argument here [-Wuninitialized-const-pointer]
+ 5582 |                            0, &away, marker_removal(entry, &away));
+      |                                ^~~~
+3 warnings generated.
+[41/104] Building C object love\lhat\CMakeFiles\lhatstdlib.dir\Release\stdlib\mathvector3.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[42/104] Building C object love\lhat\CMakeFiles\lhatstdlib.dir\Release\stdlib\mathvector4.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[43/104] Building C object love\lhat\CMakeFiles\lhatstdlib.dir\Release\stdlib\regex.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[44/104] Building C object love\lhat\CMakeFiles\lhatstdlib.dir\Release\stdlib\mathquaternion.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[45/104] Building C object love\lhat\CMakeFiles\lhatstdlib.dir\Release\stdlib\lton.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[46/104] Building C object love\lhat\CMakeFiles\lhatstdlib.dir\Release\stdlib\thread.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[47/104] Building C object love\lhat\CMakeFiles\lhatstdlib.dir\Release\stdlib\task.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[48/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\parser.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[49/104] Building C object love\lhat\CMakeFiles\lhatdap.dir\Release\dap\adapter.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[50/104] Building C object love\lhat\CMakeFiles\lhat.dir\Release\src\compile.c.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+C:\Users\Owner\source\repos\lhat\src\compile.c(250,13): warning: unused function 'node_is_discard' [-Wunused-function]
+  250 | static bool node_is_discard(const Compiler *c, const LhatNode *node)
+      |             ^~~~~~~~~~~~~~~
+1 warning generated.
+[51/104] Linking C static library love\lhat\Release\lhat.lib
+[52/104] Building CXX object love\CMakeFiles\love_joystick_root.dir\Release\src\modules\joystick\lh_Joystick.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[53/104] Building CXX object love\CMakeFiles\love_math.dir\Release\src\modules\math\lh_Math.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[54/104] Building CXX object love\CMakeFiles\love_image_root.dir\Release\src\modules\image\lh_Image.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[55/104] Building CXX object love\CMakeFiles\love_audio_root.dir\Release\src\modules\audio\lh_Audio.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[56/104] Building CXX object love\CMakeFiles\love_event_root.dir\Release\src\modules\event\lh_Event.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[57/104] Building CXX object love\CMakeFiles\love_data.dir\Release\src\modules\data\lh_Data.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[58/104] Building CXX object love\CMakeFiles\love_keyboard_root.dir\Release\src\modules\keyboard\lh_Keyboard.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[59/104] Building CXX object love\CMakeFiles\love_filesystem_root.dir\Release\src\modules\filesystem\lh_Filesystem.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[60/104] Building CXX object love\CMakeFiles\love_graphics_root.dir\Release\src\modules\graphics\lh_Video.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[61/104] Building CXX object love\CMakeFiles\love_graphics_root.dir\Release\src\modules\graphics\lh_GraphicsState.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[62/104] Building CXX object love\CMakeFiles\love_graphics_root.dir\Release\src\modules\graphics\lh_Mesh.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[63/104] Building CXX object love\CMakeFiles\love_graphics_root.dir\Release\src\modules\graphics\lh_Shader.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[64/104] Building CXX object love\CMakeFiles\love_graphics_root.dir\Release\src\modules\graphics\lh_ParticleSystem.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[65/104] Building CXX object love\CMakeFiles\love_graphics_root.dir\Release\src\modules\graphics\lh_Graphics.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[66/104] Building CXX object love\CMakeFiles\love_mouse_root.dir\Release\src\modules\mouse\lh_Mouse.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[67/104] Linking C static library love\lhat\Release\lhatstdlib.lib
+[68/104] Linking C static library love\lhat\Release\lhatdap.lib
+[69/104] Linking CXX static library love\Release\love_audio_root.lib
+[70/104] Building CXX object love\CMakeFiles\love_sound_root.dir\Release\src\modules\sound\lh_Sound.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[71/104] Building CXX object love\CMakeFiles\love_sensor_root.dir\Release\src\modules\sensor\lh_Sensor.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[72/104] Building CXX object love\CMakeFiles\love_timer.dir\Release\src\modules\timer\lh_Timer.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[73/104] Linking CXX static library love\Release\love_data.lib
+[74/104] Linking CXX static library love\Release\love_event_root.lib
+[75/104] Building CXX object love\CMakeFiles\love_physics_box2d.dir\Release\src\modules\physics\box2d\lh_Contact.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+In file included from C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\lh_Contact.cpp:25:
+In file included from C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\lh_Physics.h:34:
+In file included from C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\Physics.h:28:
+C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\World.h(230,2): warning: '/*' within block comment [-Wcomment]
+  230 |         /**
+      |         ^
+1 warning generated.
+[76/104] Linking CXX static library love\Release\love_joystick_root.lib
+[77/104] Linking CXX static library love\Release\love_image_root.lib
+[78/104] Linking CXX static library love\Release\love_filesystem_root.lib
+[79/104] Linking CXX static library love\Release\love_keyboard_root.lib
+[80/104] Linking CXX static library love\Release\love_mouse_root.lib
+[81/104] Building CXX object love\CMakeFiles\love_system_root.dir\Release\src\modules\system\lh_System.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[82/104] Building CXX object love\CMakeFiles\love_window_root.dir\Release\src\modules\window\lh_Window.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[83/104] Linking CXX static library love\Release\love_graphics_root.lib
+[84/104] Linking CXX static library love\Release\love_sound_root.lib
+[85/104] Linking CXX static library love\Release\love_timer.lib
+[86/104] Building CXX object love\CMakeFiles\love_touch_root.dir\Release\src\modules\touch\lh_Touch.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[87/104] Linking CXX static library love\Release\love_window_root.lib
+[88/104] Building CXX object love\CMakeFiles\love_physics_box2d.dir\Release\src\modules\physics\box2d\lh_Body.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+In file included from C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\lh_Body.cpp:24:
+In file included from C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\lh_Physics.h:34:
+In file included from C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\Physics.h:28:
+C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\World.h(230,2): warning: '/*' within block comment [-Wcomment]
+  230 |         /**
+      |         ^
+1 warning generated.
+[89/104] Linking CXX static library love\Release\love_math.lib
+[90/104] Linking CXX static library love\Release\love_system_root.lib
+[91/104] Linking CXX static library love\Release\love_sensor_root.lib
+[92/104] Building CXX object love\CMakeFiles\love_physics_box2d.dir\Release\src\modules\physics\box2d\lh_World.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+In file included from C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\lh_World.cpp:26:
+In file included from C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\lh_Physics.h:34:
+In file included from C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\Physics.h:28:
+C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\World.h(230,2): warning: '/*' within block comment [-Wcomment]
+  230 |         /**
+      |         ^
+C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\lh_World.cpp(115,5): warning: field 'fn' will be initialized after field 'faulted' [-Wreorder-ctor]
+  114 |                 : machine(machine)
+      |                   ~~~~~~~~~~~~~~~~
+      |                   faulted(false)
+  115 |                 , fn(fn)
+      |                   ^~~~~~
+      |                   machine(machine)
+  116 |                 , faulted(false)
+      |                   ~~~~~~~~~~~~~~
+      |                   fn(fn)
+C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\lh_World.cpp(146,5): warning: field 'fn' will be initialized after field 'faulted' [-Wreorder-ctor]
+  145 |                 : machine(machine)
+      |                   ~~~~~~~~~~~~~~~~
+      |                   faulted(false)
+  146 |                 , fn(fn)
+      |                   ^~~~~~
+      |                   machine(machine)
+  147 |                 , faulted(false)
+      |                   ~~~~~~~~~~~~~~
+      |                   fn(fn)
+3 warnings generated.
+[93/104] Linking CXX static library love\Release\love_touch_root.lib
+[94/104] Building CXX object love\CMakeFiles\love_physics_box2d.dir\Release\src\modules\physics\box2d\lh_Shape.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+In file included from C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\lh_Shape.cpp:26:
+In file included from C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\lh_Physics.h:34:
+In file included from C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\Physics.h:28:
+C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\World.h(230,2): warning: '/*' within block comment [-Wcomment]
+  230 |         /**
+      |         ^
+1 warning generated.
+[95/104] Building CXX object love\CMakeFiles\love_physics_box2d.dir\Release\src\modules\physics\box2d\lh_Joint.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+In file included from C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\lh_Joint.cpp:27:
+In file included from C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\lh_Physics.h:34:
+In file included from C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\Physics.h:28:
+C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\World.h(230,2): warning: '/*' within block comment [-Wcomment]
+  230 |         /**
+      |         ^
+1 warning generated.
+[96/104] Building CXX object love\CMakeFiles\liblove.dir\Release\src\lh\PhysfsLoader.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[97/104] Building CXX object love\CMakeFiles\love_physics_box2d.dir\Release\src\modules\physics\box2d\lh_Physics.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+In file included from C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\lh_Physics.cpp:26:
+In file included from C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\lh_Physics.h:34:
+In file included from C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\Physics.h:28:
+C:\Users\Owner\source\repos\megasource\libs\love\src\modules\physics\box2d\World.h(230,2): warning: '/*' within block comment [-Wcomment]
+  230 |         /**
+      |         ^
+1 warning generated.
+[98/104] Building CXX object love\CMakeFiles\liblove.dir\Release\src\modules\love\lh_love.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[99/104] Linking CXX static library love\Release\love_physics_box2d.lib
+[100/104] Building CXX object love\CMakeFiles\liblove.dir\Release\src\lh\lh.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+[101/104] Building CXX object love\CMakeFiles\liblove.dir\Release\src\lh\Boot.cpp.obj
+clang-cl: warning: argument unused during compilation: '/MP' [-Wunused-command-line-argument]
+In file included from C:\Users\Owner\source\repos\megasource\libs\love\src\lh\Boot.cpp:47:
+In file included from C:\Users\Owner\source\repos\megasource\libs\love\src\modules/physics/box2d/Physics.h:28:
+C:\Users\Owner\source\repos\megasource\libs\love\src\modules/physics/box2d\World.h(230,2): warning: '/*' within block comment [-Wcomment]
+  230 |         /**
+      |         ^
+1 warning generated.
+[102/104] Linking CXX shared library love\Release\love.dll
+[103/104] Linking CXX executable love\Release\lovec.exe
+[104/104] Linking CXX executable love\Release\love.exe
+
+Build finished. Executables under: C:\Users\Owner\source\repos\lhat-love\build\love\Release\

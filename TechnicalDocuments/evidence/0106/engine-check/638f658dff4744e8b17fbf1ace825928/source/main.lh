@@ -1,0 +1,4 @@
+module^enginecheck
+import^love.event
+public^let^load = p^{ print("ENGINE_CHECK_OK_b70f92089ab447518740c71e0c84ad4c") love.event.quit() }
+public^let^draw = p^{}

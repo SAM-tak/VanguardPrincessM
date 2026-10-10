@@ -1,0 +1,69 @@
+PROFILE 4.92ms result fits Data assets/system/ヴァンガードプリンセス/script.lton
+PROFILE 6.00ms await script assets/system/ヴァンガードプリンセス/script.lton
+PROFILE 6.07ms resource pump
+PROFILE 4.02ms queue media assets/system/ヴァンガードプリンセス
+PROFILE 4.25ms load.ready boot
+PROFILE 4.26ms completeLoad boot
+PROFILE 4.66ms completeLoad boot
+boot frames=42
+PROFILE 7.43ms queue media assets/characters/ゆい
+PROFILE 47.01ms queue media assets/characters/はるか
+PROFILE 9.20ms queue media assets/characters/リリス
+PROFILE 10.47ms queue media assets/characters/ルナ
+PROFILE 15.55ms queue media assets/characters/くるみ
+PROFILE 16.22ms queue media assets/characters/サキ
+PROFILE 23.88ms queue media assets/characters/かえで
+PROFILE 6.15ms queue media assets/characters/カテジナ
+PROFILE 18.46ms queue media assets/characters/えり
+PROFILE 6.53ms queue media assets/characters/あやね
+PROFILE 5.51ms queue media assets/characters/ヒルダ
+PROFILE 172.85ms load.ready select
+PROFILE 172.87ms completeLoad select
+PROFILE 6.94ms completeLoad select
+select frames=186
+PROFILE 5.97ms completeLoad match-stage
+cancel in-flight match
+PROFILE 6.35ms resource pump
+PROFILE 4.73ms queue media assets/characters/ゆい
+PROFILE 4.08ms queue media assets/characters/はるか
+PROFILE 4.05ms queue media assets/characters/ルナ
+PROFILE 6.68ms queue media assets/characters/くるみ
+PROFILE 4.39ms queue media assets/characters/サキ
+PROFILE 5.91ms queue media assets/characters/かえで
+PROFILE 4.31ms queue media assets/characters/カテジナ
+PROFILE 4.12ms queue media assets/characters/えり
+PROFILE 5.50ms queue media assets/characters/あやね
+PROFILE 4.52ms queue media assets/characters/ヒルダ
+PROFILE 58.11ms load.ready select
+PROFILE 58.12ms completeLoad select
+PROFILE 6.13ms completeLoad select
+PROFILE 6.09ms completeLoad match-stage
+PROFILE 19.09ms result fits Data assets/characters/ゆい/script.lton
+PROFILE 22.97ms await script assets/characters/ゆい/script.lton
+PROFILE 23.02ms resource pump
+PROFILE 18.46ms result fits Data assets/characters/はるか/script.lton
+PROFILE 21.64ms await script assets/characters/はるか/script.lton
+PROFILE 21.70ms resource pump
+PROFILE 4.03ms result fits Data assets/supports/えこ/script.lton
+PROFILE 4.79ms await script assets/supports/えこ/script.lton
+PROFILE 4.84ms resource pump
+PROFILE 6.08ms resource pump
+PROFILE 7.01ms resource pump
+PROFILE scan assets/characters/ゆい: blocks=24418, mediaCalls=9636, jobs=1385, ms=112.19
+PROFILE 113.08ms queue media assets/characters/ゆい
+PROFILE scan assets/characters/はるか: blocks=24092, mediaCalls=9716, jobs=628, ms=112.94
+PROFILE 113.76ms queue media assets/characters/はるか
+PROFILE 226.87ms load.ready match
+PROFILE 226.88ms completeLoad match
+PROFILE 4.65ms resource pump
+PROFILE 4.35ms resource pump
+PROFILE 6.23ms resource pump
+PROFILE 13.49ms completeLoad match
+match frames=659 elapsed=9.10571 worst=0.234077
+1: #31  x=500 y=920 facing=1
+VS reveal frame=231 opponentX=770.206
+262: #18  x=500 y=920 facing=1
+511: #8  x=500 y=920 facing=1
+512: #1  x=500 y=920 facing=1
+PASS: cancel, retry, two fighters, D support attack, pause/freeze/resume, battle drawing, missing asset; frames=1262; synchronous fallback reads=0
+lovec exit code: 0

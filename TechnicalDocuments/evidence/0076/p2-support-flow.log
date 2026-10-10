@@ -1,0 +1,13 @@
+PASS: ゆい: 25 support inputs and attack dispatches
+PASS: はるか: 25 support inputs and attack dispatches
+PASS: リリス: 25 support inputs and attack dispatches
+PASS: ルナ: 25 support inputs and attack dispatches
+PASS: くるみ: 25 support inputs and attack dispatches
+PASS: サキ: 25 support inputs and attack dispatches
+PASS: かえで: 25 support inputs and attack dispatches
+PASS: カテジナ: 25 support inputs and attack dispatches
+PASS: えり: 25 support inputs and attack dispatches
+PASS: あやね: 25 support inputs and attack dispatches
+PASS: support movement / idle / side swap in both orientations; shell bounce and cleanup
+PASS: both CPU sides use all five support HUDs with gauge costs; boss ignores selectable support
+PASS: 250 regular support inputs, fixed boss, CPU support; no synchronous metadata reads

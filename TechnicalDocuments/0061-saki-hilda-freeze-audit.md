@@ -15,7 +15,7 @@
 
 ## LÔVE版の限定的な実行検証
 
-`build/saki-hilda-audit.lh` をゲームルートへコピーして lovec で実行する診断を行った。結果は `build/saki-hilda-audit.log`。
+`TechnicalDocuments/evidence/0061/saki-hilda-audit.lh` をゲームルートへコピーして lovec で実行する診断を行った。結果は `TechnicalDocuments/evidence/0061/saki-hilda-audit.log`。
 
 - 現行のキャラ別定義を使用し、選択ヒルダの素材・定義だけを先読み。
 - ゆい／サキそれぞれ、左右両向きで、#451 のサポート選択入口と #403 のHUD入口から開始。

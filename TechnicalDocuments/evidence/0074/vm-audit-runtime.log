@@ -1,0 +1,23 @@
+COM えり #263:51, input age=0, window=25, accepted=true
+COM えり #263:51, input age=1, window=25, accepted=false
+COM えり #263:51, input age=2, window=25, accepted=false
+COM えり #263:51, input age=3, window=25, accepted=false
+COM かえで #262:48, input age=0, window=40, accepted=true
+COM かえで #262:48, input age=1, window=40, accepted=false
+COM かえで #262:48, input age=2, window=40, accepted=false
+COM かえで #262:48, input age=3, window=40, accepted=false
+DOWN ゆい reaction=155 frame=86 retained FD=1: -6/-104/40/77
+DOWN ゆい reaction=155: damaged slots=1
+DOWN ゆい reaction=157: damaged slots=0
+DOWN ゆい reaction=138 frame=59 retained FD=1: -15/-97/90/116
+DOWN ゆい reaction=138: damaged slots=1
+DOWN えり reaction=155 frame=86 retained FD=1: -6/-104/40/77
+DOWN えり reaction=155: damaged slots=1
+DOWN えり reaction=157: damaged slots=0
+DOWN えり reaction=138 frame=59 retained FD=1: -15/-97/90/116
+DOWN えり reaction=138: damaged slots=1
+DOWN かえで reaction=155 frame=86 retained FD=1: -6/-104/40/77
+DOWN かえで reaction=155: damaged slots=1
+DOWN かえで reaction=157: damaged slots=0
+DOWN かえで reaction=138 frame=59 retained FD=1: -15/-97/90/116
+DOWN かえで reaction=138: damaged slots=1

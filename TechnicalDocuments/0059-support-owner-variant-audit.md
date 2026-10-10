@@ -62,7 +62,7 @@ HUDのCOM分岐先を追い、受理経路で行う減算を抽出した。
 `tools/fm2k_convert/audit_support_variants.py` を追加した。
 
 ```powershell
-tools/fm2k_convert/.venv/Scripts/python.exe tools/fm2k_convert/audit_support_variants.py build/update-0117/new-json --out build/update-0117/support-variants.json
+tools/fm2k_convert/.venv/Scripts/python.exe tools/fm2k_convert/audit_support_variants.py build/update-0117/new-json --out TechnicalDocuments/evidence/0058/update-0117/support-variants.json
 ```
 
 - 現在の共通化済みLTONを正解にせず、元JSONから比較する。

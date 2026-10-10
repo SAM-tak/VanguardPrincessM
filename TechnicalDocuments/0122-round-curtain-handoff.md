@@ -6,4 +6,4 @@ Round.stepのend分岐は旧layersを削除し、キャラをリセットして#
 
 次ラウンドのstartを生成した直後にstepScriptを呼び、描画前に最初の画像を設定する。この境界だけを対象とし、runAtやbegin全体の実行時期は変えない。main.startRoundはsetRoundで新しい時間・ラウンド番号を公開し、初期化を前倒しした#13が前ラウンド番号で分岐しないようにする。原作が生成時に即実行するか、同一フレーム中の後続処理で実行するかは未確認。
 
-検証: tests/round-curtain.lhで実システムデータを使い1→2、2→3の境界直後に#13が画像62・通常合成で存在すること、V128が初期化されること、翌更新も画像が残ることを確認（build/round-curtain.log: PASS）。tests/turn-result.lhも全項目PASS。提示動画そのもののフレーム抽出・修正後の録画比較は未実施。
+検証: tests/round-curtain.lhで実システムデータを使い1→2、2→3の境界直後に#13が画像62・通常合成で存在すること、V128が初期化されること、翌更新も画像が残ることを確認（TechnicalDocuments/evidence/0122/round-curtain.log: PASS）。tests/turn-result.lhも全項目PASS。提示動画そのもののフレーム抽出・修正後の録画比較は未実施。

@@ -1,0 +1,9307 @@
+[
+  {
+    "file": "013deafe9295c606ccd657fa812a23096458d6f7.dds",
+    "dimensions": [
+      80,
+      235
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1310
+      ],
+      [
+        "サキ",
+        1310
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1310
+      ],
+      [
+        "サキ",
+        1310
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1310.dds",
+        "different_indices": 511,
+        "changed_visible_pixels": {
+          "あやね": [
+            511,
+            511,
+            511,
+            511,
+            511,
+            511,
+            0,
+            0
+          ],
+          "サキ": [
+            511,
+            511,
+            511,
+            511,
+            511,
+            511,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "026312f79a90582072cc6e1baf056a3e5c497a4f.dds",
+    "dimensions": [
+      112,
+      221
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        791
+      ],
+      [
+        "サキ",
+        791
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        791
+      ],
+      [
+        "サキ",
+        791
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0791.dds",
+        "different_indices": 1273,
+        "changed_visible_pixels": {
+          "あやね": [
+            1273,
+            1273,
+            1273,
+            1273,
+            1273,
+            1273,
+            0,
+            0
+          ],
+          "サキ": [
+            1273,
+            1273,
+            1273,
+            1273,
+            1273,
+            1273,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "02d43287866d8cdffd106f795e79408484778c3d.dds",
+    "dimensions": [
+      120,
+      225
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        792
+      ],
+      [
+        "サキ",
+        792
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        792
+      ],
+      [
+        "サキ",
+        792
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0792.dds",
+        "different_indices": 1272,
+        "changed_visible_pixels": {
+          "あやね": [
+            1272,
+            1272,
+            1272,
+            1272,
+            1272,
+            1272,
+            0,
+            0
+          ],
+          "サキ": [
+            1272,
+            1272,
+            1272,
+            1272,
+            1272,
+            1272,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "0440ca10ad22fd96205d677682f4d5af8ce345ce.dds",
+    "dimensions": [
+      166,
+      207
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        808
+      ],
+      [
+        "サキ",
+        808
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        808
+      ],
+      [
+        "サキ",
+        808
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "0568fe84cf3e6ca418c0751f05cb57bab71aa42f.dds",
+    "dimensions": [
+      170,
+      246
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1320
+      ],
+      [
+        "サキ",
+        1320
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1320
+      ],
+      [
+        "サキ",
+        1320
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1320.dds",
+        "different_indices": 659,
+        "changed_visible_pixels": {
+          "あやね": [
+            659,
+            659,
+            659,
+            659,
+            659,
+            659,
+            0,
+            0
+          ],
+          "サキ": [
+            659,
+            659,
+            659,
+            659,
+            659,
+            659,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "0623536b27272ef03192d1050f9e0b5d51179847.dds",
+    "dimensions": [
+      173,
+      227
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        1334
+      ],
+      [
+        "かえで",
+        1334
+      ],
+      [
+        "くるみ",
+        1334
+      ],
+      [
+        "はるか",
+        1334
+      ],
+      [
+        "ゆい",
+        1334
+      ],
+      [
+        "ナタリア",
+        1334
+      ],
+      [
+        "ヒルダ",
+        1334
+      ],
+      [
+        "リリス",
+        1334
+      ],
+      [
+        "ルナ",
+        1334
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        1334
+      ],
+      [
+        "かえで",
+        1334
+      ],
+      [
+        "くるみ",
+        1334
+      ],
+      [
+        "はるか",
+        1334
+      ],
+      [
+        "ゆい",
+        1334
+      ],
+      [
+        "ナタリア",
+        1334
+      ],
+      [
+        "リリス",
+        1334
+      ],
+      [
+        "ルナ",
+        1334
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        1334
+      ],
+      [
+        "ヒルダ",
+        1334
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "08426f04bd0092edea4cbbcb13a3f2640a8cdf40.dds",
+    "dimensions": [
+      207,
+      85
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1328
+      ],
+      [
+        "サキ",
+        1328
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1328
+      ],
+      [
+        "サキ",
+        1328
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "0d17b450f319aeda6d19d9c70bf406df5c1a4b3e.dds",
+    "dimensions": [
+      132,
+      223
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        820
+      ],
+      [
+        "サキ",
+        820
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        820
+      ],
+      [
+        "サキ",
+        820
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0820.dds",
+        "different_indices": 1115,
+        "changed_visible_pixels": {
+          "あやね": [
+            1115,
+            1115,
+            1115,
+            1115,
+            1115,
+            1115,
+            0,
+            0
+          ],
+          "サキ": [
+            1115,
+            1115,
+            1115,
+            1115,
+            1115,
+            1115,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "0eea37ee550b595dee85ace40b093b583f685947.dds",
+    "dimensions": [
+      77,
+      281
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        815
+      ],
+      [
+        "かえで",
+        815
+      ],
+      [
+        "くるみ",
+        815
+      ],
+      [
+        "はるか",
+        815
+      ],
+      [
+        "ゆい",
+        815
+      ],
+      [
+        "ナタリア",
+        815
+      ],
+      [
+        "ヒルダ",
+        815
+      ],
+      [
+        "リリス",
+        815
+      ],
+      [
+        "ルナ",
+        815
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        815
+      ],
+      [
+        "かえで",
+        815
+      ],
+      [
+        "くるみ",
+        815
+      ],
+      [
+        "はるか",
+        815
+      ],
+      [
+        "ゆい",
+        815
+      ],
+      [
+        "ナタリア",
+        815
+      ],
+      [
+        "リリス",
+        815
+      ],
+      [
+        "ルナ",
+        815
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        815
+      ],
+      [
+        "ヒルダ",
+        815
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "0f648e11fe48a755bf02b8694be8dc290f7b2c75.dds",
+    "dimensions": [
+      213,
+      234
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1303
+      ],
+      [
+        "サキ",
+        1303
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1303
+      ],
+      [
+        "サキ",
+        1303
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1303.dds",
+        "different_indices": 1337,
+        "changed_visible_pixels": {
+          "あやね": [
+            1337,
+            1337,
+            1337,
+            1337,
+            1337,
+            1337,
+            0,
+            0
+          ],
+          "サキ": [
+            1337,
+            1337,
+            1337,
+            1337,
+            1337,
+            1337,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "10368d6bc116632a72a798b1eae6733967af35ea.dds",
+    "dimensions": [
+      110,
+      226
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        772
+      ],
+      [
+        "かえで",
+        772
+      ],
+      [
+        "くるみ",
+        772
+      ],
+      [
+        "はるか",
+        772
+      ],
+      [
+        "ゆい",
+        772
+      ],
+      [
+        "ナタリア",
+        772
+      ],
+      [
+        "ヒルダ",
+        772
+      ],
+      [
+        "リリス",
+        772
+      ],
+      [
+        "ルナ",
+        772
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        772
+      ],
+      [
+        "かえで",
+        772
+      ],
+      [
+        "くるみ",
+        772
+      ],
+      [
+        "はるか",
+        772
+      ],
+      [
+        "ゆい",
+        772
+      ],
+      [
+        "ナタリア",
+        772
+      ],
+      [
+        "リリス",
+        772
+      ],
+      [
+        "ルナ",
+        772
+      ]
+    ],
+    "body_script_references": [
+      [
+        "えり",
+        772
+      ],
+      [
+        "かえで",
+        772
+      ],
+      [
+        "くるみ",
+        772
+      ],
+      [
+        "はるか",
+        772
+      ],
+      [
+        "ゆい",
+        772
+      ],
+      [
+        "ナタリア",
+        772
+      ],
+      [
+        "ヒルダ",
+        772
+      ],
+      [
+        "リリス",
+        772
+      ],
+      [
+        "ルナ",
+        772
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "10df9ddd590cd90aaee18728c5e24d7d0bc93a61.dds",
+    "dimensions": [
+      153,
+      231
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1315
+      ],
+      [
+        "サキ",
+        1315
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1315
+      ],
+      [
+        "サキ",
+        1315
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1315.dds",
+        "different_indices": 691,
+        "changed_visible_pixels": {
+          "あやね": [
+            691,
+            691,
+            691,
+            691,
+            691,
+            691,
+            0,
+            0
+          ],
+          "サキ": [
+            691,
+            691,
+            691,
+            691,
+            691,
+            691,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "131d41558212e619b96f37cb8d3c4b8c9a949950.dds",
+    "dimensions": [
+      172,
+      168
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1322
+      ],
+      [
+        "サキ",
+        1322
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1322
+      ],
+      [
+        "サキ",
+        1322
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1322.dds",
+        "different_indices": 1140,
+        "changed_visible_pixels": {
+          "あやね": [
+            1140,
+            1140,
+            1140,
+            1140,
+            1140,
+            1140,
+            0,
+            0
+          ],
+          "サキ": [
+            1140,
+            1140,
+            1140,
+            1140,
+            1140,
+            1140,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "13ca7acf73e92939f9aaf1f59cc46f4f3cec4358.dds",
+    "dimensions": [
+      152,
+      249
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1327
+      ],
+      [
+        "サキ",
+        1327
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1327
+      ],
+      [
+        "サキ",
+        1327
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1327.dds",
+        "different_indices": 1285,
+        "changed_visible_pixels": {
+          "あやね": [
+            1285,
+            1285,
+            1285,
+            1285,
+            1285,
+            1285,
+            0,
+            0
+          ],
+          "サキ": [
+            1285,
+            1285,
+            1285,
+            1285,
+            1285,
+            1285,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "13e5f1960c4988ef51e2ad04a9857094efff104d.dds",
+    "dimensions": [
+      158,
+      247
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        783
+      ],
+      [
+        "かえで",
+        783
+      ],
+      [
+        "くるみ",
+        783
+      ],
+      [
+        "はるか",
+        783
+      ],
+      [
+        "ゆい",
+        783
+      ],
+      [
+        "ナタリア",
+        783
+      ],
+      [
+        "ヒルダ",
+        783
+      ],
+      [
+        "リリス",
+        783
+      ],
+      [
+        "ルナ",
+        783
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        783
+      ],
+      [
+        "かえで",
+        783
+      ],
+      [
+        "くるみ",
+        783
+      ],
+      [
+        "はるか",
+        783
+      ],
+      [
+        "ゆい",
+        783
+      ],
+      [
+        "ナタリア",
+        783
+      ],
+      [
+        "リリス",
+        783
+      ],
+      [
+        "ルナ",
+        783
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        783
+      ],
+      [
+        "ヒルダ",
+        783
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "160eb3f2245e5dfd547cbd9061fcba52fbe79b31.dds",
+    "dimensions": [
+      139,
+      181
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1356
+      ],
+      [
+        "サキ",
+        1356
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1356
+      ],
+      [
+        "サキ",
+        1356
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1356.dds",
+        "different_indices": 1243,
+        "changed_visible_pixels": {
+          "あやね": [
+            1243,
+            1243,
+            1243,
+            1243,
+            1243,
+            1243,
+            0,
+            0
+          ],
+          "サキ": [
+            1243,
+            1243,
+            1243,
+            1243,
+            1243,
+            1243,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "169ad449e2dd1d33c03847256134485d4b4127e3.dds",
+    "dimensions": [
+      150,
+      229
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        1300
+      ],
+      [
+        "かえで",
+        1300
+      ],
+      [
+        "くるみ",
+        1300
+      ],
+      [
+        "はるか",
+        1300
+      ],
+      [
+        "ゆい",
+        1300
+      ],
+      [
+        "ナタリア",
+        1300
+      ],
+      [
+        "ヒルダ",
+        1300
+      ],
+      [
+        "リリス",
+        1300
+      ],
+      [
+        "ルナ",
+        1300
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        1300
+      ],
+      [
+        "かえで",
+        1300
+      ],
+      [
+        "くるみ",
+        1300
+      ],
+      [
+        "はるか",
+        1300
+      ],
+      [
+        "ゆい",
+        1300
+      ],
+      [
+        "ナタリア",
+        1300
+      ],
+      [
+        "リリス",
+        1300
+      ],
+      [
+        "ルナ",
+        1300
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        1300
+      ],
+      [
+        "ヒルダ",
+        1300
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "197ce728550f25c82e325419fbc6b8aab896d100.dds",
+    "dimensions": [
+      117,
+      218
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        1373
+      ],
+      [
+        "かえで",
+        1373
+      ],
+      [
+        "くるみ",
+        1373
+      ],
+      [
+        "はるか",
+        1373
+      ],
+      [
+        "ゆい",
+        1373
+      ],
+      [
+        "ナタリア",
+        1373
+      ],
+      [
+        "ヒルダ",
+        1373
+      ],
+      [
+        "リリス",
+        1373
+      ],
+      [
+        "ルナ",
+        1373
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        1373
+      ],
+      [
+        "かえで",
+        1373
+      ],
+      [
+        "くるみ",
+        1373
+      ],
+      [
+        "はるか",
+        1373
+      ],
+      [
+        "ゆい",
+        1373
+      ],
+      [
+        "ナタリア",
+        1373
+      ],
+      [
+        "リリス",
+        1373
+      ],
+      [
+        "ルナ",
+        1373
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        1373
+      ],
+      [
+        "ヒルダ",
+        1373
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "1b018fac3cab0558d88802b1b0bde52c9d8c9642.dds",
+    "dimensions": [
+      183,
+      110
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        1331
+      ],
+      [
+        "かえで",
+        1331
+      ],
+      [
+        "くるみ",
+        1331
+      ],
+      [
+        "はるか",
+        1331
+      ],
+      [
+        "ゆい",
+        1331
+      ],
+      [
+        "ナタリア",
+        1331
+      ],
+      [
+        "ヒルダ",
+        1331
+      ],
+      [
+        "リリス",
+        1331
+      ],
+      [
+        "ルナ",
+        1331
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        1331
+      ],
+      [
+        "かえで",
+        1331
+      ],
+      [
+        "くるみ",
+        1331
+      ],
+      [
+        "はるか",
+        1331
+      ],
+      [
+        "ゆい",
+        1331
+      ],
+      [
+        "ナタリア",
+        1331
+      ],
+      [
+        "リリス",
+        1331
+      ],
+      [
+        "ルナ",
+        1331
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        1331
+      ],
+      [
+        "ヒルダ",
+        1331
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "1c963d01c59b47716cea8060d2e8056aa42471d8.dds",
+    "dimensions": [
+      76,
+      280
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        812
+      ],
+      [
+        "サキ",
+        812
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        812
+      ],
+      [
+        "サキ",
+        812
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "1f7a61fb0c96f7ccd0951a12aa700c7ec43c2b05.dds",
+    "dimensions": [
+      154,
+      186
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        801
+      ],
+      [
+        "サキ",
+        801
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        801
+      ],
+      [
+        "サキ",
+        801
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0801.dds",
+        "different_indices": 1109,
+        "changed_visible_pixels": {
+          "あやね": [
+            1109,
+            1109,
+            1109,
+            1109,
+            1109,
+            1109,
+            0,
+            0
+          ],
+          "サキ": [
+            1109,
+            1109,
+            1109,
+            1109,
+            1109,
+            1109,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "2083590d724b60351768c8a888f1110d08059ad3.dds",
+    "dimensions": [
+      145,
+      150
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        798
+      ],
+      [
+        "サキ",
+        798
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        798
+      ],
+      [
+        "サキ",
+        798
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0798.dds",
+        "different_indices": 947,
+        "changed_visible_pixels": {
+          "あやね": [
+            947,
+            947,
+            947,
+            947,
+            947,
+            947,
+            0,
+            0
+          ],
+          "サキ": [
+            947,
+            947,
+            947,
+            947,
+            947,
+            947,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "21c32edec800c96d98243e0e4f899d2fc2126d1b.dds",
+    "dimensions": [
+      125,
+      180
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        807
+      ],
+      [
+        "サキ",
+        807
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        807
+      ],
+      [
+        "サキ",
+        807
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "2279bd267bc2d6940008402ef08f909b205df8ef.dds",
+    "dimensions": [
+      112,
+      144
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        806
+      ],
+      [
+        "かえで",
+        806
+      ],
+      [
+        "くるみ",
+        806
+      ],
+      [
+        "はるか",
+        806
+      ],
+      [
+        "ゆい",
+        806
+      ],
+      [
+        "ナタリア",
+        806
+      ],
+      [
+        "ヒルダ",
+        806
+      ],
+      [
+        "リリス",
+        806
+      ],
+      [
+        "ルナ",
+        806
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        806
+      ],
+      [
+        "かえで",
+        806
+      ],
+      [
+        "くるみ",
+        806
+      ],
+      [
+        "はるか",
+        806
+      ],
+      [
+        "ゆい",
+        806
+      ],
+      [
+        "ナタリア",
+        806
+      ],
+      [
+        "リリス",
+        806
+      ],
+      [
+        "ルナ",
+        806
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        806
+      ],
+      [
+        "ヒルダ",
+        806
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "233a821c92e1f817eef7217ede219dcb8361b96c.dds",
+    "dimensions": [
+      152,
+      218
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1350
+      ],
+      [
+        "サキ",
+        1350
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1350
+      ],
+      [
+        "サキ",
+        1350
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1350.dds",
+        "different_indices": 1362,
+        "changed_visible_pixels": {
+          "あやね": [
+            1362,
+            1362,
+            1362,
+            1362,
+            1362,
+            1362,
+            0,
+            0
+          ],
+          "サキ": [
+            1362,
+            1362,
+            1362,
+            1362,
+            1362,
+            1362,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "26ba2abde1e1258fa1e6492a129850a78d8b922c.dds",
+    "dimensions": [
+      154,
+      150
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        803
+      ],
+      [
+        "サキ",
+        803
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        803
+      ],
+      [
+        "サキ",
+        803
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0803.dds",
+        "different_indices": 1014,
+        "changed_visible_pixels": {
+          "あやね": [
+            1014,
+            1014,
+            1014,
+            1014,
+            1014,
+            1014,
+            0,
+            0
+          ],
+          "サキ": [
+            1014,
+            1014,
+            1014,
+            1014,
+            1014,
+            1014,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "280840563339b6af2cadde0e901e4c814710e122.dds",
+    "dimensions": [
+      110,
+      225
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        781
+      ],
+      [
+        "サキ",
+        781
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        781
+      ],
+      [
+        "サキ",
+        781
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "2e52c36bb5b2d1fb6e5eac55eaff401c4de572d7.dds",
+    "dimensions": [
+      127,
+      228
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        1301
+      ],
+      [
+        "かえで",
+        1301
+      ],
+      [
+        "くるみ",
+        1301
+      ],
+      [
+        "はるか",
+        1301
+      ],
+      [
+        "ゆい",
+        1301
+      ],
+      [
+        "ナタリア",
+        1301
+      ],
+      [
+        "ヒルダ",
+        1301
+      ],
+      [
+        "リリス",
+        1301
+      ],
+      [
+        "ルナ",
+        1301
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        1301
+      ],
+      [
+        "かえで",
+        1301
+      ],
+      [
+        "くるみ",
+        1301
+      ],
+      [
+        "はるか",
+        1301
+      ],
+      [
+        "ゆい",
+        1301
+      ],
+      [
+        "ナタリア",
+        1301
+      ],
+      [
+        "リリス",
+        1301
+      ],
+      [
+        "ルナ",
+        1301
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        1301
+      ],
+      [
+        "ヒルダ",
+        1301
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "2e7d38a19b20bcf6bb776be24d5223407a7b8b67.dds",
+    "dimensions": [
+      126,
+      186
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        804
+      ],
+      [
+        "サキ",
+        804
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        804
+      ],
+      [
+        "サキ",
+        804
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "2ff1d499e725411796b3332d31fea161b4d064dd.dds",
+    "dimensions": [
+      160,
+      210
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        800
+      ],
+      [
+        "かえで",
+        800
+      ],
+      [
+        "くるみ",
+        800
+      ],
+      [
+        "はるか",
+        800
+      ],
+      [
+        "ゆい",
+        800
+      ],
+      [
+        "ナタリア",
+        800
+      ],
+      [
+        "ヒルダ",
+        800
+      ],
+      [
+        "リリス",
+        800
+      ],
+      [
+        "ルナ",
+        800
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        800
+      ],
+      [
+        "かえで",
+        800
+      ],
+      [
+        "くるみ",
+        800
+      ],
+      [
+        "はるか",
+        800
+      ],
+      [
+        "ゆい",
+        800
+      ],
+      [
+        "ナタリア",
+        800
+      ],
+      [
+        "リリス",
+        800
+      ],
+      [
+        "ルナ",
+        800
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        800
+      ],
+      [
+        "ヒルダ",
+        800
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "3143a848ed56de741b401c65114309884efb6a76.dds",
+    "dimensions": [
+      127,
+      189
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1296
+      ],
+      [
+        "サキ",
+        1296
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1296
+      ],
+      [
+        "サキ",
+        1296
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "31f0bb90c284897eeb3c941e3e8c0df14539375b.dds",
+    "dimensions": [
+      123,
+      218
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        827
+      ],
+      [
+        "サキ",
+        827
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        827
+      ],
+      [
+        "サキ",
+        827
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0827.dds",
+        "different_indices": 1093,
+        "changed_visible_pixels": {
+          "あやね": [
+            1093,
+            1093,
+            1093,
+            1093,
+            1093,
+            1093,
+            0,
+            0
+          ],
+          "サキ": [
+            1093,
+            1093,
+            1093,
+            1093,
+            1093,
+            1093,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "33130d2fcce1f9981cba7dfe7c528cb1b0ed9d83.dds",
+    "dimensions": [
+      183,
+      110
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1331
+      ],
+      [
+        "サキ",
+        1331
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1331
+      ],
+      [
+        "サキ",
+        1331
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "36a5f0ebf9305747bb9757ab7a39916662f8cc60.dds",
+    "dimensions": [
+      115,
+      224
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        780
+      ],
+      [
+        "サキ",
+        780
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        780
+      ],
+      [
+        "サキ",
+        780
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0780.dds",
+        "different_indices": 1198,
+        "changed_visible_pixels": {
+          "あやね": [
+            1198,
+            1198,
+            1198,
+            1198,
+            1198,
+            1198,
+            0,
+            0
+          ],
+          "サキ": [
+            1198,
+            1198,
+            1198,
+            1198,
+            1198,
+            1198,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "383922416be2e07061b1bde9e5c983bf775096bb.dds",
+    "dimensions": [
+      115,
+      223
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1302
+      ],
+      [
+        "サキ",
+        1302
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1302
+      ],
+      [
+        "サキ",
+        1302
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "389ee1e6f7ffd36716148b628ea8c3ed036aa90f.dds",
+    "dimensions": [
+      133,
+      219
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1325
+      ],
+      [
+        "サキ",
+        1325
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1325
+      ],
+      [
+        "サキ",
+        1325
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1325.dds",
+        "different_indices": 1284,
+        "changed_visible_pixels": {
+          "あやね": [
+            1284,
+            1284,
+            1284,
+            1284,
+            1284,
+            1284,
+            0,
+            0
+          ],
+          "サキ": [
+            1284,
+            1284,
+            1284,
+            1284,
+            1284,
+            1284,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      },
+      {
+        "target": "supports/えこ/images/1308.dds",
+        "different_indices": 15004,
+        "changed_visible_pixels": {
+          "あやね": [
+            15004,
+            15004,
+            15004,
+            15004,
+            15004,
+            15004,
+            14976,
+            14976
+          ],
+          "サキ": [
+            15004,
+            15004,
+            15004,
+            15004,
+            15004,
+            15004,
+            14976,
+            14976
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "38b06020cf081a14ff6c58f9f04d0ffc5d45cfd0.dds",
+    "dimensions": [
+      114,
+      225
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        782
+      ],
+      [
+        "サキ",
+        782
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        782
+      ],
+      [
+        "サキ",
+        782
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0782.dds",
+        "different_indices": 1096,
+        "changed_visible_pixels": {
+          "あやね": [
+            1096,
+            1096,
+            1096,
+            1096,
+            1096,
+            1096,
+            0,
+            0
+          ],
+          "サキ": [
+            1096,
+            1096,
+            1096,
+            1096,
+            1096,
+            1096,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "3b82cf9257346d5c13d1beadb38a882201a188ef.dds",
+    "dimensions": [
+      124,
+      222
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        793
+      ],
+      [
+        "サキ",
+        793
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        793
+      ],
+      [
+        "サキ",
+        793
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0793.dds",
+        "different_indices": 1229,
+        "changed_visible_pixels": {
+          "あやね": [
+            1229,
+            1229,
+            1229,
+            1229,
+            1229,
+            1229,
+            0,
+            0
+          ],
+          "サキ": [
+            1229,
+            1229,
+            1229,
+            1229,
+            1229,
+            1229,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "3ce88fc92f0af44f2068f580c3429d2fd719bd25.dds",
+    "dimensions": [
+      117,
+      218
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1373
+      ],
+      [
+        "サキ",
+        1373
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1373
+      ],
+      [
+        "サキ",
+        1373
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "3ddab01c24d9181ab46f66ac789a18464f5be3c2.dds",
+    "dimensions": [
+      204,
+      164
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        1336
+      ],
+      [
+        "かえで",
+        1336
+      ],
+      [
+        "くるみ",
+        1336
+      ],
+      [
+        "はるか",
+        1336
+      ],
+      [
+        "ゆい",
+        1336
+      ],
+      [
+        "ナタリア",
+        1336
+      ],
+      [
+        "ヒルダ",
+        1336
+      ],
+      [
+        "リリス",
+        1336
+      ],
+      [
+        "ルナ",
+        1336
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        1336
+      ],
+      [
+        "かえで",
+        1336
+      ],
+      [
+        "くるみ",
+        1336
+      ],
+      [
+        "はるか",
+        1336
+      ],
+      [
+        "ゆい",
+        1336
+      ],
+      [
+        "ナタリア",
+        1336
+      ],
+      [
+        "リリス",
+        1336
+      ],
+      [
+        "ルナ",
+        1336
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        1336
+      ],
+      [
+        "ヒルダ",
+        1336
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "3e40cd93ded72cf22a5d78a93ba0dda87289b0f9.dds",
+    "dimensions": [
+      80,
+      280
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        810
+      ],
+      [
+        "かえで",
+        810
+      ],
+      [
+        "くるみ",
+        810
+      ],
+      [
+        "はるか",
+        810
+      ],
+      [
+        "ゆい",
+        810
+      ],
+      [
+        "ナタリア",
+        810
+      ],
+      [
+        "ヒルダ",
+        810
+      ],
+      [
+        "リリス",
+        810
+      ],
+      [
+        "ルナ",
+        810
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        810
+      ],
+      [
+        "かえで",
+        810
+      ],
+      [
+        "くるみ",
+        810
+      ],
+      [
+        "はるか",
+        810
+      ],
+      [
+        "ゆい",
+        810
+      ],
+      [
+        "ナタリア",
+        810
+      ],
+      [
+        "リリス",
+        810
+      ],
+      [
+        "ルナ",
+        810
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        810
+      ],
+      [
+        "ヒルダ",
+        810
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "43f046b0dae07a47e7a7bf28465324ba77765fdc.dds",
+    "dimensions": [
+      138,
+      216
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1376
+      ],
+      [
+        "サキ",
+        1376
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1376
+      ],
+      [
+        "サキ",
+        1376
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1376.dds",
+        "different_indices": 1258,
+        "changed_visible_pixels": {
+          "あやね": [
+            1258,
+            1258,
+            1258,
+            1258,
+            1258,
+            1258,
+            0,
+            0
+          ],
+          "サキ": [
+            1258,
+            1258,
+            1258,
+            1258,
+            1258,
+            1258,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "451d3cb55d95ed7d7e9929758f5b1bf7d6b38704.dds",
+    "dimensions": [
+      110,
+      230
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        797
+      ],
+      [
+        "サキ",
+        797
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        797
+      ],
+      [
+        "サキ",
+        797
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0797.dds",
+        "different_indices": 1217,
+        "changed_visible_pixels": {
+          "あやね": [
+            1217,
+            1217,
+            1217,
+            1217,
+            1217,
+            1217,
+            0,
+            0
+          ],
+          "サキ": [
+            1217,
+            1217,
+            1217,
+            1217,
+            1217,
+            1217,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "452eae8820c02c03d9c8891bca1d89bfcec8ae50.dds",
+    "dimensions": [
+      126,
+      260
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        809
+      ],
+      [
+        "サキ",
+        809
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        809
+      ],
+      [
+        "サキ",
+        809
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "48d21b361438c91f839abe8bab40ccee41b2302b.dds",
+    "dimensions": [
+      125,
+      180
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        807
+      ],
+      [
+        "かえで",
+        807
+      ],
+      [
+        "くるみ",
+        807
+      ],
+      [
+        "はるか",
+        807
+      ],
+      [
+        "ゆい",
+        807
+      ],
+      [
+        "ナタリア",
+        807
+      ],
+      [
+        "ヒルダ",
+        807
+      ],
+      [
+        "リリス",
+        807
+      ],
+      [
+        "ルナ",
+        807
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        807
+      ],
+      [
+        "かえで",
+        807
+      ],
+      [
+        "くるみ",
+        807
+      ],
+      [
+        "はるか",
+        807
+      ],
+      [
+        "ゆい",
+        807
+      ],
+      [
+        "ナタリア",
+        807
+      ],
+      [
+        "リリス",
+        807
+      ],
+      [
+        "ルナ",
+        807
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        807
+      ],
+      [
+        "ヒルダ",
+        807
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "492a8e1ef1704c1dc1c711db56b8616cbd786bdb.dds",
+    "dimensions": [
+      134,
+      222
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        794
+      ],
+      [
+        "サキ",
+        794
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        794
+      ],
+      [
+        "サキ",
+        794
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0794.dds",
+        "different_indices": 1224,
+        "changed_visible_pixels": {
+          "あやね": [
+            1224,
+            1224,
+            1224,
+            1224,
+            1224,
+            1224,
+            0,
+            0
+          ],
+          "サキ": [
+            1224,
+            1224,
+            1224,
+            1224,
+            1224,
+            1224,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "4a9b5cc78f978b69be9b7e9593f7b7fbea70a019.dds",
+    "dimensions": [
+      204,
+      164
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1336
+      ],
+      [
+        "サキ",
+        1336
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1336
+      ],
+      [
+        "サキ",
+        1336
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "4f386f9605b802a8878fba576640399fa76fe5df.dds",
+    "dimensions": [
+      133,
+      205
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1349
+      ],
+      [
+        "サキ",
+        1349
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1349
+      ],
+      [
+        "サキ",
+        1349
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1349.dds",
+        "different_indices": 1284,
+        "changed_visible_pixels": {
+          "あやね": [
+            1284,
+            1284,
+            1284,
+            1284,
+            1284,
+            1284,
+            0,
+            0
+          ],
+          "サキ": [
+            1284,
+            1284,
+            1284,
+            1284,
+            1284,
+            1284,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "51be108c553021b0551847fa548b65c76253ddd8.dds",
+    "dimensions": [
+      102,
+      216
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1377
+      ],
+      [
+        "サキ",
+        1377
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1377
+      ],
+      [
+        "サキ",
+        1377
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1377.dds",
+        "different_indices": 1202,
+        "changed_visible_pixels": {
+          "あやね": [
+            1202,
+            1202,
+            1202,
+            1202,
+            1202,
+            1202,
+            0,
+            0
+          ],
+          "サキ": [
+            1202,
+            1202,
+            1202,
+            1202,
+            1202,
+            1202,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "54a81887f684c46331f57095af0588853213eca4.dds",
+    "dimensions": [
+      152,
+      179
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1355
+      ],
+      [
+        "サキ",
+        1355
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1355
+      ],
+      [
+        "サキ",
+        1355
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1355.dds",
+        "different_indices": 1362,
+        "changed_visible_pixels": {
+          "あやね": [
+            1362,
+            1362,
+            1362,
+            1362,
+            1362,
+            1362,
+            0,
+            0
+          ],
+          "サキ": [
+            1362,
+            1362,
+            1362,
+            1362,
+            1362,
+            1362,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "54f805fcbba46dc429b19725e5376dd4d9bc23f7.dds",
+    "dimensions": [
+      161,
+      216
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1375
+      ],
+      [
+        "サキ",
+        1375
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1375
+      ],
+      [
+        "サキ",
+        1375
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1375.dds",
+        "different_indices": 1343,
+        "changed_visible_pixels": {
+          "あやね": [
+            1343,
+            1343,
+            1343,
+            1343,
+            1343,
+            1343,
+            0,
+            0
+          ],
+          "サキ": [
+            1343,
+            1343,
+            1343,
+            1343,
+            1343,
+            1343,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "55a150bda5b119a7869ff11a2379804238d34bc6.dds",
+    "dimensions": [
+      106,
+      217
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1358
+      ],
+      [
+        "サキ",
+        1358
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1358
+      ],
+      [
+        "サキ",
+        1358
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1358.dds",
+        "different_indices": 1174,
+        "changed_visible_pixels": {
+          "あやね": [
+            1174,
+            1174,
+            1174,
+            1174,
+            1174,
+            1174,
+            0,
+            0
+          ],
+          "サキ": [
+            1174,
+            1174,
+            1174,
+            1174,
+            1174,
+            1174,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "5648ccf51ed8c5f7a05ce704c3197a91218c59f3.dds",
+    "dimensions": [
+      110,
+      224
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        823
+      ],
+      [
+        "サキ",
+        823
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        823
+      ],
+      [
+        "サキ",
+        823
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0823.dds",
+        "different_indices": 1064,
+        "changed_visible_pixels": {
+          "あやね": [
+            1064,
+            1064,
+            1064,
+            1064,
+            1064,
+            1064,
+            0,
+            0
+          ],
+          "サキ": [
+            1064,
+            1064,
+            1064,
+            1064,
+            1064,
+            1064,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "5683c52997e91991fe0d815c7c8da8da6f126329.dds",
+    "dimensions": [
+      77,
+      281
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        815
+      ],
+      [
+        "サキ",
+        815
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        815
+      ],
+      [
+        "サキ",
+        815
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "59df241f9e6fe71fd4f3a5cd09bc9a178c968791.dds",
+    "dimensions": [
+      93,
+      273
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1309
+      ],
+      [
+        "サキ",
+        1309
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1309
+      ],
+      [
+        "サキ",
+        1309
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1309.dds",
+        "different_indices": 695,
+        "changed_visible_pixels": {
+          "あやね": [
+            695,
+            695,
+            695,
+            695,
+            695,
+            695,
+            0,
+            0
+          ],
+          "サキ": [
+            695,
+            695,
+            695,
+            695,
+            695,
+            695,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "59fbf14d3dad8b98ad1c6cbd585e7c1d6558bc23.dds",
+    "dimensions": [
+      147,
+      203
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        1333
+      ],
+      [
+        "かえで",
+        1333
+      ],
+      [
+        "くるみ",
+        1333
+      ],
+      [
+        "はるか",
+        1333
+      ],
+      [
+        "ゆい",
+        1333
+      ],
+      [
+        "ナタリア",
+        1333
+      ],
+      [
+        "ヒルダ",
+        1333
+      ],
+      [
+        "リリス",
+        1333
+      ],
+      [
+        "ルナ",
+        1333
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        1333
+      ],
+      [
+        "かえで",
+        1333
+      ],
+      [
+        "くるみ",
+        1333
+      ],
+      [
+        "はるか",
+        1333
+      ],
+      [
+        "ゆい",
+        1333
+      ],
+      [
+        "ナタリア",
+        1333
+      ],
+      [
+        "リリス",
+        1333
+      ],
+      [
+        "ルナ",
+        1333
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        1333
+      ],
+      [
+        "ヒルダ",
+        1333
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "5f80fb493ff31ba884530906ecc3af2a1786dd29.dds",
+    "dimensions": [
+      110,
+      225
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        781
+      ],
+      [
+        "かえで",
+        781
+      ],
+      [
+        "くるみ",
+        781
+      ],
+      [
+        "はるか",
+        781
+      ],
+      [
+        "ゆい",
+        781
+      ],
+      [
+        "ナタリア",
+        781
+      ],
+      [
+        "ヒルダ",
+        781
+      ],
+      [
+        "リリス",
+        781
+      ],
+      [
+        "ルナ",
+        781
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        781
+      ],
+      [
+        "かえで",
+        781
+      ],
+      [
+        "くるみ",
+        781
+      ],
+      [
+        "はるか",
+        781
+      ],
+      [
+        "ゆい",
+        781
+      ],
+      [
+        "ナタリア",
+        781
+      ],
+      [
+        "リリス",
+        781
+      ],
+      [
+        "ルナ",
+        781
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        781
+      ],
+      [
+        "ヒルダ",
+        781
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "60a2dfc1567d5f3e31bc6da4fb4d47974370a8b1.dds",
+    "dimensions": [
+      161,
+      157
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1312
+      ],
+      [
+        "サキ",
+        1312
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1312
+      ],
+      [
+        "サキ",
+        1312
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1312.dds",
+        "different_indices": 948,
+        "changed_visible_pixels": {
+          "あやね": [
+            948,
+            948,
+            948,
+            948,
+            948,
+            948,
+            0,
+            0
+          ],
+          "サキ": [
+            948,
+            948,
+            948,
+            948,
+            948,
+            948,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "61dab7c77f19bd3be8fb70e9a8860d14094f1db6.dds",
+    "dimensions": [
+      124,
+      229
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        787
+      ],
+      [
+        "サキ",
+        787
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        787
+      ],
+      [
+        "サキ",
+        787
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0787.dds",
+        "different_indices": 1262,
+        "changed_visible_pixels": {
+          "あやね": [
+            1262,
+            1262,
+            1262,
+            1262,
+            1262,
+            1262,
+            0,
+            0
+          ],
+          "サキ": [
+            1262,
+            1262,
+            1262,
+            1262,
+            1262,
+            1262,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      },
+      {
+        "target": "supports/えこ/images/0821.dds",
+        "different_indices": 13730,
+        "changed_visible_pixels": {
+          "あやね": [
+            13730,
+            13730,
+            13730,
+            13730,
+            13730,
+            13730,
+            13550,
+            13550
+          ],
+          "サキ": [
+            13730,
+            13730,
+            13730,
+            13730,
+            13730,
+            13730,
+            13550,
+            13550
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "62e4b7bffc860e15efd13a14f75029a608d9aa1a.dds",
+    "dimensions": [
+      181,
+      71
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        1329
+      ],
+      [
+        "かえで",
+        1329
+      ],
+      [
+        "くるみ",
+        1329
+      ],
+      [
+        "はるか",
+        1329
+      ],
+      [
+        "ゆい",
+        1329
+      ],
+      [
+        "ナタリア",
+        1329
+      ],
+      [
+        "ヒルダ",
+        1329
+      ],
+      [
+        "リリス",
+        1329
+      ],
+      [
+        "ルナ",
+        1329
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        1329
+      ],
+      [
+        "かえで",
+        1329
+      ],
+      [
+        "くるみ",
+        1329
+      ],
+      [
+        "はるか",
+        1329
+      ],
+      [
+        "ゆい",
+        1329
+      ],
+      [
+        "ナタリア",
+        1329
+      ],
+      [
+        "リリス",
+        1329
+      ],
+      [
+        "ルナ",
+        1329
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        1329
+      ],
+      [
+        "ヒルダ",
+        1329
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "65b24ff215230aa4cac5b5cdd0e2fe17286f83f0.dds",
+    "dimensions": [
+      145,
+      193
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1318
+      ],
+      [
+        "サキ",
+        1318
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1318
+      ],
+      [
+        "サキ",
+        1318
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1318.dds",
+        "different_indices": 948,
+        "changed_visible_pixels": {
+          "あやね": [
+            948,
+            948,
+            948,
+            948,
+            948,
+            948,
+            0,
+            0
+          ],
+          "サキ": [
+            948,
+            948,
+            948,
+            948,
+            948,
+            948,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "65fc9e15d31d9c26f5faed7119ba9e024304a259.dds",
+    "dimensions": [
+      161,
+      232
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1352
+      ],
+      [
+        "サキ",
+        1352
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1352
+      ],
+      [
+        "サキ",
+        1352
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1352.dds",
+        "different_indices": 1203,
+        "changed_visible_pixels": {
+          "あやね": [
+            1203,
+            1203,
+            1203,
+            1203,
+            1203,
+            1203,
+            0,
+            0
+          ],
+          "サキ": [
+            1203,
+            1203,
+            1203,
+            1203,
+            1203,
+            1203,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "677fab194a0f283cbaac89984d7b9246f070fc6e.dds",
+    "dimensions": [
+      116,
+      226
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        822
+      ],
+      [
+        "サキ",
+        822
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        822
+      ],
+      [
+        "サキ",
+        822
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0822.dds",
+        "different_indices": 1032,
+        "changed_visible_pixels": {
+          "あやね": [
+            1032,
+            1032,
+            1032,
+            1032,
+            1032,
+            1032,
+            0,
+            0
+          ],
+          "サキ": [
+            1032,
+            1032,
+            1032,
+            1032,
+            1032,
+            1032,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "6953cfb9cf8918395ee047cc7a88d66c65755389.dds",
+    "dimensions": [
+      130,
+      224
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        789
+      ],
+      [
+        "サキ",
+        789
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        789
+      ],
+      [
+        "サキ",
+        789
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "6e7e94ad731114b7f115176b16dbd69166554f83.dds",
+    "dimensions": [
+      145,
+      174
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        817
+      ],
+      [
+        "サキ",
+        817
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        817
+      ],
+      [
+        "サキ",
+        817
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "720a872f546b9db386eb5763bc7a9cec19f61eb1.dds",
+    "dimensions": [
+      129,
+      227
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        1335
+      ],
+      [
+        "かえで",
+        1335
+      ],
+      [
+        "くるみ",
+        1335
+      ],
+      [
+        "はるか",
+        1335
+      ],
+      [
+        "ゆい",
+        1335
+      ],
+      [
+        "ナタリア",
+        1335
+      ],
+      [
+        "ヒルダ",
+        1335
+      ],
+      [
+        "リリス",
+        1335
+      ],
+      [
+        "ルナ",
+        1335
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        1335
+      ],
+      [
+        "かえで",
+        1335
+      ],
+      [
+        "くるみ",
+        1335
+      ],
+      [
+        "はるか",
+        1335
+      ],
+      [
+        "ゆい",
+        1335
+      ],
+      [
+        "ナタリア",
+        1335
+      ],
+      [
+        "リリス",
+        1335
+      ],
+      [
+        "ルナ",
+        1335
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        1335
+      ],
+      [
+        "ヒルダ",
+        1335
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "734db55e65476a154c659cb0a93792dcf71dcfa0.dds",
+    "dimensions": [
+      112,
+      144
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        806
+      ],
+      [
+        "サキ",
+        806
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        806
+      ],
+      [
+        "サキ",
+        806
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "743e06482f42201abbf2f6b704ec1954ab271e37.dds",
+    "dimensions": [
+      110,
+      226
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        772
+      ],
+      [
+        "サキ",
+        772
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        772
+      ],
+      [
+        "サキ",
+        772
+      ]
+    ],
+    "body_script_references": [
+      [
+        "あやね",
+        772
+      ],
+      [
+        "サキ",
+        772
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "748a764ad7a2185cf502eab1bfe860880bbf9668.dds",
+    "dimensions": [
+      129,
+      227
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1335
+      ],
+      [
+        "サキ",
+        1335
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1335
+      ],
+      [
+        "サキ",
+        1335
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "77023ad5a0a9f9fd2d0ec619699fc576f9a9b05b.dds",
+    "dimensions": [
+      130,
+      222
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        795
+      ],
+      [
+        "サキ",
+        795
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        795
+      ],
+      [
+        "サキ",
+        795
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0795.dds",
+        "different_indices": 1254,
+        "changed_visible_pixels": {
+          "あやね": [
+            1254,
+            1254,
+            1254,
+            1254,
+            1254,
+            1254,
+            0,
+            0
+          ],
+          "サキ": [
+            1254,
+            1254,
+            1254,
+            1254,
+            1254,
+            1254,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "78805d631db222f0122317eeeef994805757bf53.dds",
+    "dimensions": [
+      219,
+      123
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        2101
+      ],
+      [
+        "かえで",
+        2101
+      ],
+      [
+        "くるみ",
+        2101
+      ],
+      [
+        "はるか",
+        2101
+      ],
+      [
+        "ゆい",
+        2101
+      ],
+      [
+        "ナタリア",
+        2101
+      ],
+      [
+        "リリス",
+        2101
+      ],
+      [
+        "ルナ",
+        2101
+      ]
+    ],
+    "support_script_references": [],
+    "body_script_references": [
+      [
+        "えり",
+        2101
+      ],
+      [
+        "かえで",
+        2101
+      ],
+      [
+        "くるみ",
+        2101
+      ],
+      [
+        "はるか",
+        2101
+      ],
+      [
+        "ゆい",
+        2101
+      ],
+      [
+        "ナタリア",
+        2101
+      ],
+      [
+        "リリス",
+        2101
+      ],
+      [
+        "ルナ",
+        2101
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "7a2d0a99a5a4b52bc654be566a0e2866e0300358.dds",
+    "dimensions": [
+      181,
+      71
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1329
+      ],
+      [
+        "サキ",
+        1329
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1329
+      ],
+      [
+        "サキ",
+        1329
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "7c7ebca12f5a05851d70370153cce72fbaec04bd.dds",
+    "dimensions": [
+      145,
+      162
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1323
+      ],
+      [
+        "サキ",
+        1323
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1323
+      ],
+      [
+        "サキ",
+        1323
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1323.dds",
+        "different_indices": 969,
+        "changed_visible_pixels": {
+          "あやね": [
+            969,
+            969,
+            969,
+            969,
+            969,
+            969,
+            0,
+            0
+          ],
+          "サキ": [
+            969,
+            969,
+            969,
+            969,
+            969,
+            969,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "7dba1101b90eeb6f8793ae677a23ee80d29c6cac.dds",
+    "dimensions": [
+      155,
+      156
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1332
+      ],
+      [
+        "サキ",
+        1332
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1332
+      ],
+      [
+        "サキ",
+        1332
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "7f22070e4f5f266d09ad5285ac50b9b8b54ec185.dds",
+    "dimensions": [
+      192,
+      177
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1321
+      ],
+      [
+        "サキ",
+        1321
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1321
+      ],
+      [
+        "サキ",
+        1321
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1321.dds",
+        "different_indices": 1108,
+        "changed_visible_pixels": {
+          "あやね": [
+            1108,
+            1108,
+            1108,
+            1108,
+            1108,
+            1108,
+            0,
+            0
+          ],
+          "サキ": [
+            1108,
+            1108,
+            1108,
+            1108,
+            1108,
+            1108,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "7fbb9681ea2e6647b5f032ac20a7bf494e7c9eee.dds",
+    "dimensions": [
+      160,
+      210
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        800
+      ],
+      [
+        "サキ",
+        800
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        800
+      ],
+      [
+        "サキ",
+        800
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "7feb02830a782d4e8c3952f3e8b12f7465360eb3.dds",
+    "dimensions": [
+      192,
+      143
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1319
+      ],
+      [
+        "サキ",
+        1319
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1319
+      ],
+      [
+        "サキ",
+        1319
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1319.dds",
+        "different_indices": 935,
+        "changed_visible_pixels": {
+          "あやね": [
+            935,
+            935,
+            935,
+            935,
+            935,
+            935,
+            0,
+            0
+          ],
+          "サキ": [
+            935,
+            935,
+            935,
+            935,
+            935,
+            935,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "8625e39afd1b86983f9a1c0e6510e172b011cf10.dds",
+    "dimensions": [
+      199,
+      110
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        2103
+      ],
+      [
+        "かえで",
+        2103
+      ],
+      [
+        "くるみ",
+        2103
+      ],
+      [
+        "はるか",
+        2103
+      ],
+      [
+        "ゆい",
+        2103
+      ],
+      [
+        "ナタリア",
+        2103
+      ],
+      [
+        "リリス",
+        2103
+      ],
+      [
+        "ルナ",
+        2103
+      ]
+    ],
+    "support_script_references": [],
+    "body_script_references": [
+      [
+        "えり",
+        2103
+      ],
+      [
+        "かえで",
+        2103
+      ],
+      [
+        "くるみ",
+        2103
+      ],
+      [
+        "はるか",
+        2103
+      ],
+      [
+        "ゆい",
+        2103
+      ],
+      [
+        "ナタリア",
+        2103
+      ],
+      [
+        "リリス",
+        2103
+      ],
+      [
+        "ルナ",
+        2103
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "891c33fb6b8e646a299417b13b00b60358f74f13.dds",
+    "dimensions": [
+      124,
+      223
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        779
+      ],
+      [
+        "サキ",
+        779
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        779
+      ],
+      [
+        "サキ",
+        779
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0779.dds",
+        "different_indices": 1157,
+        "changed_visible_pixels": {
+          "あやね": [
+            1157,
+            1157,
+            1157,
+            1157,
+            1157,
+            1157,
+            0,
+            0
+          ],
+          "サキ": [
+            1157,
+            1157,
+            1157,
+            1157,
+            1157,
+            1157,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "8930eb27b46644197704946260fecf6d608b6653.dds",
+    "dimensions": [
+      138,
+      227
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1298
+      ],
+      [
+        "サキ",
+        1298
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1298
+      ],
+      [
+        "サキ",
+        1298
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "893d1b94340eca3f1218b2bb1254444e4a82e6e6.dds",
+    "dimensions": [
+      173,
+      227
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1334
+      ],
+      [
+        "サキ",
+        1334
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1334
+      ],
+      [
+        "サキ",
+        1334
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "8b597b0185ba54cd95e819b370a7cd3f7407f3f4.dds",
+    "dimensions": [
+      155,
+      217
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1297
+      ],
+      [
+        "サキ",
+        1297
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1297
+      ],
+      [
+        "サキ",
+        1297
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "8ebbf8fdcf1a886a111b08a2f7c760d04b109d36.dds",
+    "dimensions": [
+      165,
+      131
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1313
+      ],
+      [
+        "サキ",
+        1313
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1313
+      ],
+      [
+        "サキ",
+        1313
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1313.dds",
+        "different_indices": 948,
+        "changed_visible_pixels": {
+          "あやね": [
+            948,
+            948,
+            948,
+            948,
+            948,
+            948,
+            0,
+            0
+          ],
+          "サキ": [
+            948,
+            948,
+            948,
+            948,
+            948,
+            948,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "8f2df73f2b4f81f6b796698c0466d96e57cec270.dds",
+    "dimensions": [
+      136,
+      268
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        814
+      ],
+      [
+        "かえで",
+        814
+      ],
+      [
+        "くるみ",
+        814
+      ],
+      [
+        "はるか",
+        814
+      ],
+      [
+        "ゆい",
+        814
+      ],
+      [
+        "ナタリア",
+        814
+      ],
+      [
+        "ヒルダ",
+        814
+      ],
+      [
+        "リリス",
+        814
+      ],
+      [
+        "ルナ",
+        814
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        814
+      ],
+      [
+        "かえで",
+        814
+      ],
+      [
+        "くるみ",
+        814
+      ],
+      [
+        "はるか",
+        814
+      ],
+      [
+        "ゆい",
+        814
+      ],
+      [
+        "ナタリア",
+        814
+      ],
+      [
+        "リリス",
+        814
+      ],
+      [
+        "ルナ",
+        814
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        814
+      ],
+      [
+        "ヒルダ",
+        814
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "8f8d4e328051c3bb30371b3822119a350d70f3dd.dds",
+    "dimensions": [
+      167,
+      214
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        816
+      ],
+      [
+        "えり",
+        1338
+      ],
+      [
+        "かえで",
+        816
+      ],
+      [
+        "かえで",
+        1338
+      ],
+      [
+        "くるみ",
+        816
+      ],
+      [
+        "くるみ",
+        1338
+      ],
+      [
+        "はるか",
+        816
+      ],
+      [
+        "はるか",
+        1338
+      ],
+      [
+        "ゆい",
+        816
+      ],
+      [
+        "ゆい",
+        1338
+      ],
+      [
+        "ナタリア",
+        816
+      ],
+      [
+        "ナタリア",
+        1338
+      ],
+      [
+        "ヒルダ",
+        816
+      ],
+      [
+        "ヒルダ",
+        1338
+      ],
+      [
+        "リリス",
+        816
+      ],
+      [
+        "リリス",
+        1338
+      ],
+      [
+        "ルナ",
+        816
+      ],
+      [
+        "ルナ",
+        1338
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        816
+      ],
+      [
+        "えり",
+        1338
+      ],
+      [
+        "かえで",
+        816
+      ],
+      [
+        "かえで",
+        1338
+      ],
+      [
+        "くるみ",
+        816
+      ],
+      [
+        "くるみ",
+        1338
+      ],
+      [
+        "はるか",
+        816
+      ],
+      [
+        "はるか",
+        1338
+      ],
+      [
+        "ゆい",
+        816
+      ],
+      [
+        "ゆい",
+        1338
+      ],
+      [
+        "ナタリア",
+        816
+      ],
+      [
+        "ナタリア",
+        1338
+      ],
+      [
+        "リリス",
+        816
+      ],
+      [
+        "リリス",
+        1338
+      ],
+      [
+        "ルナ",
+        816
+      ],
+      [
+        "ルナ",
+        1338
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        816
+      ],
+      [
+        "くるみ",
+        1338
+      ],
+      [
+        "ヒルダ",
+        816
+      ],
+      [
+        "ヒルダ",
+        1338
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "908e56a5eea7d9a88fc28f20a5d4285da52984af.dds",
+    "dimensions": [
+      120,
+      232
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        786
+      ],
+      [
+        "サキ",
+        786
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        786
+      ],
+      [
+        "サキ",
+        786
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0786.dds",
+        "different_indices": 1278,
+        "changed_visible_pixels": {
+          "あやね": [
+            1278,
+            1278,
+            1278,
+            1278,
+            1278,
+            1278,
+            0,
+            0
+          ],
+          "サキ": [
+            1278,
+            1278,
+            1278,
+            1278,
+            1278,
+            1278,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "9812ffd382cbdbf4033b68914b69adba4a7e6850.dds",
+    "dimensions": [
+      160,
+      209
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        825
+      ],
+      [
+        "サキ",
+        825
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        825
+      ],
+      [
+        "サキ",
+        825
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0825.dds",
+        "different_indices": 945,
+        "changed_visible_pixels": {
+          "あやね": [
+            945,
+            945,
+            945,
+            945,
+            945,
+            945,
+            0,
+            0
+          ],
+          "サキ": [
+            945,
+            945,
+            945,
+            945,
+            945,
+            945,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "9bc39f57df06634fb46b9014f131a380d7e56a22.dds",
+    "dimensions": [
+      220,
+      109
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        2102
+      ],
+      [
+        "サキ",
+        2102
+      ]
+    ],
+    "support_script_references": [],
+    "body_script_references": [
+      [
+        "あやね",
+        2102
+      ],
+      [
+        "サキ",
+        2102
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "9cb8eb2636b8e8aa83f558907b92f2096aee8590.dds",
+    "dimensions": [
+      177,
+      155
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1314
+      ],
+      [
+        "サキ",
+        1314
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1314
+      ],
+      [
+        "サキ",
+        1314
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1314.dds",
+        "different_indices": 948,
+        "changed_visible_pixels": {
+          "あやね": [
+            948,
+            948,
+            948,
+            948,
+            948,
+            948,
+            0,
+            0
+          ],
+          "サキ": [
+            948,
+            948,
+            948,
+            948,
+            948,
+            948,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "a0881a3c29934209f50b934e50f3432e5baafabc.dds",
+    "dimensions": [
+      155,
+      156
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        1332
+      ],
+      [
+        "かえで",
+        1332
+      ],
+      [
+        "くるみ",
+        1332
+      ],
+      [
+        "はるか",
+        1332
+      ],
+      [
+        "ゆい",
+        1332
+      ],
+      [
+        "ナタリア",
+        1332
+      ],
+      [
+        "ヒルダ",
+        1332
+      ],
+      [
+        "リリス",
+        1332
+      ],
+      [
+        "ルナ",
+        1332
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        1332
+      ],
+      [
+        "かえで",
+        1332
+      ],
+      [
+        "くるみ",
+        1332
+      ],
+      [
+        "はるか",
+        1332
+      ],
+      [
+        "ゆい",
+        1332
+      ],
+      [
+        "ナタリア",
+        1332
+      ],
+      [
+        "リリス",
+        1332
+      ],
+      [
+        "ルナ",
+        1332
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        1332
+      ],
+      [
+        "ヒルダ",
+        1332
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "a0f8691607a18c78beb79ad155907d8020a160ac.dds",
+    "dimensions": [
+      130,
+      224
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        789
+      ],
+      [
+        "かえで",
+        789
+      ],
+      [
+        "くるみ",
+        789
+      ],
+      [
+        "はるか",
+        789
+      ],
+      [
+        "ゆい",
+        789
+      ],
+      [
+        "ナタリア",
+        789
+      ],
+      [
+        "ヒルダ",
+        789
+      ],
+      [
+        "リリス",
+        789
+      ],
+      [
+        "ルナ",
+        789
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        789
+      ],
+      [
+        "かえで",
+        789
+      ],
+      [
+        "くるみ",
+        789
+      ],
+      [
+        "はるか",
+        789
+      ],
+      [
+        "ゆい",
+        789
+      ],
+      [
+        "ナタリア",
+        789
+      ],
+      [
+        "リリス",
+        789
+      ],
+      [
+        "ルナ",
+        789
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        789
+      ],
+      [
+        "ヒルダ",
+        789
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "a14e3d964c8fb110e7acba0244f4e40c424b1199.dds",
+    "dimensions": [
+      145,
+      186
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1353
+      ],
+      [
+        "サキ",
+        1353
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1353
+      ],
+      [
+        "サキ",
+        1353
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1353.dds",
+        "different_indices": 1222,
+        "changed_visible_pixels": {
+          "あやね": [
+            1222,
+            1222,
+            1222,
+            1222,
+            1222,
+            1222,
+            0,
+            0
+          ],
+          "サキ": [
+            1222,
+            1222,
+            1222,
+            1222,
+            1222,
+            1222,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "a4520eee073dcc2051afb28c5303694d6087e161.dds",
+    "dimensions": [
+      120,
+      220
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        785
+      ],
+      [
+        "サキ",
+        785
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        785
+      ],
+      [
+        "サキ",
+        785
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0785.dds",
+        "different_indices": 1113,
+        "changed_visible_pixels": {
+          "あやね": [
+            1113,
+            1113,
+            1113,
+            1113,
+            1113,
+            1113,
+            0,
+            0
+          ],
+          "サキ": [
+            1113,
+            1113,
+            1113,
+            1113,
+            1113,
+            1113,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      },
+      {
+        "target": "supports/えこ/images/0775.dds",
+        "different_indices": 13880,
+        "changed_visible_pixels": {
+          "あやね": [
+            13880,
+            13880,
+            13880,
+            13880,
+            13880,
+            13880,
+            13575,
+            13575
+          ],
+          "サキ": [
+            13880,
+            13880,
+            13880,
+            13880,
+            13880,
+            13880,
+            13575,
+            13575
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "a49181d9e66f55fb994168a6529c733f3e3d6a68.dds",
+    "dimensions": [
+      130,
+      218
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        1372
+      ],
+      [
+        "かえで",
+        1372
+      ],
+      [
+        "くるみ",
+        1372
+      ],
+      [
+        "はるか",
+        1372
+      ],
+      [
+        "ゆい",
+        1372
+      ],
+      [
+        "ナタリア",
+        1372
+      ],
+      [
+        "ヒルダ",
+        1372
+      ],
+      [
+        "リリス",
+        1372
+      ],
+      [
+        "ルナ",
+        1372
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        1372
+      ],
+      [
+        "かえで",
+        1372
+      ],
+      [
+        "くるみ",
+        1372
+      ],
+      [
+        "はるか",
+        1372
+      ],
+      [
+        "ゆい",
+        1372
+      ],
+      [
+        "ナタリア",
+        1372
+      ],
+      [
+        "リリス",
+        1372
+      ],
+      [
+        "ルナ",
+        1372
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        1372
+      ],
+      [
+        "ヒルダ",
+        1372
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "a4f92a88b493480f9df92caefeaf89c41adac0f7.dds",
+    "dimensions": [
+      158,
+      247
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        783
+      ],
+      [
+        "サキ",
+        783
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        783
+      ],
+      [
+        "サキ",
+        783
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "a50a19e1a780c5fde66a34e8f989f51c34cfb4ee.dds",
+    "dimensions": [
+      84,
+      280
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        811
+      ],
+      [
+        "サキ",
+        811
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        811
+      ],
+      [
+        "サキ",
+        811
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "a5be0873ada95a889d4e658247c455bc96d981f9.dds",
+    "dimensions": [
+      150,
+      229
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1300
+      ],
+      [
+        "サキ",
+        1300
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1300
+      ],
+      [
+        "サキ",
+        1300
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "a901cc2f73d46404a32316608922f35b301ef992.dds",
+    "dimensions": [
+      207,
+      85
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        1328
+      ],
+      [
+        "かえで",
+        1328
+      ],
+      [
+        "くるみ",
+        1328
+      ],
+      [
+        "はるか",
+        1328
+      ],
+      [
+        "ゆい",
+        1328
+      ],
+      [
+        "ナタリア",
+        1328
+      ],
+      [
+        "ヒルダ",
+        1328
+      ],
+      [
+        "リリス",
+        1328
+      ],
+      [
+        "ルナ",
+        1328
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        1328
+      ],
+      [
+        "かえで",
+        1328
+      ],
+      [
+        "くるみ",
+        1328
+      ],
+      [
+        "はるか",
+        1328
+      ],
+      [
+        "ゆい",
+        1328
+      ],
+      [
+        "ナタリア",
+        1328
+      ],
+      [
+        "リリス",
+        1328
+      ],
+      [
+        "ルナ",
+        1328
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        1328
+      ],
+      [
+        "ヒルダ",
+        1328
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "ab06a9fe824469c974dc98405643f679437bfb70.dds",
+    "dimensions": [
+      184,
+      169
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1337
+      ],
+      [
+        "サキ",
+        1337
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1337
+      ],
+      [
+        "サキ",
+        1337
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "ae5713708e99bed93e01a90b7614fe4487607d6a.dds",
+    "dimensions": [
+      122,
+      222
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        796
+      ],
+      [
+        "サキ",
+        796
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        796
+      ],
+      [
+        "サキ",
+        796
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0796.dds",
+        "different_indices": 1186,
+        "changed_visible_pixels": {
+          "あやね": [
+            1186,
+            1186,
+            1186,
+            1186,
+            1186,
+            1186,
+            0,
+            0
+          ],
+          "サキ": [
+            1186,
+            1186,
+            1186,
+            1186,
+            1186,
+            1186,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "b08581f69098ac83318953292470bbc35bc4c2e5.dds",
+    "dimensions": [
+      124,
+      229
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        821
+      ],
+      [
+        "サキ",
+        821
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        821
+      ],
+      [
+        "サキ",
+        821
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0821.dds",
+        "different_indices": 1113,
+        "changed_visible_pixels": {
+          "あやね": [
+            1113,
+            1113,
+            1113,
+            1113,
+            1113,
+            1113,
+            0,
+            0
+          ],
+          "サキ": [
+            1113,
+            1113,
+            1113,
+            1113,
+            1113,
+            1113,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      },
+      {
+        "target": "supports/えこ/images/0787.dds",
+        "different_indices": 13730,
+        "changed_visible_pixels": {
+          "あやね": [
+            13730,
+            13730,
+            13730,
+            13730,
+            13730,
+            13730,
+            13550,
+            13550
+          ],
+          "サキ": [
+            13730,
+            13730,
+            13730,
+            13730,
+            13730,
+            13730,
+            13550,
+            13550
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "b250a236e37d7f7ea2ea2fc6868b0df8d9da2049.dds",
+    "dimensions": [
+      126,
+      218
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        776
+      ],
+      [
+        "サキ",
+        776
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        776
+      ],
+      [
+        "サキ",
+        776
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0776.dds",
+        "different_indices": 1205,
+        "changed_visible_pixels": {
+          "あやね": [
+            1205,
+            1205,
+            1205,
+            1205,
+            1205,
+            1205,
+            0,
+            0
+          ],
+          "サキ": [
+            1205,
+            1205,
+            1205,
+            1205,
+            1205,
+            1205,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      },
+      {
+        "target": "supports/えこ/images/0818.dds",
+        "different_indices": 14846,
+        "changed_visible_pixels": {
+          "あやね": [
+            14846,
+            14846,
+            14846,
+            14846,
+            14846,
+            14846,
+            14550,
+            14550
+          ],
+          "サキ": [
+            14846,
+            14846,
+            14846,
+            14846,
+            14846,
+            14846,
+            14550,
+            14550
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "b29a4411881e52158f27ee1399dc66cf0fd0c3db.dds",
+    "dimensions": [
+      122,
+      216
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        790
+      ],
+      [
+        "サキ",
+        790
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        790
+      ],
+      [
+        "サキ",
+        790
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0790.dds",
+        "different_indices": 1212,
+        "changed_visible_pixels": {
+          "あやね": [
+            1212,
+            1212,
+            1212,
+            1212,
+            1212,
+            1212,
+            0,
+            0
+          ],
+          "サキ": [
+            1212,
+            1212,
+            1212,
+            1212,
+            1212,
+            1212,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "b5c7b5d02cf3eba1dfc9e3fb02491892f9bdd2f0.dds",
+    "dimensions": [
+      120,
+      220
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        775
+      ],
+      [
+        "サキ",
+        775
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        775
+      ],
+      [
+        "サキ",
+        775
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0775.dds",
+        "different_indices": 1222,
+        "changed_visible_pixels": {
+          "あやね": [
+            1222,
+            1222,
+            1222,
+            1222,
+            1222,
+            1222,
+            0,
+            0
+          ],
+          "サキ": [
+            1222,
+            1222,
+            1222,
+            1222,
+            1222,
+            1222,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      },
+      {
+        "target": "supports/えこ/images/0785.dds",
+        "different_indices": 13880,
+        "changed_visible_pixels": {
+          "あやね": [
+            13880,
+            13880,
+            13880,
+            13880,
+            13880,
+            13880,
+            13575,
+            13575
+          ],
+          "サキ": [
+            13880,
+            13880,
+            13880,
+            13880,
+            13880,
+            13880,
+            13575,
+            13575
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "b66a1486c7fe4cd5f2a938eefb88ce2d59ea138b.dds",
+    "dimensions": [
+      236,
+      210
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1306
+      ],
+      [
+        "サキ",
+        1306
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1306
+      ],
+      [
+        "サキ",
+        1306
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1306.dds",
+        "different_indices": 1287,
+        "changed_visible_pixels": {
+          "あやね": [
+            1287,
+            1287,
+            1287,
+            1287,
+            1287,
+            1287,
+            0,
+            0
+          ],
+          "サキ": [
+            1287,
+            1287,
+            1287,
+            1287,
+            1287,
+            1287,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "b95aef1154bb1dbcbb08ef820078a64db9e1837b.dds",
+    "dimensions": [
+      80,
+      280
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        810
+      ],
+      [
+        "サキ",
+        810
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        810
+      ],
+      [
+        "サキ",
+        810
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "bb288d6ba64a607f3da3a6e05d44199878381be2.dds",
+    "dimensions": [
+      126,
+      260
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        809
+      ],
+      [
+        "かえで",
+        809
+      ],
+      [
+        "くるみ",
+        809
+      ],
+      [
+        "はるか",
+        809
+      ],
+      [
+        "ゆい",
+        809
+      ],
+      [
+        "ナタリア",
+        809
+      ],
+      [
+        "ヒルダ",
+        809
+      ],
+      [
+        "リリス",
+        809
+      ],
+      [
+        "ルナ",
+        809
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        809
+      ],
+      [
+        "かえで",
+        809
+      ],
+      [
+        "くるみ",
+        809
+      ],
+      [
+        "はるか",
+        809
+      ],
+      [
+        "ゆい",
+        809
+      ],
+      [
+        "ナタリア",
+        809
+      ],
+      [
+        "リリス",
+        809
+      ],
+      [
+        "ルナ",
+        809
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        809
+      ],
+      [
+        "ヒルダ",
+        809
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "bb44cb11ef3e94e1269286ad944c2a18beec7858.dds",
+    "dimensions": [
+      155,
+      212
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1307
+      ],
+      [
+        "サキ",
+        1307
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1307
+      ],
+      [
+        "サキ",
+        1307
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1307.dds",
+        "different_indices": 1092,
+        "changed_visible_pixels": {
+          "あやね": [
+            1092,
+            1092,
+            1092,
+            1092,
+            1092,
+            1092,
+            0,
+            0
+          ],
+          "サキ": [
+            1092,
+            1092,
+            1092,
+            1092,
+            1092,
+            1092,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "c1a1dafd65cbdce91787d9b4aa22b512f10b509d.dds",
+    "dimensions": [
+      132,
+      167
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1324
+      ],
+      [
+        "サキ",
+        1324
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1324
+      ],
+      [
+        "サキ",
+        1324
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1324.dds",
+        "different_indices": 1107,
+        "changed_visible_pixels": {
+          "あやね": [
+            1107,
+            1107,
+            1107,
+            1107,
+            1107,
+            1107,
+            0,
+            0
+          ],
+          "サキ": [
+            1107,
+            1107,
+            1107,
+            1107,
+            1107,
+            1107,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "c1caab6a02483ffd4bacdaca9f9882e42ea50edc.dds",
+    "dimensions": [
+      126,
+      218
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        818
+      ],
+      [
+        "サキ",
+        818
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        818
+      ],
+      [
+        "サキ",
+        818
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0818.dds",
+        "different_indices": 1131,
+        "changed_visible_pixels": {
+          "あやね": [
+            1131,
+            1131,
+            1131,
+            1131,
+            1131,
+            1131,
+            0,
+            0
+          ],
+          "サキ": [
+            1131,
+            1131,
+            1131,
+            1131,
+            1131,
+            1131,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      },
+      {
+        "target": "supports/えこ/images/0776.dds",
+        "different_indices": 14846,
+        "changed_visible_pixels": {
+          "あやね": [
+            14846,
+            14846,
+            14846,
+            14846,
+            14846,
+            14846,
+            14550,
+            14550
+          ],
+          "サキ": [
+            14846,
+            14846,
+            14846,
+            14846,
+            14846,
+            14846,
+            14550,
+            14550
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "c36817895fe07852112dfa95a9ff6a18363d3fb7.dds",
+    "dimensions": [
+      139,
+      205
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        826
+      ],
+      [
+        "サキ",
+        826
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        826
+      ],
+      [
+        "サキ",
+        826
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0826.dds",
+        "different_indices": 868,
+        "changed_visible_pixels": {
+          "あやね": [
+            868,
+            868,
+            868,
+            868,
+            868,
+            868,
+            0,
+            0
+          ],
+          "サキ": [
+            868,
+            868,
+            868,
+            868,
+            868,
+            868,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "c45845d14a90cff9f509f7b88ac20ffa157c3183.dds",
+    "dimensions": [
+      145,
+      226
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1299
+      ],
+      [
+        "サキ",
+        1299
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1299
+      ],
+      [
+        "サキ",
+        1299
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1299.dds",
+        "different_indices": 1113,
+        "changed_visible_pixels": {
+          "あやね": [
+            1113,
+            1113,
+            1113,
+            1113,
+            1113,
+            1113,
+            0,
+            0
+          ],
+          "サキ": [
+            1113,
+            1113,
+            1113,
+            1113,
+            1113,
+            1113,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "c63215d5c6f718340866501267e790f8b3b1ce0a.dds",
+    "dimensions": [
+      123,
+      196
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1316
+      ],
+      [
+        "サキ",
+        1316
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1316
+      ],
+      [
+        "サキ",
+        1316
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1316.dds",
+        "different_indices": 689,
+        "changed_visible_pixels": {
+          "あやね": [
+            689,
+            689,
+            689,
+            689,
+            689,
+            689,
+            0,
+            0
+          ],
+          "サキ": [
+            689,
+            689,
+            689,
+            689,
+            689,
+            689,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "c7912e29a464c18f1eeb9d56596faba31e0219ff.dds",
+    "dimensions": [
+      153,
+      237
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1326
+      ],
+      [
+        "サキ",
+        1326
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1326
+      ],
+      [
+        "サキ",
+        1326
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1326.dds",
+        "different_indices": 1284,
+        "changed_visible_pixels": {
+          "あやね": [
+            1284,
+            1284,
+            1284,
+            1284,
+            1284,
+            1284,
+            0,
+            0
+          ],
+          "サキ": [
+            1284,
+            1284,
+            1284,
+            1284,
+            1284,
+            1284,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "c944bf25d50855e65e07e67a68fdb908c071f04f.dds",
+    "dimensions": [
+      133,
+      220
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        777
+      ],
+      [
+        "サキ",
+        777
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        777
+      ],
+      [
+        "サキ",
+        777
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0777.dds",
+        "different_indices": 1141,
+        "changed_visible_pixels": {
+          "あやね": [
+            1141,
+            1141,
+            1141,
+            1141,
+            1141,
+            1141,
+            0,
+            0
+          ],
+          "サキ": [
+            1141,
+            1141,
+            1141,
+            1141,
+            1141,
+            1141,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "ccb87649993a9581186d121ec474223688acdffb.dds",
+    "dimensions": [
+      138,
+      227
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        1298
+      ],
+      [
+        "かえで",
+        1298
+      ],
+      [
+        "くるみ",
+        1298
+      ],
+      [
+        "はるか",
+        1298
+      ],
+      [
+        "ゆい",
+        1298
+      ],
+      [
+        "ナタリア",
+        1298
+      ],
+      [
+        "ヒルダ",
+        1298
+      ],
+      [
+        "リリス",
+        1298
+      ],
+      [
+        "ルナ",
+        1298
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        1298
+      ],
+      [
+        "かえで",
+        1298
+      ],
+      [
+        "くるみ",
+        1298
+      ],
+      [
+        "はるか",
+        1298
+      ],
+      [
+        "ゆい",
+        1298
+      ],
+      [
+        "ナタリア",
+        1298
+      ],
+      [
+        "リリス",
+        1298
+      ],
+      [
+        "ルナ",
+        1298
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        1298
+      ],
+      [
+        "ヒルダ",
+        1298
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "ce96937da7c0ac23117a2c10588dac4ee2ce7a41.dds",
+    "dimensions": [
+      167,
+      214
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        816
+      ],
+      [
+        "あやね",
+        1338
+      ],
+      [
+        "サキ",
+        816
+      ],
+      [
+        "サキ",
+        1338
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        816
+      ],
+      [
+        "あやね",
+        1338
+      ],
+      [
+        "サキ",
+        816
+      ],
+      [
+        "サキ",
+        1338
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "cfc449b4699bd58e70cd748618ae5a674c3c057b.dds",
+    "dimensions": [
+      130,
+      218
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1372
+      ],
+      [
+        "サキ",
+        1372
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1372
+      ],
+      [
+        "サキ",
+        1372
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "cfc733ad27b11bc3fe343a7de484e949dd4bd1d1.dds",
+    "dimensions": [
+      252,
+      219
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1305
+      ],
+      [
+        "サキ",
+        1305
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1305
+      ],
+      [
+        "サキ",
+        1305
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1305.dds",
+        "different_indices": 1495,
+        "changed_visible_pixels": {
+          "あやね": [
+            1495,
+            1495,
+            1495,
+            1495,
+            1495,
+            1495,
+            0,
+            0
+          ],
+          "サキ": [
+            1495,
+            1495,
+            1495,
+            1495,
+            1495,
+            1495,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "d33b8919332215bb408212f92662ce274a91f0ad.dds",
+    "dimensions": [
+      84,
+      280
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        811
+      ],
+      [
+        "かえで",
+        811
+      ],
+      [
+        "くるみ",
+        811
+      ],
+      [
+        "はるか",
+        811
+      ],
+      [
+        "ゆい",
+        811
+      ],
+      [
+        "ナタリア",
+        811
+      ],
+      [
+        "ヒルダ",
+        811
+      ],
+      [
+        "リリス",
+        811
+      ],
+      [
+        "ルナ",
+        811
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        811
+      ],
+      [
+        "かえで",
+        811
+      ],
+      [
+        "くるみ",
+        811
+      ],
+      [
+        "はるか",
+        811
+      ],
+      [
+        "ゆい",
+        811
+      ],
+      [
+        "ナタリア",
+        811
+      ],
+      [
+        "リリス",
+        811
+      ],
+      [
+        "ルナ",
+        811
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        811
+      ],
+      [
+        "ヒルダ",
+        811
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "d3d9ce97ffb30c205991a45b1f3d948f4083899e.dds",
+    "dimensions": [
+      160,
+      150
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        802
+      ],
+      [
+        "サキ",
+        802
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        802
+      ],
+      [
+        "サキ",
+        802
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0802.dds",
+        "different_indices": 969,
+        "changed_visible_pixels": {
+          "あやね": [
+            969,
+            969,
+            969,
+            969,
+            969,
+            969,
+            0,
+            0
+          ],
+          "サキ": [
+            969,
+            969,
+            969,
+            969,
+            969,
+            969,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "d4076373e36751a9dc66d519fe91d39966fe1a57.dds",
+    "dimensions": [
+      126,
+      217
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        799
+      ],
+      [
+        "サキ",
+        799
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        799
+      ],
+      [
+        "サキ",
+        799
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0799.dds",
+        "different_indices": 1151,
+        "changed_visible_pixels": {
+          "あやね": [
+            1151,
+            1151,
+            1151,
+            1151,
+            1151,
+            1151,
+            0,
+            0
+          ],
+          "サキ": [
+            1151,
+            1151,
+            1151,
+            1151,
+            1151,
+            1151,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "d8a870cc416f446f210348d79140aa1d68196344.dds",
+    "dimensions": [
+      115,
+      223
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        1302
+      ],
+      [
+        "かえで",
+        1302
+      ],
+      [
+        "くるみ",
+        1302
+      ],
+      [
+        "はるか",
+        1302
+      ],
+      [
+        "ゆい",
+        1302
+      ],
+      [
+        "ナタリア",
+        1302
+      ],
+      [
+        "ヒルダ",
+        1302
+      ],
+      [
+        "リリス",
+        1302
+      ],
+      [
+        "ルナ",
+        1302
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        1302
+      ],
+      [
+        "かえで",
+        1302
+      ],
+      [
+        "くるみ",
+        1302
+      ],
+      [
+        "はるか",
+        1302
+      ],
+      [
+        "ゆい",
+        1302
+      ],
+      [
+        "ナタリア",
+        1302
+      ],
+      [
+        "リリス",
+        1302
+      ],
+      [
+        "ルナ",
+        1302
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        1302
+      ],
+      [
+        "ヒルダ",
+        1302
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "d9f2d8eec7162126f66076ee2e9e3aff36d97aea.dds",
+    "dimensions": [
+      114,
+      223
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        774
+      ],
+      [
+        "サキ",
+        774
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        774
+      ],
+      [
+        "サキ",
+        774
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0774.dds",
+        "different_indices": 1211,
+        "changed_visible_pixels": {
+          "あやね": [
+            1211,
+            1211,
+            1211,
+            1211,
+            1211,
+            1211,
+            0,
+            0
+          ],
+          "サキ": [
+            1211,
+            1211,
+            1211,
+            1211,
+            1211,
+            1211,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "dc785cf0e28800ebc6c48ed31bde9af65fbcf62e.dds",
+    "dimensions": [
+      97,
+      274
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        813
+      ],
+      [
+        "サキ",
+        813
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        813
+      ],
+      [
+        "サキ",
+        813
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "dd679b2c9d043966e3fa3376f2c1855acdb47eb4.dds",
+    "dimensions": [
+      102,
+      202
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1311
+      ],
+      [
+        "サキ",
+        1311
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1311
+      ],
+      [
+        "サキ",
+        1311
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1311.dds",
+        "different_indices": 615,
+        "changed_visible_pixels": {
+          "あやね": [
+            615,
+            615,
+            615,
+            615,
+            615,
+            615,
+            0,
+            0
+          ],
+          "サキ": [
+            615,
+            615,
+            615,
+            615,
+            615,
+            615,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "de36a356a09780ababf9535d6de95d743f7721f1.dds",
+    "dimensions": [
+      130,
+      227
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        819
+      ],
+      [
+        "サキ",
+        819
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        819
+      ],
+      [
+        "サキ",
+        819
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0819.dds",
+        "different_indices": 1133,
+        "changed_visible_pixels": {
+          "あやね": [
+            1133,
+            1133,
+            1133,
+            1133,
+            1133,
+            1133,
+            0,
+            0
+          ],
+          "サキ": [
+            1133,
+            1133,
+            1133,
+            1133,
+            1133,
+            1133,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "ded503c3899b61d52824b3e31d65e2dd3e3d48ee.dds",
+    "dimensions": [
+      126,
+      218
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1371
+      ],
+      [
+        "サキ",
+        1371
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1371
+      ],
+      [
+        "サキ",
+        1371
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0818.dds",
+        "different_indices": 4827,
+        "changed_visible_pixels": {
+          "あやね": [
+            4827,
+            4827,
+            4827,
+            4827,
+            4827,
+            4827,
+            4489,
+            4489
+          ],
+          "サキ": [
+            4827,
+            4827,
+            4827,
+            4827,
+            4827,
+            4827,
+            4489,
+            4489
+          ]
+        },
+        "equivalent_all_palettes": false
+      },
+      {
+        "target": "supports/えこ/images/0776.dds",
+        "different_indices": 15197,
+        "changed_visible_pixels": {
+          "あやね": [
+            15197,
+            15197,
+            15197,
+            15197,
+            15197,
+            15197,
+            14991,
+            14991
+          ],
+          "サキ": [
+            15197,
+            15197,
+            15197,
+            15197,
+            15197,
+            15197,
+            14991,
+            14991
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "df53e87cd8283f4142c9c18bce365c4c511bf91c.dds",
+    "dimensions": [
+      199,
+      110
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        2103
+      ],
+      [
+        "サキ",
+        2103
+      ]
+    ],
+    "support_script_references": [],
+    "body_script_references": [
+      [
+        "あやね",
+        2103
+      ],
+      [
+        "サキ",
+        2103
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "e0e6770b97e652c7709012c90639eb78dc4f8ed6.dds",
+    "dimensions": [
+      133,
+      219
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1308
+      ],
+      [
+        "サキ",
+        1308
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1308
+      ],
+      [
+        "サキ",
+        1308
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1308.dds",
+        "different_indices": 1250,
+        "changed_visible_pixels": {
+          "あやね": [
+            1250,
+            1250,
+            1250,
+            1250,
+            1250,
+            1250,
+            0,
+            0
+          ],
+          "サキ": [
+            1250,
+            1250,
+            1250,
+            1250,
+            1250,
+            1250,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      },
+      {
+        "target": "supports/えこ/images/1325.dds",
+        "different_indices": 15004,
+        "changed_visible_pixels": {
+          "あやね": [
+            15004,
+            15004,
+            15004,
+            15004,
+            15004,
+            15004,
+            14976,
+            14976
+          ],
+          "サキ": [
+            15004,
+            15004,
+            15004,
+            15004,
+            15004,
+            15004,
+            14976,
+            14976
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "e126662ad3c61e7ca33bda437b32b499a1cabd04.dds",
+    "dimensions": [
+      126,
+      186
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        804
+      ],
+      [
+        "かえで",
+        804
+      ],
+      [
+        "くるみ",
+        804
+      ],
+      [
+        "はるか",
+        804
+      ],
+      [
+        "ゆい",
+        804
+      ],
+      [
+        "ナタリア",
+        804
+      ],
+      [
+        "ヒルダ",
+        804
+      ],
+      [
+        "リリス",
+        804
+      ],
+      [
+        "ルナ",
+        804
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        804
+      ],
+      [
+        "かえで",
+        804
+      ],
+      [
+        "くるみ",
+        804
+      ],
+      [
+        "はるか",
+        804
+      ],
+      [
+        "ゆい",
+        804
+      ],
+      [
+        "ナタリア",
+        804
+      ],
+      [
+        "リリス",
+        804
+      ],
+      [
+        "ルナ",
+        804
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        804
+      ],
+      [
+        "ヒルダ",
+        804
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "e1a0737d5742695cc539e63e0594b08e53d99934.dds",
+    "dimensions": [
+      285,
+      228
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1304
+      ],
+      [
+        "サキ",
+        1304
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1304
+      ],
+      [
+        "サキ",
+        1304
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1304.dds",
+        "different_indices": 1718,
+        "changed_visible_pixels": {
+          "あやね": [
+            1718,
+            1718,
+            1718,
+            1718,
+            1718,
+            1718,
+            0,
+            0
+          ],
+          "サキ": [
+            1718,
+            1718,
+            1718,
+            1718,
+            1718,
+            1718,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "e7d3ff3b1dafcf44bf804ec0dcc015aaa9b5d437.dds",
+    "dimensions": [
+      136,
+      268
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        814
+      ],
+      [
+        "サキ",
+        814
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        814
+      ],
+      [
+        "サキ",
+        814
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "e8a741eed65c5a0b69661aaaa6be526188db6e41.dds",
+    "dimensions": [
+      127,
+      189
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        1296
+      ],
+      [
+        "かえで",
+        1296
+      ],
+      [
+        "くるみ",
+        1296
+      ],
+      [
+        "はるか",
+        1296
+      ],
+      [
+        "ゆい",
+        1296
+      ],
+      [
+        "ナタリア",
+        1296
+      ],
+      [
+        "ヒルダ",
+        1296
+      ],
+      [
+        "リリス",
+        1296
+      ],
+      [
+        "ルナ",
+        1296
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        1296
+      ],
+      [
+        "かえで",
+        1296
+      ],
+      [
+        "くるみ",
+        1296
+      ],
+      [
+        "はるか",
+        1296
+      ],
+      [
+        "ゆい",
+        1296
+      ],
+      [
+        "ナタリア",
+        1296
+      ],
+      [
+        "リリス",
+        1296
+      ],
+      [
+        "ルナ",
+        1296
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        1296
+      ],
+      [
+        "ヒルダ",
+        1296
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "ebbb14ea9dc7587b4c01bf79f8f3e52aa880e830.dds",
+    "dimensions": [
+      104,
+      210
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        805
+      ],
+      [
+        "サキ",
+        805
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        805
+      ],
+      [
+        "サキ",
+        805
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0805.dds",
+        "different_indices": 1060,
+        "changed_visible_pixels": {
+          "あやね": [
+            1060,
+            1060,
+            1060,
+            1060,
+            1060,
+            1060,
+            0,
+            0
+          ],
+          "サキ": [
+            1060,
+            1060,
+            1060,
+            1060,
+            1060,
+            1060,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "ed049e94a29c772c63d027049ac8565663a5069d.dds",
+    "dimensions": [
+      155,
+      217
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        1297
+      ],
+      [
+        "かえで",
+        1297
+      ],
+      [
+        "くるみ",
+        1297
+      ],
+      [
+        "はるか",
+        1297
+      ],
+      [
+        "ゆい",
+        1297
+      ],
+      [
+        "ナタリア",
+        1297
+      ],
+      [
+        "ヒルダ",
+        1297
+      ],
+      [
+        "リリス",
+        1297
+      ],
+      [
+        "ルナ",
+        1297
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        1297
+      ],
+      [
+        "かえで",
+        1297
+      ],
+      [
+        "くるみ",
+        1297
+      ],
+      [
+        "はるか",
+        1297
+      ],
+      [
+        "ゆい",
+        1297
+      ],
+      [
+        "ナタリア",
+        1297
+      ],
+      [
+        "リリス",
+        1297
+      ],
+      [
+        "ルナ",
+        1297
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        1297
+      ],
+      [
+        "ヒルダ",
+        1297
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "ee4ecedc0b7c1555a15ce0e62191a961df53fdfc.dds",
+    "dimensions": [
+      126,
+      218
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        1371
+      ],
+      [
+        "かえで",
+        1371
+      ],
+      [
+        "くるみ",
+        1371
+      ],
+      [
+        "はるか",
+        1371
+      ],
+      [
+        "ゆい",
+        1371
+      ],
+      [
+        "ナタリア",
+        1371
+      ],
+      [
+        "ヒルダ",
+        1371
+      ],
+      [
+        "リリス",
+        1371
+      ],
+      [
+        "ルナ",
+        1371
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        1371
+      ],
+      [
+        "かえで",
+        1371
+      ],
+      [
+        "くるみ",
+        1371
+      ],
+      [
+        "はるか",
+        1371
+      ],
+      [
+        "ゆい",
+        1371
+      ],
+      [
+        "ナタリア",
+        1371
+      ],
+      [
+        "リリス",
+        1371
+      ],
+      [
+        "ルナ",
+        1371
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        1371
+      ],
+      [
+        "ヒルダ",
+        1371
+      ]
+    ],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0818.dds",
+        "different_indices": 4489,
+        "changed_visible_pixels": {
+          "えり": [
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489
+          ],
+          "かえで": [
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489
+          ],
+          "くるみ": [
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489
+          ],
+          "はるか": [
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489
+          ],
+          "ゆい": [
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489
+          ],
+          "ナタリア": [
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489
+          ],
+          "ヒルダ": [
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489
+          ],
+          "リリス": [
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489
+          ],
+          "ルナ": [
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489,
+            4489
+          ]
+        },
+        "equivalent_all_palettes": false
+      },
+      {
+        "target": "supports/えこ/images/0776.dds",
+        "different_indices": 14991,
+        "changed_visible_pixels": {
+          "えり": [
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991
+          ],
+          "かえで": [
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991
+          ],
+          "くるみ": [
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991
+          ],
+          "はるか": [
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991
+          ],
+          "ゆい": [
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991
+          ],
+          "ナタリア": [
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991
+          ],
+          "ヒルダ": [
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991
+          ],
+          "リリス": [
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991
+          ],
+          "ルナ": [
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991,
+            14991
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "ee88c209aca0bdb2c0e88a93666577051bd410c5.dds",
+    "dimensions": [
+      127,
+      228
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1301
+      ],
+      [
+        "サキ",
+        1301
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1301
+      ],
+      [
+        "サキ",
+        1301
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "f0186b0af93f8e670cb88cee41e42fb3af5b376e.dds",
+    "dimensions": [
+      131,
+      222
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        778
+      ],
+      [
+        "サキ",
+        778
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        778
+      ],
+      [
+        "サキ",
+        778
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0778.dds",
+        "different_indices": 1125,
+        "changed_visible_pixels": {
+          "あやね": [
+            1125,
+            1125,
+            1125,
+            1125,
+            1125,
+            1125,
+            0,
+            0
+          ],
+          "サキ": [
+            1125,
+            1125,
+            1125,
+            1125,
+            1125,
+            1125,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "f03f24eb50967ffda8b4ca22637fa994f3a40328.dds",
+    "dimensions": [
+      108,
+      228
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        824
+      ],
+      [
+        "サキ",
+        824
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        824
+      ],
+      [
+        "サキ",
+        824
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0824.dds",
+        "different_indices": 1091,
+        "changed_visible_pixels": {
+          "あやね": [
+            1091,
+            1091,
+            1091,
+            1091,
+            1091,
+            1091,
+            0,
+            0
+          ],
+          "サキ": [
+            1091,
+            1091,
+            1091,
+            1091,
+            1091,
+            1091,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "f6d07e5c7ad6a67185fbfc41d13a08c205e435ba.dds",
+    "dimensions": [
+      97,
+      274
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        813
+      ],
+      [
+        "かえで",
+        813
+      ],
+      [
+        "くるみ",
+        813
+      ],
+      [
+        "はるか",
+        813
+      ],
+      [
+        "ゆい",
+        813
+      ],
+      [
+        "ナタリア",
+        813
+      ],
+      [
+        "ヒルダ",
+        813
+      ],
+      [
+        "リリス",
+        813
+      ],
+      [
+        "ルナ",
+        813
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        813
+      ],
+      [
+        "かえで",
+        813
+      ],
+      [
+        "くるみ",
+        813
+      ],
+      [
+        "はるか",
+        813
+      ],
+      [
+        "ゆい",
+        813
+      ],
+      [
+        "ナタリア",
+        813
+      ],
+      [
+        "リリス",
+        813
+      ],
+      [
+        "ルナ",
+        813
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        813
+      ],
+      [
+        "ヒルダ",
+        813
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "f71ff74c2bf04c9c7bcabce34905191f474b48fb.dds",
+    "dimensions": [
+      147,
+      203
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1333
+      ],
+      [
+        "サキ",
+        1333
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1333
+      ],
+      [
+        "サキ",
+        1333
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": []
+  },
+  {
+    "file": "f75ec4ad674dd72816f3a377fe78271af5ebfa6b.dds",
+    "dimensions": [
+      134,
+      226
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        788
+      ],
+      [
+        "サキ",
+        788
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        788
+      ],
+      [
+        "サキ",
+        788
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/0788.dds",
+        "different_indices": 1259,
+        "changed_visible_pixels": {
+          "あやね": [
+            1259,
+            1259,
+            1259,
+            1259,
+            1259,
+            1259,
+            0,
+            0
+          ],
+          "サキ": [
+            1259,
+            1259,
+            1259,
+            1259,
+            1259,
+            1259,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "f76ccde74ef9f36884ce4d7ac93fdea6450165ef.dds",
+    "dimensions": [
+      219,
+      123
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        2101
+      ],
+      [
+        "サキ",
+        2101
+      ]
+    ],
+    "support_script_references": [],
+    "body_script_references": [
+      [
+        "あやね",
+        2101
+      ],
+      [
+        "サキ",
+        2101
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "f88ba91476476a7d3569435212836a2e8fe675a9.dds",
+    "dimensions": [
+      166,
+      207
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        808
+      ],
+      [
+        "かえで",
+        808
+      ],
+      [
+        "くるみ",
+        808
+      ],
+      [
+        "はるか",
+        808
+      ],
+      [
+        "ゆい",
+        808
+      ],
+      [
+        "ナタリア",
+        808
+      ],
+      [
+        "ヒルダ",
+        808
+      ],
+      [
+        "リリス",
+        808
+      ],
+      [
+        "ルナ",
+        808
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        808
+      ],
+      [
+        "かえで",
+        808
+      ],
+      [
+        "くるみ",
+        808
+      ],
+      [
+        "はるか",
+        808
+      ],
+      [
+        "ゆい",
+        808
+      ],
+      [
+        "ナタリア",
+        808
+      ],
+      [
+        "リリス",
+        808
+      ],
+      [
+        "ルナ",
+        808
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        808
+      ],
+      [
+        "ヒルダ",
+        808
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "f89f0b39970051e5994f7b08537e26b84b933ec7.dds",
+    "dimensions": [
+      158,
+      177
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1317
+      ],
+      [
+        "サキ",
+        1317
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1317
+      ],
+      [
+        "サキ",
+        1317
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1317.dds",
+        "different_indices": 614,
+        "changed_visible_pixels": {
+          "あやね": [
+            614,
+            614,
+            614,
+            614,
+            614,
+            614,
+            0,
+            0
+          ],
+          "サキ": [
+            614,
+            614,
+            614,
+            614,
+            614,
+            614,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "f92a9e3aae8b2a365d4fb0a09714535e6fca643e.dds",
+    "dimensions": [
+      164,
+      195
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1354
+      ],
+      [
+        "サキ",
+        1354
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1354
+      ],
+      [
+        "サキ",
+        1354
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1354.dds",
+        "different_indices": 1472,
+        "changed_visible_pixels": {
+          "あやね": [
+            1472,
+            1472,
+            1472,
+            1472,
+            1472,
+            1472,
+            0,
+            0
+          ],
+          "サキ": [
+            1472,
+            1472,
+            1472,
+            1472,
+            1472,
+            1472,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "fbe9a653179e3042da9873e0aab21e204dce4823.dds",
+    "dimensions": [
+      184,
+      169
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        1337
+      ],
+      [
+        "かえで",
+        1337
+      ],
+      [
+        "くるみ",
+        1337
+      ],
+      [
+        "はるか",
+        1337
+      ],
+      [
+        "ゆい",
+        1337
+      ],
+      [
+        "ナタリア",
+        1337
+      ],
+      [
+        "ヒルダ",
+        1337
+      ],
+      [
+        "リリス",
+        1337
+      ],
+      [
+        "ルナ",
+        1337
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        1337
+      ],
+      [
+        "かえで",
+        1337
+      ],
+      [
+        "くるみ",
+        1337
+      ],
+      [
+        "はるか",
+        1337
+      ],
+      [
+        "ゆい",
+        1337
+      ],
+      [
+        "ナタリア",
+        1337
+      ],
+      [
+        "リリス",
+        1337
+      ],
+      [
+        "ルナ",
+        1337
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        1337
+      ],
+      [
+        "ヒルダ",
+        1337
+      ]
+    ],
+    "candidates": []
+  },
+  {
+    "file": "fd095e93ccf693dd0722bca5126f3410f0cc199f.dds",
+    "dimensions": [
+      207,
+      230
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1351
+      ],
+      [
+        "サキ",
+        1351
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1351
+      ],
+      [
+        "サキ",
+        1351
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1351.dds",
+        "different_indices": 1969,
+        "changed_visible_pixels": {
+          "あやね": [
+            1969,
+            1969,
+            1969,
+            1969,
+            1969,
+            1969,
+            0,
+            0
+          ],
+          "サキ": [
+            1969,
+            1969,
+            1969,
+            1969,
+            1969,
+            1969,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "ffa1e800ea598de39f07eb9c6c4691880d56214a.dds",
+    "dimensions": [
+      137,
+      183
+    ],
+    "manifest_references": [
+      [
+        "あやね",
+        1357
+      ],
+      [
+        "サキ",
+        1357
+      ]
+    ],
+    "support_script_references": [
+      [
+        "あやね",
+        1357
+      ],
+      [
+        "サキ",
+        1357
+      ]
+    ],
+    "body_script_references": [],
+    "candidates": [
+      {
+        "target": "supports/えこ/images/1357.dds",
+        "different_indices": 1175,
+        "changed_visible_pixels": {
+          "あやね": [
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            0,
+            0
+          ],
+          "サキ": [
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            1175,
+            0,
+            0
+          ]
+        },
+        "equivalent_all_palettes": false
+      }
+    ]
+  },
+  {
+    "file": "ffca19e3759abda8a57ec44f54d481fbc07ba31e.dds",
+    "dimensions": [
+      76,
+      280
+    ],
+    "manifest_references": [
+      [
+        "えり",
+        812
+      ],
+      [
+        "かえで",
+        812
+      ],
+      [
+        "くるみ",
+        812
+      ],
+      [
+        "はるか",
+        812
+      ],
+      [
+        "ゆい",
+        812
+      ],
+      [
+        "ナタリア",
+        812
+      ],
+      [
+        "ヒルダ",
+        812
+      ],
+      [
+        "リリス",
+        812
+      ],
+      [
+        "ルナ",
+        812
+      ]
+    ],
+    "support_script_references": [
+      [
+        "えり",
+        812
+      ],
+      [
+        "かえで",
+        812
+      ],
+      [
+        "くるみ",
+        812
+      ],
+      [
+        "はるか",
+        812
+      ],
+      [
+        "ゆい",
+        812
+      ],
+      [
+        "ナタリア",
+        812
+      ],
+      [
+        "リリス",
+        812
+      ],
+      [
+        "ルナ",
+        812
+      ]
+    ],
+    "body_script_references": [
+      [
+        "くるみ",
+        812
+      ],
+      [
+        "ヒルダ",
+        812
+      ]
+    ],
+    "candidates": []
+  }
+]

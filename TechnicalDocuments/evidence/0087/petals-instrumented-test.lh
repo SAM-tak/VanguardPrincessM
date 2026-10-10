@@ -1,0 +1,74 @@
+# Finish a VS match normally, then back through both menus with ESC.
+module^vp.vsmemoryreturn
+import^love.keyboard
+import^love.event
+import^love.timer
+import^love.window
+import^std.math
+require^".fps-main.lh"
+require^"src/arena.lh"
+require^"src/resource.lh"
+var^samples = 0
+var^updates = 0
+var^draws = 0
+var^overBudget = 0
+var^work = 0
+var^worst = 0
+var^phase = 0
+var^cycles = 0
+var^began = 0
+let^press = p^key:love.keyboard.Key{ vp.main.keypressed(key, love.keyboard.Scancode.unknown, false^) }
+public^let^load = p^{ began := love.timer.getTime() vp.main.load() love.window.setVSync(1) }
+public^let^update = p^dt:number^{
+    let^at = love.timer.getTime()
+    vp.main.update(dt)
+    if^phase = 6 { work := love.timer.getTime() - at updates += work }
+    let^s = vp.main.status()
+    let^where = vp.arena.names()
+    if^phase = 0 and^where = "system / opening" {
+        press(love.keyboard.Key.z) phase := 1
+    elseif^phase = 1:
+        press(love.keyboard.Key.z) phase := 2
+    elseif^phase = 2 and^where = "system / title":
+        press(love.keyboard.Key.down) press(love.keyboard.Key.z) phase := 3
+    elseif^phase = 3 and^s.phase = "select":
+        press(love.keyboard.Key.z) phase := 4
+    elseif^phase = 4:
+        press(love.keyboard.Key.l) phase := 5
+    elseif^phase = 5 and^s.phase = "battle":
+        if^!s.battleResourcesHeld { panic^"Match never held battle resources" }
+        phase := 6
+    elseif^phase = 6:
+        samples += 1
+        if^samples = 402 { vp.main.petals() }
+        if^samples = 1 { vp.main.performance() updates := 0 draws := 0 }
+        if^samples % 200 = 1 and^samples > 1 {
+            vp.main.performance()
+            print($"FRAME updates={updates} draws={draws} fps={love.timer.getFPS()} overBudget={overBudget} worst={worst}")
+            updates := 0 draws := 0 overBudget := 0 worst := 0
+            if^samples >= 1601 { love.event.quit() }
+        }
+    elseif^phase = 7 and^where = "system / title" and^vp.resource.outstanding() = 0:
+        if^s.battleResourcesHeld { panic^"Mode menu retained battle resources" }
+        press(love.keyboard.Key.escape) phase := 8
+    elseif^phase = 8 and^where = "system / opening":
+        if^s.battleResourcesHeld or^vp.resource.cachedScripts() != 1 { panic^"Title retained battle definitions" }
+        cycles += 1
+        print($"PASS: VS -> select -> ESC mode -> ESC title, cycle={cycles}, scripts={vp.resource.cachedScripts()}")
+        if^cycles = 3 {
+            if^vp.resource.fallbackReads() != 0 or^vp.arena.fallbacks() != 0 { panic^"Synchronous fallback" }
+            love.event.quit()
+        else^:
+            press(love.keyboard.Key.z) phase := 2
+        }
+    }
+    if^love.timer.getTime() - began > 300 { panic^$"VS memory return timeout phase={phase}" }
+}
+public^let^draw = p^{ let^at = love.timer.getTime() vp.main.draw() if^phase = 6 {
+ let^elapsed = love.timer.getTime() - at
+ draws += elapsed
+ work += elapsed
+ if^work > 1 / 75 { overBudget += 1 }
+ worst := std.math.max(worst, work)
+ } }
+public^let^quit = p^-> bool^{ return^vp.main.quit() }

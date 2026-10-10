@@ -1,0 +1,9 @@
+PASS: clash cancellation, DS consumption, ownership and rectangle boundaries
+PASS Eri 214A: side=-1, player=1, shadow=false, contact=false, crossed=false, sobat=false
+PASS Eri 214A: side=-1, player=1, shadow=true, contact=true, crossed=true, sobat=true
+PASS Eri 214A: side=-1, player=2, shadow=false, contact=false, crossed=false, sobat=false
+PASS Eri 214A: side=-1, player=2, shadow=true, contact=true, crossed=true, sobat=true
+PASS Eri 214A: side=1, player=1, shadow=false, contact=false, crossed=false, sobat=false
+PASS Eri 214A: side=1, player=1, shadow=true, contact=true, crossed=true, sobat=true
+PASS Eri 214A: side=1, player=2, shadow=false, contact=false, crossed=false, sobat=false
+PASS Eri 214A: side=1, player=2, shadow=true, contact=true, crossed=true, sobat=true

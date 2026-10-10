@@ -1,0 +1,6 @@
+PASS: real jump landing, both crossover directions, buffered A, active attack facing
+PASS: video path #232 -> active #10 -> #224, both directions
+PASS: input before landing DS cannot erase it, buffered C retained, both directions
+PASS: real super runs through KO, both winners, bounded result wait, dead target excluded
+PASS: Luna stance preserved, three-second deadline, both winners, next round and match end, one award
+PASS: delayed victory shares KO deadline and never awards twice

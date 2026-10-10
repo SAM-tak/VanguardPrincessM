@@ -4,4 +4,4 @@ HUDのrestartはshownSecondsを初期化するのみで、以前のtens/onesを�
 
 restartで通常タイマーを無効化し、tens/onesを破棄する。無効中はstepTimerで数字技を生成しない。既存のfightBegins呼び出し（試合進行とV128の条件が成立した最初のフレーム）で背景のタイマーレイアウト#61を停止し、同じフレームで通常タイマーを有効化する。時間無制限にも同じ扱いを適用する。原作の画像・技データは変更しない。
 
-検証: tests/hud-timer.lhをLÔVEで実行しPASS（build/hud-timer.log）。1〜3ラウンド目、V128の非表示設定前後、前ラウンドの数字参照除去、60停止と59生成の同時切り替え、時間無制限を確認。実画面での目視比較は未実施。
+検証: tests/hud-timer.lhをLÔVEで実行しPASS（TechnicalDocuments/evidence/0121/hud-timer.log）。1〜3ラウンド目、V128の非表示設定前後、前ラウンドの数字参照除去、60停止と59生成の同時切り替え、時間無制限を確認。実画面での目視比較は未実施。

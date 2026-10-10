@@ -18,7 +18,7 @@
 
 ## 原作EXEの裏付け
 
-`vanpri108/ヴァンガードプリンセス/ヴァンガードプリンセス.exe` の逆アセンブル（`build/original-corner-disasm.txt`）で確認。
+`vanpri108/ヴァンガードプリンセス/ヴァンガードプリンセス.exe` の逆アセンブル（`TechnicalDocuments/evidence/0073/original-corner-disasm.txt`）で確認。
 
 - `0x412CFA` はFA命令をオブジェクトの `+0x89` のスロット配列へ格納。FDは `0x412D63` で `+0xD9` へ格納。
 - `0x40EB60` は異なる所有プレイヤーのFA同士を比較。座標系が違う組、対象の被弾／ガード状態等を除外する。矩形の端が接するだけでは成立しない。

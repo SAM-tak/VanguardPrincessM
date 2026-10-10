@@ -18,8 +18,8 @@ owner_supports.pyは技番号単位で本体からの参照を置き換えてい
 
 ## 検証
 
-- `tests/sierra-startup.lh`: シエラだけを先読みし、`loadFor(...,102)`でかなえ定義がないことを検査。通常HUD #403の先頭から実行し、初回の654フレーム待機を含む1001 tickを進める。初回/次ラウンド×5入力についてV76の要求と攻撃分岐先の技名を確認。`build/sierra-start-after.log`: PASS。
-- `tests/support-flow.lh`: 従来の250入力、サポート向き、薬莢、CPU、固定ボスの回帰。`build/support-current-after.log`: PASS。
+- `tests/sierra-startup.lh`: シエラだけを先読みし、`loadFor(...,102)`でかなえ定義がないことを検査。通常HUD #403の先頭から実行し、初回の654フレーム待機を含む1001 tickを進める。初回/次ラウンド×5入力についてV76の要求と攻撃分岐先の技名を確認。`TechnicalDocuments/evidence/0103/sierra-start-after.log`: PASS。
+- `tests/support-flow.lh`: 従来の250入力、サポート向き、薬莢、CPU、固定ボスの回帰。`TechnicalDocuments/evidence/0103/support-current-after.log`: PASS。
 - 生成器を再実行して出力差分0件（冪等性）。
 
 直前のヒット方向の未コミット変更は保持した。

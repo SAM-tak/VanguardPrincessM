@@ -18,7 +18,7 @@
 - `data/`のLTON。ただし生成中間物`_conversion`は除外。命令を含む98ファイル、463,915ブロック、27種類（Nopを含む）。サポートの所有キャラ別定義等の重複を含む**静的な定義数**であり、実行回数・到達可能な命令数ではない。
 - `src/script.lh`の命令分配、`src/fighter.lh`の実装、`main.lh`の入力・衝突・更新処理。
 - 更新版のパーサーJSON 10キャラ（`build/update-0117/new-json`）。これは全デモ・全ステージを含む生データ検証ではない。
-- 原作EXEの既存逆アセンブル`build/original-corner-disasm.txt`。他ビルドの解析結果を原作仕様として扱わない。
+- 原作EXEの既存逆アセンブル`TechnicalDocuments/evidence/0073/original-corner-disasm.txt`。他ビルドの解析結果を原作仕様として扱わない。
 
 再走査:
 
@@ -26,9 +26,9 @@
 & tools/fm2k_convert/.venv/Scripts/python.exe tools/fm2k_convert/audit_vm.py --json-dir build/update-0117/new-json
 ```
 
-結果は`build/fm2k-vm-audit.json`。命令・フラグ・イベント件数、該当ファイルと行、技ID、ブロック番号、元の命令、実装ソースのSHA256を記録する。パーサーJSONがない環境では`--json-dir`を省略できる。出力は変換器が生成する1行1ブロック形式を前提とし、汎用LTONパーサーではない。
+結果は`TechnicalDocuments/evidence/0074/fm2k-vm-audit.json`。命令・フラグ・イベント件数、該当ファイルと行、技ID、ブロック番号、元の命令、実装ソースのSHA256を記録する。パーサーJSONがない環境では`--json-dir`を省略できる。出力は変換器が生成する1行1ブロック形式を前提とし、汎用LTONパーサーではない。
 
-`tests/vm-audit.lh`は実データを使う診断プローブ。これは不一致を観測するもので、原作と一致したという合格テストではない。現環境では従来のテストと同様にrequireの`../`を除いたルート一時コピーをLÔVEで実行した。ログは`build/vm-audit-runtime.log`。
+`tests/vm-audit.lh`は実データを使う診断プローブ。これは不一致を観測するもので、原作と一致したという合格テストではない。現環境では従来のテストと同様にrequireの`../`を除いたルート一時コピーをLÔVEで実行した。ログは`TechnicalDocuments/evidence/0074/vm-audit-runtime.log`。
 
 ## 優先度の高い共通処理
 

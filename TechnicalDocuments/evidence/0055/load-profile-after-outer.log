@@ -1,0 +1,60 @@
+PROFILE 5.76ms completeLoad boot
+boot frames=41
+PROFILE 4.89ms dependencies select
+PROFILE 8.65ms completeLoad select
+PROFILE 5.35ms queue slice select
+PROFILE 5.40ms completeLoad select
+PROFILE 7.04ms queue slice select
+PROFILE 7.09ms completeLoad select
+PROFILE 4.89ms queue slice select
+PROFILE 4.94ms completeLoad select
+PROFILE 4.93ms queue slice select
+PROFILE 4.98ms completeLoad select
+PROFILE 6.09ms queue slice select
+PROFILE 6.13ms completeLoad select
+PROFILE 5.08ms queue slice select
+PROFILE 5.12ms completeLoad select
+PROFILE 8.36ms resource pump
+PROFILE 5.53ms queue slice select
+PROFILE 5.61ms completeLoad select
+PROFILE 4.49ms queue slice select
+PROFILE 4.53ms completeLoad select
+PROFILE 4.43ms queue slice select
+PROFILE 4.47ms completeLoad select
+PROFILE 5.25ms queue slice select
+PROFILE 5.29ms completeLoad select
+PROFILE 5.31ms completeLoad select
+select frames=177
+PROFILE 4.76ms completeLoad match-stage
+cancel in-flight match
+PROFILE 4.77ms dependencies select
+PROFILE 8.49ms completeLoad select
+PROFILE 5.49ms queue slice select
+PROFILE 5.53ms completeLoad select
+PROFILE 4.89ms queue slice select
+PROFILE 4.95ms completeLoad select
+PROFILE 4.74ms queue slice select
+PROFILE 4.78ms completeLoad select
+PROFILE 4.99ms queue slice select
+PROFILE 5.04ms completeLoad select
+PROFILE 5.22ms queue slice select
+PROFILE 5.26ms completeLoad select
+PROFILE 30.42ms queue slice select
+PROFILE 30.46ms completeLoad select
+PROFILE 5.88ms queue slice select
+PROFILE 5.92ms completeLoad select
+PROFILE 4.06ms queue slice select
+PROFILE 4.10ms completeLoad select
+PROFILE 4.22ms completeLoad select
+PROFILE 6.60ms completeLoad match-stage
+PROFILE 4.16ms finish assets/characters/ゆい/script.lton
+PROFILE 4.26ms resource pump
+PROFILE 11.88ms completeLoad match
+match frames=645 elapsed=8.58581 worst=0.0315463
+1: #31  x=500 y=920 facing=1
+VS reveal frame=231 opponentX=770.206
+262: #18  x=500 y=920 facing=1
+511: #8  x=500 y=920 facing=1
+512: #1  x=500 y=920 facing=1
+PASS: cancel, retry, two fighters, D support attack, pause/freeze/resume, battle drawing, missing asset; frames=1248; synchronous fallback reads=0
+lovec exit code: 0

@@ -1,0 +1,35 @@
+{
+  "writeCombine": 445841408,
+  "imageWriteCombine": 369098752,
+  "imageRegionCount": 11,
+  "vulkanImageAllocations": [
+    {
+      "kind": 7,
+      "base": 2401633657888,
+      "size": 33554432,
+      "type": 1,
+      "image": true
+    },
+    {
+      "kind": 7,
+      "base": 2401633659808,
+      "size": 67108864,
+      "type": 1,
+      "image": true
+    },
+    {
+      "kind": 7,
+      "base": 2401633656448,
+      "size": 134217728,
+      "type": 1,
+      "image": true
+    },
+    {
+      "kind": 7,
+      "base": 2401633657408,
+      "size": 134217728,
+      "type": 1,
+      "image": true
+    }
+  ]
+}

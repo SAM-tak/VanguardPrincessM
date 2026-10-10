@@ -1,0 +1,241 @@
+MEM cycle=0 textures=353 bytes=55703509
+1: #21  x=370 y=920 facing=1
+26: #31  x=500 y=920 facing=1
+MEM cycle=1 textures=354 bytes=55736277
+81: #21  x=370 y=920 facing=1
+106: #31  x=500 y=920 facing=1
+MEM cycle=2 textures=354 bytes=55736277
+161: #21  x=370 y=920 facing=1
+186: #31  x=500 y=920 facing=1
+MEM cycle=3 textures=354 bytes=55736277
+241: #21  x=370 y=920 facing=1
+266: #31  x=500 y=920 facing=1
+MEM cycle=4 textures=354 bytes=55736277
+321: #21  x=370 y=920 facing=1
+346: #31  x=500 y=920 facing=1
+MEM cycle=5 textures=354 bytes=55736277
+401: #21  x=370 y=920 facing=1
+426: #31  x=500 y=920 facing=1
+MEM cycle=6 textures=354 bytes=55736277
+481: #21  x=370 y=920 facing=1
+506: #31  x=500 y=920 facing=1
+MEM cycle=7 textures=354 bytes=55736277
+561: #21  x=370 y=920 facing=1
+586: #31  x=500 y=920 facing=1
+MEM cycle=8 textures=354 bytes=55736277
+641: #21  x=370 y=920 facing=1
+666: #31  x=500 y=920 facing=1
+MEM cycle=9 textures=354 bytes=55736277
+721: #21  x=370 y=920 facing=1
+746: #31  x=500 y=920 facing=1
+MEM cycle=10 textures=354 bytes=55736277
+801: #21  x=370 y=920 facing=1
+826: #31  x=500 y=920 facing=1
+MEM cycle=11 textures=354 bytes=55736277
+881: #21  x=370 y=920 facing=1
+906: #31  x=500 y=920 facing=1
+MEM cycle=12 textures=354 bytes=55736277
+961: #21  x=370 y=920 facing=1
+986: #31  x=500 y=920 facing=1
+MEM cycle=13 textures=354 bytes=55736277
+1041: #21  x=370 y=920 facing=1
+1066: #31  x=500 y=920 facing=1
+MEM cycle=14 textures=354 bytes=55736277
+1121: #21  x=370 y=920 facing=1
+1146: #31  x=500 y=920 facing=1
+MEM cycle=15 textures=354 bytes=55736277
+1201: #21  x=370 y=920 facing=1
+1226: #31  x=500 y=920 facing=1
+MEM cycle=16 textures=354 bytes=55736277
+1281: #21  x=370 y=920 facing=1
+1306: #31  x=500 y=920 facing=1
+MEM cycle=17 textures=354 bytes=55736277
+1361: #21  x=370 y=920 facing=1
+1386: #31  x=500 y=920 facing=1
+MEM cycle=18 textures=354 bytes=55736277
+1441: #21  x=370 y=920 facing=1
+1466: #31  x=500 y=920 facing=1
+MEM cycle=19 textures=354 bytes=55736277
+1521: #21  x=370 y=920 facing=1
+1546: #31  x=500 y=920 facing=1
+MEM cycle=20 textures=354 bytes=55736277
+1601: #21  x=370 y=920 facing=1
+1626: #31  x=500 y=920 facing=1
+MEM cycle=21 textures=354 bytes=55736277
+1681: #21  x=370 y=920 facing=1
+1706: #31  x=500 y=920 facing=1
+MEM cycle=22 textures=354 bytes=55736277
+1761: #21  x=370 y=920 facing=1
+1786: #31  x=500 y=920 facing=1
+MEM cycle=23 textures=354 bytes=55736277
+1841: #21  x=370 y=920 facing=1
+1866: #31  x=500 y=920 facing=1
+MEM cycle=24 textures=354 bytes=55736277
+1921: #21  x=370 y=920 facing=1
+1946: #31  x=500 y=920 facing=1
+MEM cycle=25 textures=354 bytes=55736277
+2001: #21  x=370 y=920 facing=1
+2026: #31  x=500 y=920 facing=1
+MEM cycle=26 textures=354 bytes=55736277
+2081: #21  x=370 y=920 facing=1
+2106: #31  x=500 y=920 facing=1
+MEM cycle=27 textures=354 bytes=55736277
+2161: #21  x=370 y=920 facing=1
+2186: #31  x=500 y=920 facing=1
+MEM cycle=28 textures=354 bytes=55736277
+2241: #21  x=370 y=920 facing=1
+2266: #31  x=500 y=920 facing=1
+MEM cycle=29 textures=354 bytes=55736277
+2321: #21  x=370 y=920 facing=1
+2346: #31  x=500 y=920 facing=1
+MEM cycle=30 textures=354 bytes=55736277
+2401: #21  x=370 y=920 facing=1
+2426: #31  x=500 y=920 facing=1
+MEM cycle=31 textures=354 bytes=55736277
+2481: #21  x=370 y=920 facing=1
+2506: #31  x=500 y=920 facing=1
+MEM cycle=32 textures=354 bytes=55736277
+2561: #21  x=370 y=920 facing=1
+2586: #31  x=500 y=920 facing=1
+MEM cycle=33 textures=354 bytes=55736277
+2641: #21  x=370 y=920 facing=1
+2666: #31  x=500 y=920 facing=1
+MEM cycle=34 textures=354 bytes=55736277
+2721: #21  x=370 y=920 facing=1
+2746: #31  x=500 y=920 facing=1
+MEM cycle=35 textures=354 bytes=55736277
+2801: #21  x=370 y=920 facing=1
+2826: #31  x=500 y=920 facing=1
+MEM cycle=36 textures=354 bytes=55736277
+2881: #21  x=370 y=920 facing=1
+2906: #31  x=500 y=920 facing=1
+MEM cycle=37 textures=354 bytes=55736277
+2961: #21  x=370 y=920 facing=1
+2986: #31  x=500 y=920 facing=1
+MEM cycle=38 textures=354 bytes=55736277
+3041: #21  x=370 y=920 facing=1
+3066: #31  x=500 y=920 facing=1
+MEM cycle=39 textures=354 bytes=55736277
+3121: #21  x=370 y=920 facing=1
+3146: #31  x=500 y=920 facing=1
+MEM cycle=40 textures=354 bytes=55736277
+3201: #21  x=370 y=920 facing=1
+3226: #31  x=500 y=920 facing=1
+MEM cycle=41 textures=354 bytes=55736277
+3281: #21  x=370 y=920 facing=1
+3306: #31  x=500 y=920 facing=1
+MEM cycle=42 textures=354 bytes=55736277
+3361: #21  x=370 y=920 facing=1
+3386: #31  x=500 y=920 facing=1
+MEM cycle=43 textures=354 bytes=55736277
+3441: #21  x=370 y=920 facing=1
+3466: #31  x=500 y=920 facing=1
+MEM cycle=44 textures=354 bytes=55736277
+3521: #21  x=370 y=920 facing=1
+3546: #31  x=500 y=920 facing=1
+MEM cycle=45 textures=354 bytes=55736277
+3601: #21  x=370 y=920 facing=1
+3626: #31  x=500 y=920 facing=1
+MEM cycle=46 textures=354 bytes=55736277
+3681: #21  x=370 y=920 facing=1
+3706: #31  x=500 y=920 facing=1
+MEM cycle=47 textures=354 bytes=55736277
+3761: #21  x=370 y=920 facing=1
+3786: #31  x=500 y=920 facing=1
+MEM cycle=48 textures=354 bytes=55736277
+3841: #21  x=370 y=920 facing=1
+3866: #31  x=500 y=920 facing=1
+MEM cycle=49 textures=354 bytes=55736277
+3921: #21  x=370 y=920 facing=1
+3946: #31  x=500 y=920 facing=1
+MEM cycle=50 textures=354 bytes=55736277
+4001: #21  x=370 y=920 facing=1
+4026: #31  x=500 y=920 facing=1
+MEM cycle=51 textures=354 bytes=55736277
+4081: #21  x=370 y=920 facing=1
+4106: #31  x=500 y=920 facing=1
+MEM cycle=52 textures=354 bytes=55736277
+4161: #21  x=370 y=920 facing=1
+4186: #31  x=500 y=920 facing=1
+MEM cycle=53 textures=354 bytes=55736277
+4241: #21  x=370 y=920 facing=1
+4266: #31  x=500 y=920 facing=1
+MEM cycle=54 textures=354 bytes=55736277
+4321: #21  x=370 y=920 facing=1
+4346: #31  x=500 y=920 facing=1
+MEM cycle=55 textures=354 bytes=55736277
+4401: #21  x=370 y=920 facing=1
+4426: #31  x=500 y=920 facing=1
+MEM cycle=56 textures=354 bytes=55736277
+4481: #21  x=370 y=920 facing=1
+4506: #31  x=500 y=920 facing=1
+MEM cycle=57 textures=354 bytes=55736277
+4561: #21  x=370 y=920 facing=1
+4586: #31  x=500 y=920 facing=1
+MEM cycle=58 textures=354 bytes=55736277
+4641: #21  x=370 y=920 facing=1
+4666: #31  x=500 y=920 facing=1
+MEM cycle=59 textures=354 bytes=55736277
+4721: #21  x=370 y=920 facing=1
+4746: #31  x=500 y=920 facing=1
+MEM cycle=60 textures=354 bytes=55736277
+4801: #21  x=370 y=920 facing=1
+4826: #31  x=500 y=920 facing=1
+MEM cycle=61 textures=354 bytes=55736277
+4881: #21  x=370 y=920 facing=1
+4906: #31  x=500 y=920 facing=1
+MEM cycle=62 textures=354 bytes=55736277
+4961: #21  x=370 y=920 facing=1
+4986: #31  x=500 y=920 facing=1
+MEM cycle=63 textures=354 bytes=55736277
+5041: #21  x=370 y=920 facing=1
+5066: #31  x=500 y=920 facing=1
+MEM cycle=64 textures=354 bytes=55736277
+5121: #21  x=370 y=920 facing=1
+5146: #31  x=500 y=920 facing=1
+MEM cycle=65 textures=354 bytes=55736277
+5201: #21  x=370 y=920 facing=1
+5226: #31  x=500 y=920 facing=1
+MEM cycle=66 textures=354 bytes=55736277
+5281: #21  x=370 y=920 facing=1
+5306: #31  x=500 y=920 facing=1
+MEM cycle=67 textures=354 bytes=55736277
+5361: #21  x=370 y=920 facing=1
+5386: #31  x=500 y=920 facing=1
+MEM cycle=68 textures=354 bytes=55736277
+5441: #21  x=370 y=920 facing=1
+5466: #31  x=500 y=920 facing=1
+MEM cycle=69 textures=354 bytes=55736277
+5521: #21  x=370 y=920 facing=1
+5546: #31  x=500 y=920 facing=1
+MEM cycle=70 textures=354 bytes=55736277
+5601: #21  x=370 y=920 facing=1
+5626: #31  x=500 y=920 facing=1
+MEM cycle=71 textures=354 bytes=55736277
+5681: #21  x=370 y=920 facing=1
+5706: #31  x=500 y=920 facing=1
+MEM cycle=72 textures=354 bytes=55736277
+5761: #21  x=370 y=920 facing=1
+5786: #31  x=500 y=920 facing=1
+MEM cycle=73 textures=354 bytes=55736277
+5841: #21  x=370 y=920 facing=1
+5866: #31  x=500 y=920 facing=1
+MEM cycle=74 textures=354 bytes=55736277
+5921: #21  x=370 y=920 facing=1
+5946: #31  x=500 y=920 facing=1
+MEM cycle=75 textures=354 bytes=55736277
+6001: #21  x=370 y=920 facing=1
+6026: #31  x=500 y=920 facing=1
+MEM cycle=76 textures=354 bytes=55736277
+6081: #21  x=370 y=920 facing=1
+6106: #31  x=500 y=920 facing=1
+MEM cycle=77 textures=354 bytes=55736277
+6161: #21  x=370 y=920 facing=1
+6186: #31  x=500 y=920 facing=1
+MEM cycle=78 textures=354 bytes=55736277
+6241: #21  x=370 y=920 facing=1
+6266: #31  x=500 y=920 facing=1
+MEM cycle=79 textures=354 bytes=55736277
+6321: #21  x=370 y=920 facing=1
+6346: #31  x=500 y=920 facing=1
+MEM cycle=80 textures=354 bytes=55736277

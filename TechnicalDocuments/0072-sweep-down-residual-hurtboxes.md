@@ -36,7 +36,7 @@ Fighter.play（beginから使用）はhitsを空にするがhurtsは保持する
 
 診断用に、struckの直前で相手のhurtsを一度空にして被弾反応だけにFDを設定させた比較では、3キャラともダウン中に残るのはFD #0の押し合い判定だけとなり、#164への再ヒットは消えた。次の命中は起き上がって#1に復帰してから。特定技を禁止したり、ダウン状態を技番号で無敵にした比較ではない。
 
-生ログはbuild/sweep-probe.log、sweep-probe-clear.log、sweep-probe-mirror.log。診断用エントリはbuild/sweep-probe-entry.lhへ保存。
+生ログはTechnicalDocuments/evidence/0072/sweep-probe.log、sweep-probe-clear.log、sweep-probe-mirror.log。診断用エントリはTechnicalDocuments/evidence/0072/sweep-probe-entry.lhへ保存。
 
 ## 修正方針
 
@@ -44,11 +44,10 @@ FDの新しい技・被弾反応への持ち越し規則を修正対象とする
 
 ユーザーの追加条件は「ゆい→えりでは再ヒット、えり→ゆいでは再ヒットしない」。この組み合わせを、初段の相手が立ち#1／しゃがみ#12の両方で比較した部品テストでは、双方とも残留FDにダウン中の再ヒットが発生した。しゃがみ経由では残るFD #2の形が変わることも確認した（ゆいはy=-90、半高さ36）。実プレイで片側だけ再現した条件は未確定だが、被弾前の状態で残留判定が変わることと、被弾側の持ち越し問題は確認できる。build/sweep-pair-probe.log/.lh相当のエントリに記録。
 
-
 ## 実施した修正
 
 Fighter.beginReactionを追加し、存在する反応技へ移る際にhurtsを空にしてからbeginする。通常のstruckによる被弾・ガード反応と、RP（hitJunction）からの被弾反応の両方で利用する。通常技のbegin/play全体の挙動は変更しない。SG/start、DSの継続ジャンプではFDを保持するため、被弾反応が設定した判定の更新・削除はスクリプト通り続く。
 
 新しいtests/sweep-down.lhは、攻撃側ゆい／サキ／えり×被弾側ゆい／えり×立ち／しゃがみの12ケースを実データで実行する。足払いが終了するたびに再度出し、初段の命中、ダウンへの到達、ダウン中には命中しないこと、起き上がり後は再び命中することを確認した。すべて成功。
 
-既存combat-flowも成功。足払いの単発・正規の多段、連続ガード、メルトショット、ゆい超必殺技最終段、236ケースの着地、空中押し合い、ゆい2C→超必殺技の全10段（計11ヒット）、揺れ、コンボ表示の回帰を含む。生ログはbuild/sweep-down-test.log、build/sweep-combat-test.log。
+既存combat-flowも成功。足払いの単発・正規の多段、連続ガード、メルトショット、ゆい超必殺技最終段、236ケースの着地、空中押し合い、ゆい2C→超必殺技の全10段（計11ヒット）、揺れ、コンボ表示の回帰を含む。生ログはTechnicalDocuments/evidence/0072/sweep-down-test.log、TechnicalDocuments/evidence/0072/sweep-combat-test.log。

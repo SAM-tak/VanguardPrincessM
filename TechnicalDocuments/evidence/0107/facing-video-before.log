@@ -1,0 +1,5 @@
+PASS: real jump landing, both crossover directions, buffered A, active attack facing
+line 41: panic^: Air C -> landing -> ground C still faces away
+traceback:
+  .check-facing-video.lh:41: in load
+  Boot.lh:8: in f^ (coroutine)

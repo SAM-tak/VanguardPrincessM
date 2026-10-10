@@ -27,7 +27,7 @@ python tools/fm2k_convert/support_palettes.py assets --support えこ
 python tools/fm2k_convert/support_palettes.py assets --support えこ --apply
 ```
 
-指定なしでは読み取り専用。適用時はパレットの保存結果も確認してから参照を更新し、data 配下の全 images.lton（変換中間データを含む）に参照が残らない重複ファイルだけを削除する。再実行は差分なし。元画像への復帰・再抽出は通常の変換手順から行う。今回の作業前データはローカルの `build/eko-before-palettes.zip` に退避した。
+指定なしでは読み取り専用。適用時はパレットの保存結果も確認してから参照を更新し、data 配下の全 images.lton（変換中間データを含む）に参照が残らない重複ファイルだけを削除する。再実行は差分なし。元画像への復帰・再抽出は通常の変換手順から行う。今回の作業前データはローカルの `TechnicalDocuments/evidence/0125/eko-before-palettes.zip` に退避した。
 
 ## 検証
 

@@ -1,0 +1,98 @@
+{
+  "boot": {
+    "Total": {
+      "private": 460984320,
+      "workingSet": 305197056
+    },
+    "Heap": {
+      "private": 164265984,
+      "workingSet": 159117312
+    },
+    "Image": {
+      "private": 38252544,
+      "workingSet": 62353408
+    },
+    "Private Data": {
+      "private": 257286144,
+      "workingSet": 81178624
+    },
+    "Stack": {
+      "private": 1179648,
+      "workingSet": 675840
+    },
+    "writeCombine": 180617216,
+    "heapBusy": 146887128
+  },
+  "battle0": {
+    "Total": {
+      "private": 882483200,
+      "workingSet": 454868992
+    },
+    "Heap": {
+      "private": 317243392,
+      "workingSet": 308543488
+    },
+    "Image": {
+      "private": 38252544,
+      "workingSet": 62574592
+    },
+    "Private Data": {
+      "private": 525787136,
+      "workingSet": 81182720
+    },
+    "Stack": {
+      "private": 1200128,
+      "workingSet": 696320
+    },
+    "writeCombine": 449052672,
+    "heapBusy": 250308210
+  },
+  "peakgc": {
+    "Total": {
+      "private": 897384448,
+      "workingSet": 468025344
+    },
+    "Heap": {
+      "private": 332185600,
+      "workingSet": 321617920
+    },
+    "Image": {
+      "private": 38252544,
+      "workingSet": 62656512
+    },
+    "Private Data": {
+      "private": 525778944,
+      "workingSet": 81174528
+    },
+    "Stack": {
+      "private": 1167360,
+      "workingSet": 688128
+    },
+    "writeCombine": 449052672,
+    "heapBusy": 254000494
+  },
+  "title1": {
+    "Total": {
+      "private": 544038912,
+      "workingSet": 380014592
+    },
+    "Heap": {
+      "private": 247320576,
+      "workingSet": 233574400
+    },
+    "Image": {
+      "private": 38252544,
+      "workingSet": 62693376
+    },
+    "Private Data": {
+      "private": 257335296,
+      "workingSet": 81166336
+    },
+    "Stack": {
+      "private": 1130496,
+      "workingSet": 663552
+    },
+    "writeCombine": 180617216,
+    "heapBusy": 181223066
+  }
+}

@@ -8,7 +8,7 @@
 
 #218はRP104→RP102→RP103を実行する。ゆいでは#172→#45→#46となるが、#45と#46のSettingsはlevel=0。mayStartはレベル0を無条件で入力可能と扱い、receivingを確認していなかった。投げ途中にコマンド表から通常技を開始でき、空中でも専用やられ動作を失っていた。
 
-修正前の#218直接実行では無入力時に#172→#45→#175→#46と進む一方、A連打では31tickの#45、69tickの#46から#213へ割り込んだ（build/rosarion-before.log）。
+修正前の#218直接実行では無入力時に#172→#45→#175→#46と進む一方、A連打では31tickの#45、69tickの#46から#213へ割り込んだ（TechnicalDocuments/evidence/0113/rosarion-before.log）。
 
 ## 原作との照合と変更
 
@@ -23,4 +23,4 @@ Fighter.mayStartで、未終了のreceiving/blocking中はコマンド表によ�
 - tests/vm-audit.lh: DS/SG、先行入力、ヒットストップ中の受け身受付停止、追加入力、ダウンの既存検証。
 - tests/cancel-rules.lh: 通常のキャンセル条件の回帰。
 
-ログ: build/natalia-throw-after.log、build/natalia-vm-audit.log、build/natalia-cancel-rules.log。
+ログ: TechnicalDocuments/evidence/0113/natalia-throw-after.log、TechnicalDocuments/evidence/0113/natalia-vm-audit.log、TechnicalDocuments/evidence/0113/natalia-cancel-rules.log。

@@ -11,7 +11,7 @@ LÔVE既存の `LHATOVE_GC_STATS=1` でフレームごとの回収累計／オ�
 - `lhat_alloc/calloc/realloc/free` を通る全スレッド合計の未解放バイト数とブロック数。プログラムのコンパイル結果やワーカーも含む。
 - Windows `GetProcessHeaps` / `HeapWalk` の使用中領域と確保済み領域。VirtualAllocを直接使う領域やGPUメモリなど、プロセス全体を完全に網羅する値ではない。
 
-同じキャラとステージのVS戦を2本決着させてESCでタイトルへ戻す3周の測定は `build/heap-fixed-audit.log`。
+同じキャラとステージのVS戦を2本決着させてESCでタイトルへ戻す3周の測定は `TechnicalDocuments/evidence/0067/heap-fixed-audit.log`。
 
 ## 割り当ての内訳
 
@@ -34,19 +34,19 @@ GC後のメインVMは約89,000オブジェクト、計測した本体と内部�
 | 10,000回 | 4,096／98,304 | 16／384 |
 | 100,000回 | 65,536／1,572,864 | 16／384 |
 
-ログは `build/repro-weak-cache-before.log` と `build/repro-weak-cache-after.log`。アドレスの分布により修正前の拡大タイミングは変わる。
+ログは `TechnicalDocuments/evidence/0064/repro-weak-cache-before.log` と `TechnicalDocuments/evidence/0064/repro-weak-cache-after.log`。アドレスの分布により修正前の拡大タイミングは変わる。
 
 コアの修正は、削除済み枠が原因なら同じ容量で再ハッシュし、生存件数が本当に多いときだけ拡大するもの。`test_hostdata_base` に登録・削除反復と、生存64件での拡大・全件保持の検査を追加した。ゲーム側に回避コードは追加しない。
 
 ## 検証範囲
 
-異なるCPU戦の完全なラウンド進行を含む計測は `build/heap-random-soak.log`。弱参照表の不具合が見つかったため、60周予定の途中で所有するテストプロセスを終了した。このログを60周完走として扱わない。
+異なるCPU戦の完全なラウンド進行を含む計測は `TechnicalDocuments/evidence/0067/heap-random-soak.log`。弱参照表の不具合が見つかったため、60周予定の途中で所有するテストプロセスを終了した。このログを60周完走として扱わない。
 
-修正後の `build/heap-fixed-soak.log` は、同じ20種類の乱数シードを3巡する60周の素材読み込み・破棄テスト。各試合は60回のシミュレーションtick後に制限時間を進めて終了する短縮テストで、試合全時間の検証とは区別する。
+修正後の `TechnicalDocuments/evidence/0067/heap-fixed-soak.log` は、同じ20種類の乱数シードを3巡する60周の素材読み込み・破棄テスト。各試合は60回のシミュレーションtick後に制限時間を進めて終了する短縮テストで、試合全時間の検証とは区別する。
 
 60周完走。20／40／60周目は、メインVM生存数 **82,213**、処理系全体の未解放量 **94,390,713 bytes／459,447ブロック**と完全一致。Windowsの使用中ヒープはそれぞれ185,722,825／185,706,992／185,701,480 bytesで、増え続けていない。GPU画像数は354〜356、技キャッシュは常駐1件へ戻った。
 
-`story-memory-return` は実際のCPUに2本取らせ、コンティニューNO→ゲームオーバー音声完了→タイトルを2周通した。各終了で対戦参照がなくなり、技キャッシュが常駐1件へ戻ることを検査。`build/story-memory-return-audit.log`。`test_hostdata_base` は削除反復に加えて64件生存時の容量拡大・検索も通過した。
+`story-memory-return` は実際のCPUに2本取らせ、コンティニューNO→ゲームオーバー音声完了→タイトルを2周通した。各終了で対戦参照がなくなり、技キャッシュが常駐1件へ戻ることを検査。`TechnicalDocuments/evidence/0064/story-memory-return-audit.log`。`test_hostdata_base` は削除反復に加えて64件生存時の容量拡大・検索も通過した。
 
 計測用の `_msize`、Windowsヒープ走査、割り当てカウンターは検証後に撤去し、LÔVEを再ビルドした。コアに残す今回の修正は `src/vm_machine.c` と `tests/test_hostdata_base.c`。他コンテキストの変更は保持した。
 

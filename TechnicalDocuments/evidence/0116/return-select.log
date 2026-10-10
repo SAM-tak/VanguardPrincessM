@@ -1,0 +1,11 @@
+PASS: VS return ゆい/あやね: rows, portraits, cursors and reselection
+PASS: VS return はるか/えり: rows, portraits, cursors and reselection
+PASS: VS return リリス/ナタリア: rows, portraits, cursors and reselection
+PASS: VS return ルナ/かえで: rows, portraits, cursors and reselection
+PASS: VS return くるみ/サキ: rows, portraits, cursors and reselection
+PASS: VS return サキ/くるみ: rows, portraits, cursors and reselection
+PASS: VS return かえで/ルナ: rows, portraits, cursors and reselection
+PASS: VS return ナタリア/リリス: rows, portraits, cursors and reselection
+PASS: VS return えり/はるか: rows, portraits, cursors and reselection
+PASS: VS return あやね/ゆい: rows, portraits, cursors and reselection
+PASS: fresh VS selection still starts at Yui

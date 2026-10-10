@@ -1,0 +1,16 @@
+# Evidence files of 1MB or more stay local; see TechnicalDocuments/README.md.
+*.dll
+*.lib
+*.obj
+/0025/round-mark-check/
+/0026/title-check/
+/0053/support-originals/
+/0056/animated-wait-capture.png
+/0058/update-0117/support-variants.json
+/0069/linkprobe/
+/0069/wc-early-stacks.log
+/0069/wc-early-symbolized.log
+/0074/fm2k-vm-audit.json
+/0089/combo-colour-check/
+/0107/facing-debug.png
+/0125/eko-before-palettes.zip

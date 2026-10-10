@@ -23,6 +23,6 @@ data/supports/シエラ配下の全10キャラ用定義を再生成した。原�
 - tests/sierra-aim.lh: 全10キャラ×本体の向き2通り×照準方向2通り×時間切れ/追加入力の2通り、計80ケース。
 - 最初の照準後にV75を反転させ、構えのturnX、4回すべての射撃オブジェクト分岐、実際の攻撃判定中心の方向が最初の照準方向と一致することを確認。
 - 各ケースで5Dを別に実行し、変更後のV75に従うことを確認。
-- build/sierra-aim-test.log: 全キャラPASS。
-- tests/sierra-startup.lh: 選択サポートだけのロード、1/2ラウンド、5入力の入口確認もPASS（build/sierra-aim-startup.log）。
+- TechnicalDocuments/evidence/0109/sierra-aim-test.log: 全キャラPASS。
+- tests/sierra-startup.lh: 選択サポートだけのロード、1/2ラウンド、5入力の入口確認もPASS（TechnicalDocuments/evidence/0109/sierra-aim-startup.log）。
 - 再生成計画を再実行し、全出力がディスク内容と一致することを確認。

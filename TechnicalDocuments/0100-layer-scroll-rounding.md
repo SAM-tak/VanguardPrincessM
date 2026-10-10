@@ -24,7 +24,7 @@
 
 ## 検証
 
-- `tests/stage-scroll.lh`: 使用中の率18種類×カメラ0～640×正負の小数移動座標、計23,076件を整数演算の参照値と比較。スクール前景の端、無効スクロール、ループ設定の置換も確認。`build/stage-scroll-audit.log`: PASS。
-- 一時描画プローブ: 実ステージ7種類を先読みし、それぞれ11カメラ位置でstep/draw。`build/stage-render-audit.log`: PASS。これは描画実行確認であり、原作スクリーンショットとの全ピクセル比較ではない。
+- `tests/stage-scroll.lh`: 使用中の率18種類×カメラ0～640×正負の小数移動座標、計23,076件を整数演算の参照値と比較。スクール前景の端、無効スクロール、ループ設定の置換も確認。`TechnicalDocuments/evidence/0100/stage-scroll-audit.log`: PASS。
+- 一時描画プローブ: 実ステージ7種類を先読みし、それぞれ11カメラ位置でstep/draw。`TechnicalDocuments/evidence/0100/stage-render-audit.log`: PASS。これは描画実行確認であり、原作スクリーンショットとの全ピクセル比較ではない。
 
 0074の残件は合成描画のピクセル演算。旧16bit色への量子化については、ユーザーがフルカラーの維持を了承している点を区別して扱う。
