@@ -6,6 +6,7 @@ import^love.timer
 require^"../main.lh"
 require^"../src/arena.lh"
 require^"../src/resource.lh"
+require^"../src/input.lh"
 var^phase = 0
 var^frames = 0
 var^wait = 0
@@ -96,7 +97,7 @@ public^let^update = p^dt:number^{
         phase := 14
     elseif^phase = 14:
         wait += 1
-        if^wait > 200 and^wait < 400 and^wait % 17 = 0 { press(love.keyboard.Key.a) }
+        if^wait > 200 and^wait < 400 and^wait % 17 = 0 { vp.input.tap(love.keyboard.Key.a) }
         let^support = vp.main.status().supportSkill
         if^support >= 10476 and^support <= 10506 { supportAttacked := true^ }
         if^wait = 450 {
@@ -118,7 +119,7 @@ public^let^update = p^dt:number^{
             if^vp.main.status().paused { panic^"Start/Return did not resume battle" }
         }
         if^wait = 480 and^vp.main.status().roundFrames >= pauseTime { panic^"battle did not resume" }
-        if^wait > 200 and^wait % 30 = 0 { press(love.keyboard.Key.l) }
+        if^wait > 200 and^wait % 30 = 0 { vp.input.tap(love.keyboard.Key.l) }
         if^wait > 200 and^vp.main.status().enemySkill >= 200 { attacked := true^ }
         if^wait = 300 { press(love.keyboard.Key.k) }
         if^wait = 301 and^vp.main.status().enemyLife <= 1 { panic^"2P right key still changes life" }

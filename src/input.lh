@@ -14,9 +14,28 @@ let^keys : t^{t^{love.keyboard.Key[]}[]} = {
 }
 let^buttons = {Button.a, Button.x, Button.y, Button.b, Button.rightshoulder, Button.leftshoulder, Button.back, Button.start}
 
+# Automated tests: battle reads held keys (TechnicalDocuments/0090), which a
+# keypressed event alone does not provide. `tap` holds a key for a few polls.
+let^TAP_POLLS = 3
+let^Tap = def^{
+    self^{ key : love.keyboard.Key|nil^ = nil^, left = 0 },
+    override^new = f^key:love.keyboard.Key, left:number^{ self^{ key = key, left = left } },
+}
+var^taps : t^{Tap[]} = {}
+public^let^tap = p^key:love.keyboard.Key{
+    for^t in^taps { if^t.key = key { t.left := TAP_POLLS return^ } }
+    taps.push^(Tap.new(key, TAP_POLLS))
+}
+
 # Keep occupied slots stable when another controller disconnects.
 public^let^poll = p^-> t^{love.keyboard.Key[]} {
     var^events : t^{love.keyboard.Key[]} = {}
+    var^held : t^{Tap[]} = {}
+    for^t in^taps {
+        t.left -= 1
+        if^t.left > 0 { held.push^(t) }
+    }
+    taps := held
     for^s in^slots {
         let^pad = s.pad
         if^pad? and^!pad.isConnected() { s.pad := nil^ s.held := {} }
@@ -60,6 +79,7 @@ public^let^poll = p^-> t^{love.keyboard.Key[]} {
 
 public^let^isDown = p^key:love.keyboard.Key-> bool^{
     if^love.keyboard.isDown(key) { return^true^ }
+    for^t in^taps { if^t.key = key { return^true^ } }
     for^i, s in^slots {
         let^layout = keys[i]
         if^layout != nil^ {

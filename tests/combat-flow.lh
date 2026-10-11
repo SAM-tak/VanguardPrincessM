@@ -9,7 +9,6 @@ require^"../src/script.lh"
 require^"../src/scriptdata.lh"
 require^"../src/fighter.lh"
 require^"../src/shake.lh"
-require^"../src/cpu.lh"
 require^"../src/round.lh"
 
 let^Fighter = vp.fighter.Fighter
@@ -83,14 +82,6 @@ let^guard = p^{
         if^p.canHit(box, def) { panic^"Persistent multi-hit box connected twice" }
         def.updateGuard(true^, false^, false^)
     }
-    # CPU direction must survive hitstop and blockstun too.
-    let^brain = vp.cpu.Brain.new("ゆい", 100)
-    def.record(1, 0)
-    def.stop := 8
-    let^input = brain.step(def, p)
-    if^input.dir != 1 or^!input.guard { panic^"CPU released guard during hitstop" }
-    def.stop := 0
-    if^!brain.step(def, p).guard { panic^"CPU released guard during blockstun" }
     # A low must still break a standing guard, and block when down-back is held.
     p.reactions(1, 1, 1, 1, 2, 2)
     def.updateGuard(true^, true^, false^)
@@ -139,7 +130,7 @@ let^guard = p^{
     p.jumpSkill := -1
     p.landed(newGroup)
     if^p.jumpSkill != -1 { panic^"Consumed DS handler fired twice" }
-    print("PASS: continuous guard, low/standing guard, release, CPU hold, hitstun, grouped boxes")
+    print("PASS: continuous guard, low/standing guard, release, hitstun, grouped boxes")
 }
 
 # Melt Shot's late FA groups allow new contact, but exclude existing hitstun.

@@ -8,6 +8,7 @@ import^love.graphics
 require^"../main.lh"
 require^"../src/arena.lh"
 require^"../src/resource.lh"
+require^"../src/input.lh"
 
 var^phase = 0
 var^frames = 0
@@ -64,7 +65,8 @@ public^let^update = p^dt:number^{
         if^s.cpuActions > actions { actions := s.cpuActions }
         # Existing development key: make the CPU vulnerable to one hit.
         press(love.keyboard.Key.f2)
-        if^wait % 5 = 0 { press(love.keyboard.Key.z) }
+        # Battle reads held keys; a keypressed event alone does not attack.
+        if^wait % 5 = 0 { vp.input.tap(love.keyboard.Key.z) }
         if^s.phase = "event" {
             if^where != "system / select / story / story-event" { panic^$"Story transition discarded persistent arenas: {where}" }
             press(love.keyboard.Key.escape)
