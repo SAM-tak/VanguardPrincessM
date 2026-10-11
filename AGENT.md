@@ -16,6 +16,12 @@
 
 @C:\Users\Owner\source\repos\lhat
 
+## EOS for L^
+
+@C:\Users\Owner\source\repos\eos-lhat
+
+@.\eos_lhat\
+
 ## LÔVE製別プロジェクト（参考）
 
 @..\Ruin Runners
