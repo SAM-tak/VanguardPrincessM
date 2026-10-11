@@ -92,12 +92,15 @@ def game_directory(source):
 
 
 def write_archive(directory, archive):
-    """Store (not deflate) every file: images are read often, and one archive
-    avoids per-file anti-malware scans that stall first loads on Windows."""
+    """One archive avoids per-file anti-malware scans that stall first loads on
+    Windows. Only DDS is deflated: it is raw L8 pixels (about 1/10). PNG is
+    already compressed, and WAV shrinks only ~7% while streamed music would
+    re-inflate from the start on every seek."""
     files = sorted(p for p in directory.rglob('*') if p.is_file())
     with zipfile.ZipFile(archive, 'x', zipfile.ZIP_STORED) as z:
         for path in files:
-            z.write(path, path.relative_to(directory).as_posix())
+            method = zipfile.ZIP_DEFLATED if path.suffix.lower() == '.dds' else zipfile.ZIP_STORED
+            z.write(path, path.relative_to(directory).as_posix(), method, 9 if method == zipfile.ZIP_DEFLATED else None)
     with zipfile.ZipFile(archive) as z:
         names = z.namelist()
         if names != [p.relative_to(directory).as_posix() for p in files]:

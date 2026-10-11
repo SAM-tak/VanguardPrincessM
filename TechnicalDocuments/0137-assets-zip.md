@@ -27,7 +27,11 @@ VanguardPrincess/
   配布フォルダでは `BuildAssets.exe` と `VanguardPrincess.exe` が並ぶので、ドロップ後そのままゲームを起動できる。
   D&D起動のコンソールは終了で閉じるため、引数0〜1個のfrozen実行では最後にEnter待ちを入れる（引数なしは使い方を表示）。
   利用者向けメッセージはOSの表示言語で日英を切替（Windowsは `GetUserDefaultUILanguage`、他は `LC_ALL`/`LC_MESSAGES`/`LANG`）。
-- 無圧縮にした理由: DDS L8 を読むたびにinflateさせない。PNG・音声は元々圧縮済み。
+- 圧縮: DDSのみDeflate（レベル9）、他はSTORED。PNGは元々圧縮済みなので展開時間を払うだけになる。
+  WAVは非圧縮PCMだが、Deflateしても504個 151.4MB → 140.9MB（-7%）しか減らない。
+  しかもstreamソース（BGM）はループのたびに先頭へシークし、PhysFSはDeflate済みエントリを後ろへシークできず先頭から展開し直す → STOREDのまま。
+  縮めるなら形式変更（可逆のFLAC、非可逆のOGG）だが、変換処理とパスの書き換えが要るので未着手。
+  当初は「DDSを読むたびにinflateさせない」ため全STOREDだった。2026-10-11 にDDSだけDeflateへ変更（下記「DDSのDeflate」）。
 - Pythonの `zipfile` は非ASCII名にUTF-8フラグ（0x800）を付け、lhat-love（PhysFS）はこれを読める。
 - `dist.ps1` の再ビルドは `assets` と `assets.zip` を保持。`check-distribution.ps1` は両方の混入を拒否。
 
@@ -43,3 +47,20 @@ VanguardPrincess/
 - 素材なしコピーで `check-distribution.ps1` 通過。
 
 サイズは素材内蔵exe（Optimal圧縮、約252MB）より大きい。気になるならDDSだけDeflateする選択肢がある。
+
+## DDSのDeflate（2026-10-11）
+
+DDS は GPU 形式の入れ物で、可逆圧縮の形式を持たない（BC系は非可逆。中身がパレット番号なので使えない）。
+原作の画像は独自の LZ/RLE で圧縮されている（[0130](0130-automatic-assets-builder.md)）。L8 は 1byte/pixel の非圧縮なので、原作より大きくなる。
+そこで zip のエントリ単位で DDS だけ Deflate する。
+
+既存の STORED zip（`dist`、8,492 エントリ）を DDS だけ Deflate で詰め直して計測した:
+
+- DDS 4,319 個: 213.1MB → 20.8MB（約 1/10）。zip 全体 446.9MB → 254.6MB（残りの大半は WAV）
+- lhat-love（`lovec`、ウィンドウなし）で save directory の zip を mount し、全 DDS を `love.image.newImageData`:
+  STORED 0.90 / 1.02 秒、Deflate 1.43 / 1.36 秒。全数で +0.4〜0.5 秒、1 枚あたり約 0.1ms。
+  実ゲームではワーカースレッドで読む（[0028](0028-async-loading.md)）、かつキャラ単位の部分集合なので影響は小さいと判断
+- `build_assets.py` の `write_archive` が `.dds` を `ZIP_DEFLATED`（レベル9）、その他を `ZIP_STORED` で書く。
+  書き込み後の全エントリ読み戻し・バイト比較は従来どおり。`tests/test_build_assets.py` は圧縮方式をエントリごとに確認する
+
+未確認: 実機での初回ロード体感、BuildAssets.exe（frozen）の再ビルドと原作からの実構築。

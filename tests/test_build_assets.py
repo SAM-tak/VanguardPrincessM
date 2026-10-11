@@ -45,7 +45,7 @@ class BuildAssetsTest(unittest.TestCase):
                 build(game, root / 'assets.zip', recipe)
             with zipfile.ZipFile(root / 'assets.zip') as z:
                 self.assertEqual(z.namelist(), ['supports/えこ/images/test.dds', 'supports/えこ/images/test.png'])
-                self.assertTrue(all(i.compress_type == zipfile.ZIP_STORED for i in z.infolist()))
+                self.assertEqual([i.compress_type for i in z.infolist()], [zipfile.ZIP_DEFLATED, zipfile.ZIP_STORED])
                 self.assertEqual(z.read('supports/えこ/images/test.dds'), (root / 'assets/supports/えこ/images/test.dds').read_bytes())
             self.assertEqual(sorted(p.name for p in root.iterdir()), ['assets', 'assets.zip', 'original', 'recipe.json'])
             with self.assertRaises(FileExistsError):
