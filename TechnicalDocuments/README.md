@@ -216,3 +216,5 @@
 - [0139-hilda-whiteout-ending.md](0139-hilda-whiteout-ending.md) — ヒルダ撃破時のホワイトアウト。勝ちマークをKO表示時間切れで点灯。ストーリーのヒルダ戦は決着マークで#23を始め直し分岐を成立させる。ロード中は白画面。
 
 - [0140-test-held-input.md](0140-test-held-input.md) — 戦闘入力が押下状態方式になったのに合わせ、自動テストで攻撃キーを押しっぱなしにする `vp.input.tap` を追加。
+
+- [0141-selective-preload-oracle.md](0141-selective-preload-oracle.md) — selective-preloadの判定を「未選択サポートのフォルダ」から「本体・選択サポートが参照しない素材」へ。所有整理後の失敗を解消。

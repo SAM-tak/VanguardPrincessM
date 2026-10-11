@@ -7,6 +7,8 @@ import^love.audio
 require^"../src/preload.lh"
 require^"../src/resource.lh"
 require^"../src/sprite.lh"
+require^"../src/script.lh"
+require^"../src/scriptdata.lh"
 
 let^SUPPORTS = {"えこ", "シエラ", "ジュリエット", "かなえ", "ヒルダ"}
 var^pending : vp.preload.Load|nil^= nil^
@@ -26,10 +28,49 @@ let^queue = p^{
 
 public^let^load = p^{ began := love.timer.getTime() queue() }
 
+# Media referenced by body skills and the selected support's package. Files
+# live with their main user (TechnicalDocuments/0126), so a body skill or the
+# selected support may legitimately use one kept in another support's folder.
+var^allowed : t^{[string^]:bool^|nil^} = {}
+let^allow = p^owner:string^, support:number^{
+    let^dir = $"assets/characters/{owner}"
+    let^sc = vp.script.loadFor($"{dir}/script.lton", support)
+    if^sc is^nil^ { panic^$"Missing script: {dir}" }
+    let^selected = SUPPORTS[support - 101] ?? ""
+    for^n:number^, sk:vp.scriptdata.Skill in^sc.byId {
+        if^sk.space = "" or^sk.space = "common" or^sk.space = selected {
+            let^source = if^sk.media = "": dir el^: sk.media;
+            for^b in^sk.blocks {
+                if^b.op = "I" or^b.op = "S" {
+                    let^file = if^b.op = "I": "images" el^: "sounds";
+                    let^list = vp.resource.data($"{source}/{file}.lton")
+                    if^list? {
+                        let^e = list[b.n[0] ?? 0]
+                        let^path = vp.sprite.assetPath(source, e)
+                        if^path? {
+                            # Requests are also recorded as "image:" / "sound:" keys.
+                            let^kind = if^b.op = "I": "image" el^: "sound";
+                            allowed[path] := true^
+                            allowed[$"{kind}:{path}"] := true^
+                            if^b.op = "I" {
+                                let^palette = vp.sprite.palettePath(source, e)
+                                allowed[palette] := true^
+                                allowed[$"image:{palette}"] := true^
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+# An unselected support's media may load only when the body or the selected
+# package uses it (0039: unselected supports' own media stays out).
 let^checkPath = p^path:string^{
     for^i, name in^SUPPORTS {
         let^selected = (caseNo < 10 and^i = caseNo % 5) or^(caseNo = 11 and^(i = 0 or^i = 4))
-        if^!selected and^path.find($"assets/supports/{name}/") != nil^ {
+        if^!selected and^path.find($"assets/supports/{name}/") != nil^ and^allowed[path] is^nil^ {
             panic^$"Unselected media loaded in case {caseNo}: {path}"
         }
     }
@@ -41,6 +82,14 @@ public^let^update = p^dt:number^{
     if^l != nil^ and^l.ready() {
         var^images = 0
         var^sounds = 0
+        allowed := {}
+        let^owner = if^caseNo < 5: "ゆい" el^: "くるみ";
+        if^caseNo = 11 {
+            allow(owner, 101)
+            allow(owner, 105)
+        else^:
+            allow(owner, if^caseNo < 10: 101 + caseNo % 5 el^: 100;)
+        }
         for^path:string^, requested:bool^ in^l.batch.seen { checkPath(path) }
         for^path:string^, tex:love.graphics.Texture in^l.batch.arena.textures { checkPath(path) images += 1 }
         for^path:string^, source:love.audio.Source in^l.batch.arena.sounds { checkPath(path) sounds += 1 }
