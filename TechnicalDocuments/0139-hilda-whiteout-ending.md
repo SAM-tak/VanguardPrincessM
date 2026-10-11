@@ -44,3 +44,17 @@
 - `tests/turn-result.lh`: ルナの構えが続く間もKOの表示時間切れ（150フレーム時点で確認）で勝利数が加算されることを追加。全項目PASS。
 - `story-continue` PASS。
 - `story-flow`・`async-flow`・`combat-flow` は変更前のHEADでも同じ箇所で失敗（自動操作でゆいが行動しない）。別件で、通しのストーリーでの白画面ロード・風神Aで止まる見た目は未確認。
+
+## エンディングデモ間のロード（2026-10-12）
+
+撃破後のストーリー表は エンディング１ → エンディング0（はるかは エンディング２ → エンディング0）。
+演出がつながっているのに、間にロード絵が出ていた（ユーザー指摘）。原作は同期読み込みなので画面は止まるだけ。
+
+- `State.ending`: ヒルダ撃破で立てる。以後、デモの次がデモなら、終わったデモを破棄せず表示し続ける（最終フレームで停止）。
+- 次のデモの読み込み完了時（`completeLoad`）に、保持していたデモの arena を pop してから新しい arena を attach する。
+  ロード画面の最短表示（0.3秒）は、保持中は待たない。
+- デモ名では判定しない。ヒルダ撃破後のデモ→デモがすべて対象。
+- `tests/ending-chain.lh`（`tools/test-async.ps1 -Test ending-chain`）: 実データでエンディング１→エンディング0を流し、
+  2本目のロード中は前のデモが保持され、開始時に arena が `system / select / story / story-event` へ戻ることを確認。
+  `story-continue`・`story-navigation`・`story-memory-return`・`hilda-whiteout`・`victory-preload` PASS。
+- テスト用に `vp.main.story()`（実行中のストーリー状態）を公開。

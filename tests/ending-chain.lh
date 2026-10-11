@@ -1,0 +1,55 @@
+module^vp.endingchaintest
+import^love.keyboard
+import^love.event
+import^love.timer
+require^"../main.lh"
+require^"../src/story.lh"
+require^"../src/arena.lh"
+
+# After the final boss, エンディング１ hands over to エンディング0 with its
+# last frame held instead of the loading picture; the held demo's arena goes
+# once the next one is attached.
+var^phase = 0
+var^wait = 0
+var^began = 0
+var^heldLoad = false^
+let^press = p^{ vp.main.keypressed(love.keyboard.Key.z, love.keyboard.Scancode.unknown, false^) }
+let^demo = f^name:string^-> vp.story.Event { { kind = "demo", name = name, stage = "", level = 0, rounds = 0, seconds = 0 } }
+public^let^load = p^{ began := love.timer.getTime() vp.main.load() }
+public^let^update = p^dt:number^{
+    vp.main.update(0.02)
+    let^where = vp.arena.names()
+    let^s = vp.main.status()
+    let^st = vp.main.story()
+    if^phase = 0 and^where = "system / opening" { press() phase := 1
+    elseif^phase = 1: press() phase := 2
+    elseif^phase = 2 and^where = "system / title": press() phase := 3
+    elseif^phase = 3 and^s.phase = "select": press() phase := 4
+    elseif^phase = 4 and^s.phase = "difficulty":
+        wait += 1
+        if^wait > 20 { press() phase := 5 }
+    elseif^phase = 5 and^s.phase = "intro" and^st != nil^:
+        let^running : vp.story.State = st
+        running.route := { demo("エンディング１"), demo("エンディング0") }
+        running.at := 0
+        running.ending := true^
+        running.enter("queue")
+        phase := 6
+    elseif^phase = 6 and^st != nil^:
+        let^running : vp.story.State = st
+        if^running.at = 0 and^s.phase = "loading" and^running.demo != nil^ { panic^"first ending held a demo" }
+        if^running.at = 1 and^s.phase = "loading" {
+            if^running.demo is^nil^ { panic^"loading picture between ending demos" }
+            heldLoad := true^
+        }
+        if^running.at = 1 and^s.phase = "event" {
+            if^!heldLoad { panic^"no held transition seen" }
+            if^where != "system / select / story / story-event" { panic^$"held demo arena not released: {where}" }
+            print("PASS: エンディング１ -> エンディング0 held its last frame, arena released")
+            love.event.quit()
+        }
+    }
+    if^love.timer.getTime() - began > 90 { panic^"ending chain test timeout" }
+}
+public^let^draw = p^{ vp.main.draw() }
+public^let^quit = p^-> bool^{ return^vp.main.quit() }

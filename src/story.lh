@@ -22,6 +22,9 @@ public^let^State = def^{
         # The boss fight ended in Hilda's white-out: the original goes
         # straight to the ending, so the next load shows white, not a picture.
         whiteout = false^,
+        # From then on the ending demos follow one another without a loading
+        # picture: the original loads synchronously, so the screen just holds.
+        ending = false^,
         continueChoice = 0,
         gameOverSound : love.audio.Source|nil^= nil^,
     },

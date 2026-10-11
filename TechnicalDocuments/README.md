@@ -213,7 +213,7 @@
 
 - [0138-github-release.md](0138-github-release.md) — vタグのpushで4プラットフォームのアーカイブを添付したGitHub Releaseを公開。
 
-- [0139-hilda-whiteout-ending.md](0139-hilda-whiteout-ending.md) — ヒルダ撃破時のホワイトアウト。勝ちマークをKO表示時間切れで点灯。ストーリーのヒルダ戦は決着マークで#23を始め直し分岐を成立させる。ロード中は白画面。
+- [0139-hilda-whiteout-ending.md](0139-hilda-whiteout-ending.md) — ヒルダ撃破時のホワイトアウト。勝ちマークをKO表示時間切れで点灯。ストーリーのヒルダ戦は決着マークで#23を始め直し分岐を成立させる。ロード中は白画面。エンディングデモ同士はロード絵を挟まず前のデモを保持。
 
 - [0140-test-held-input.md](0140-test-held-input.md) — 戦闘入力が押下状態方式になったのに合わせ、自動テストで攻撃キーを押しっぱなしにする `vp.input.tap` を追加。
 

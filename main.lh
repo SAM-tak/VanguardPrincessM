@@ -473,6 +473,7 @@ let^toSelect = p^{
         let^running : vp.story.State = st
         # Beating the final boss ends in her white-out (ヒルダ #23 -> #302).
         running.whiteout := bossDown
+        if^bossDown { running.ending := true^ }
         if^won { running.advance()
         else^: running.enter("continue") running.continueChoice := 0 }
         return^
@@ -712,7 +713,7 @@ let^completeLoad = p^{
     let^s = selecting
     if^(kind = "match" or^kind = "match-stage") and^(s is^nil^ or^!s.done) { return^ }
     if^kind = "briefing" and^(s is^nil^ or^!s.done) { return^ }
-    if^(kind = "story-demo" or^kind = "story-stage") and^st != nil^ and^st.age < 0.3 { return^ }
+    if^(kind = "story-demo" or^kind = "story-stage") and^st != nil^ and^st.age < 0.3 and^st.demo is^nil^ { return^ }
     pending := nil^
     clear2()
     upPressed := false^
@@ -772,7 +773,14 @@ let^completeLoad = p^{
             let^arena = matchArena
             if^arena is^nil^ { panic^"Missing prepared stage arena" }
             arena.absorb(l.batch.arena)
-        else^: l.batch.arena.attach() }
+        else^:
+            if^st != nil^ and^st.demo != nil^ {
+                let^held : vp.story.State = st
+                held.demo := nil^
+                vp.arena.pop()      # the ending demo held while this loaded
+            }
+            l.batch.arena.attach()
+        }
         if^st != nil^ {
             let^running : vp.story.State = st
             let^e = running.current()
@@ -903,6 +911,9 @@ public^let^quit = p^-> bool^{
     vp.resource.stop()
     return^false^
 }
+
+# The running story, for flow tests that start it at a given event.
+public^let^story = f^-> vp.story.State|nil^{ campaign }
 
 # Read-only diagnostics for flow regression checks and development tools.
 public^let^status = f^{
@@ -1107,9 +1118,14 @@ public^let^update = p^dt:number^{
             }
             if^demo != nil^ and^demo.done {
                 love.audio.stop()
-                running.demo := nil^
-                vp.arena.pop()
                 running.advance()
+                # Between ending demos the finished one stays on screen until
+                # the next is loaded; completeLoad pops it then.
+                let^next = running.current()
+                if^!running.ending or^next is^nil^ or^next.kind != "demo" {
+                    running.demo := nil^
+                    vp.arena.pop()
+                }
             }
         }
         if^running.phase = "queue" and^pending is^nil^ { queueStory(running) }
@@ -1223,7 +1239,7 @@ public^let^draw = p^{
         love.graphics.push()
         love.graphics.scale(SCALE)
         let^demo = st.demo
-        if^st.phase = "event" and^demo != nil^ { demo.draw()
+        if^demo != nil^ { demo.draw()
         else^: st.draw() }
         love.graphics.pop()
         return^
