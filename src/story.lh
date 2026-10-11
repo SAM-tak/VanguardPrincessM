@@ -19,6 +19,9 @@ public^let^State = def^{
         intro = "", routes : t^{t^{Event[]}[]} = {}, route : t^{Event[]} = {}, at = 0,
         demo : vp.title.Scene|nil^= nil^,
         loadImage = 1,
+        # The boss fight ended in Hilda's white-out: the original goes
+        # straight to the ending, so the next load shows white, not a picture.
+        whiteout = false^,
         continueChoice = 0,
         gameOverSound : love.audio.Source|nil^= nil^,
     },
@@ -29,7 +32,11 @@ public^let^State = def^{
     },
 
     current = f^self^-> Event|nil^{ self^.route[self^.at] },
-    enter = p^self^, phase:string^{ self^.phase := phase self^.age := 0 },
+    enter = p^self^, phase:string^{
+        self^.phase := phase
+        self^.age := 0
+        if^phase = "event" { self^.whiteout := false^ }
+    },
     advance = p^self^{
         self^.at += 1
         self^.enter(if^self^.at >= self^.route.length^: "complete" el^: "queue";)
@@ -108,6 +115,9 @@ public^let^State = def^{
             picture("assets/demos/タイトル/images/0004.png")
         elseif^self^.phase = "complete":
             picture(self^.intro)
+        elseif^self^.whiteout:
+            love.graphics.rectangle(love.graphics.DrawMode.fill, 0, 0, 640, 480)
+            return^
         else^:
             picture($"assets/characters/だみー/images/{self^.loadImage:%04d}.png")
         }

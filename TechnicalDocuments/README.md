@@ -212,3 +212,5 @@
 - [0137-assets-zip.md](0137-assets-zip.md) — 外部assetsをフォルダからzipへ。Windowsの初回ロードでのスキャン待ちを回避。BuildAssetsがSTORED zipを出力。
 
 - [0138-github-release.md](0138-github-release.md) — vタグのpushで4プラットフォームのアーカイブを添付したGitHub Releaseを公開。
+
+- [0139-hilda-whiteout-ending.md](0139-hilda-whiteout-ending.md) — ヒルダ撃破時のホワイトアウト。勝ちマークをKO表示時間切れで点灯。ストーリーのヒルダ戦は決着マークで#23を始め直し分岐を成立させる。ロード中は白画面。

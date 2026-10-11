@@ -111,6 +111,7 @@ public^let^load = p^{
     a.step() d.step()
     flow.step(p1,p2,false^,p^{ resets += 1 },p^{ overs += 1 })
     if^a.skillNo != 234 { panic^"Stance was forcibly replaced" }
+    if^tick = 150 and^(flow.phase != "ko" or^flow.wins1 + flow.wins2 != 1) { panic^"Mark waited for the winner's stance" }
     if^tick = 299 and^flow.phase != "ko" { panic^"Stance wait ended early" }
     if^tick = 300 and^flow.phase != "end" { panic^"Three-second deadline missed" }
     if^tick < budget and^(resets + overs) != 0 { panic^"Ended before configured show times" }

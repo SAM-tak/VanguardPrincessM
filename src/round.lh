@@ -96,6 +96,12 @@ public^let^Round = def^{
         toWin = 2,                  # rounds a side needs to win the match
         wins1 = 0, wins2 = 0,
         winner = 0,                 # 1, 2, or 0 for a draw
+        awarded = false^,           # this round's win and mark are counted
+        # The story's final boss: the deciding mark restarts the loser's #23.
+        # The original enters #23 only after the KO reaction, about when the
+        # mark lights; Hilda's #23 then sees the mark's V130 and whites out
+        # (TechnicalDocuments/0139). Here #23 starts at the KO, so restart it.
+        lossWithMark = false^,
         perfect = false^,           # the winner took no damage
         layers : t^{Fighter[]} = {},    # the system skills running now
         portraits : t^{Fighter[]} = {},
@@ -165,13 +171,17 @@ public^let^Round = def^{
         let^x = if^side = 0: MARK_1P_X - MARK_STEP * k el^: MARK_2P_X + MARK_STEP * k;
         self^.marks[2 * k + side] := self^.runAt(MARK_ON, x, MARK_Y)
     },
-    awardResult = p^self^{
+    awardResult = p^self^, p1:Fighter, p2:Fighter{
+        if^self^.awarded { return^ }
+        self^.awarded := true^
         if^self^.winner = 1 {
             self^.wins1 += 1
             self^.awardMark(0, self^.wins1)
+            if^self^.lossWithMark and^self^.wins1 >= self^.toWin { p2.begin(LOSS) }
         elseif^self^.winner = 2:
             self^.wins2 += 1
             self^.awardMark(1, self^.wins2)
+            if^self^.lossWithMark and^self^.wins2 >= self^.toWin { p1.begin(LOSS) }
         }
     },
     backgroundOnly = f^self^-> bool^{ self^.externalPresentation and^!self^.battleRevealed },
@@ -241,6 +251,7 @@ public^let^Round = def^{
             if^down1 { p1.begin(LOSS) }
             if^down2 { p2.begin(LOSS) }
             self^.enter("ko", if^down1 and^down2: DOUBLE_KO el^: KO;)
+            self^.awarded := false^
             self^.resultFrames := 0
             self^.perfect := false^
             let^w = if^self^.winner = 1: p1 el^self^.winner = 2: p2 el^: nil^;
@@ -253,7 +264,7 @@ public^let^Round = def^{
             if^self^.resultFrames >= RESULT_LIMIT {
                 # A stance may loop forever. Keep its pose and finish the
                 # presentation; a win already awarded must not count twice.
-                if^self^.phase = "ko" { self^.awardResult() }
+                self^.awardResult(p1, p2)
                 self^.enter("end", ROUND_END)
                 return^
             }
@@ -270,10 +281,12 @@ public^let^Round = def^{
         elseif^self^.phase = "ready":
             self^.phase := "fight"
         elseif^self^.phase = "ko":
+            # The mark lights as KO's show time ends, with the KO lettering's
+            # entrance (user-observed), even while the winner's move goes on.
+            self^.awardResult(p1, p2)
             # KO's display timer is a minimum, not permission to cut off a move.
             let^w = if^self^.winner = 1: p1 el^self^.winner = 2: p2 el^: nil^;
             if^w != nil^ and^!w.readyForResult() { return^ }
-            self^.awardResult()
             if^self^.winner = 1 {
                 p1.begin(VICTORY)
                 self^.enter("win", WIN_1P)

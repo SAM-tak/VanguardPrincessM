@@ -467,10 +467,14 @@ let^toSelect = p^{
     let^row2 = characterCode(foe) / 100 - 1
     let^support1 = me.v(142)
     let^support2 = me.v(143)
+    let^bossDown = won and^foe.dir = "assets/characters/ヒルダ"
     releaseBattle()
     if^st != nil^ {
-        if^won { st.advance()
-        else^: st.enter("continue") st.continueChoice := 0 }
+        let^running : vp.story.State = st
+        # Beating the final boss ends in her white-out (ヒルダ #23 -> #302).
+        running.whiteout := bossDown
+        if^won { running.advance()
+        else^: running.enter("continue") running.continueChoice := 0 }
         return^
     }
     let^s = vp.select.load(SYSTEM, storyMode)
@@ -641,6 +645,7 @@ let^startStoryBattle = p^st:vp.story.State, e:vp.story.Event {
     me.externalIntroPortrait := true^
     foe.externalIntroPortrait := true^
     flow.preparing := false^
+    flow.lossWithMark := e.name = "ヒルダ"
     matchIntro := false^
     wasTiming := false^
     st.enter("battle")

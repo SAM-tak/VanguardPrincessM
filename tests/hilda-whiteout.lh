@@ -1,0 +1,51 @@
+module^vp.hildawhiteouttest
+import^love.event
+require^"../src/fighter.lh"
+require^"../src/script.lh"
+require^"../src/round.lh"
+require^"../src/resource.lh"
+let^Fighter = vp.fighter.Fighter
+
+# Runs the deciding KO of a match against Hilda the way main.lh orders a
+# frame (round, then fighters) and reports whether her white-out (#302) began.
+# The deciding mark lights when KO's show time ends, about 100 frames in.
+let^whiteout = p^difficulty:number^, wins:number^, restart:bool^-> bool^{
+ let^yui = vp.script.loadFor("assets/characters/ゆい/script.lton",101)
+ let^hilda = vp.script.loadFor("assets/characters/ヒルダ/script.lton",100)
+ let^system = vp.script.load("assets/system/ヴァンガードプリンセス/script.lton")
+ if^yui is^nil^ or^hilda is^nil^ or^system is^nil^ { panic^"Missing scripts" }
+ vp.fighter.clearSystemVars()
+ let^p1 = Fighter.new("assets/characters/ゆい",500,920)
+ let^p2 = Fighter.new("assets/characters/ヒルダ",700,920)
+ yui.install(p1) hilda.install(p2) p1.enemy := p2 p2.enemy := p1 p2.facing := -1
+ # As main.lh's story start and startRound set them.
+ p1.setv(140,difficulty)
+ p1.setv(130,1100)
+ let^flow = vp.round.Round.new() flow.script := system flow.phase := "fight"
+ flow.toWin := 2
+ flow.lossWithMark := restart
+ flow.wins1 := wins
+ flow.placeMarks()
+ p2.life := 0
+ var^seen = false^
+ for^tick from^0 to^400 {
+  flow.step(p1,p2,false^,p^{},p^{})
+  p1.step() p2.step() p1.stepObjects() p2.stepObjects()
+  for^o in^p2.objects { if^o.skillNo = 302 { seen := true^ } }
+ }
+ return^seen
+}
+
+public^let^load = p^{
+ if^!whiteout(2000,1,true^) { panic^"Deciding story KO did not start Hilda's white-out" }
+ print("PASS: deciding story mark restarts Hilda's #23, which branches to her white-out")
+ if^whiteout(2000,0,true^) { panic^"A first-round KO started the white-out" }
+ print("PASS: first-round KO keeps the normal result")
+ if^whiteout(0,1,true^) { panic^"A VS-mode KO started the white-out" }
+ print("PASS: VS mode (V140 below 995) keeps the normal result")
+ if^whiteout(2000,1,false^) { panic^"White-out without restarting the loss" }
+ print("PASS: other fights keep their loss running")
+ love.event.quit()
+}
+public^let^draw = p^{}
+public^let^quit = p^-> bool^{ vp.resource.stop() return^false^ }
