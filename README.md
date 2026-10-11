@@ -1,0 +1,14 @@
+# Vanguard Princess M
+
+[Vanguard Princess](http://suge9.blog58.fc2.com/) running on its own program instead of the
+Fighter Maker 2nd executable, so that it works without trouble on today's operating systems.
+
+## Download
+
+Download the latest version from [Releases](../../releases) on the right side of this page.
+
+Extract the zip or tar.gz, then follow the [README](distribution/README.md) inside to set it up.
+
+> [!NOTE]  
+> This package contains none of the Vanguard Princess images or sounds.
+> You need the original Vanguard Princess to play.

@@ -22,7 +22,7 @@ $programs = @(
     elseif ($IsLinux) { 'VanguardPrincess', 'lib/liblove-12.0.so' }
     else { 'VanguardPrincess.command', 'lhat-love.app/Contents/MacOS/love' }
 )
-foreach ($name in @($programs) + @('ASSETS.md', 'LICENSE', 'lhat-love-license.txt') + @(if ($IsMacOS) { 'VanguardPrincess.love' })) {
+foreach ($name in @($programs) + @('ASSETS.md', 'README.md', 'README.ja.md', 'images/buildassets-console.png', 'LICENSE', 'lhat-love-license.txt') + @(if ($IsMacOS) { 'VanguardPrincess.love' })) {
     if (-not (Test-Path -LiteralPath (Join-Path $out $name) -PathType Leaf)) { throw "Missing distribution file: $name" }
 }
 if (-not $IsWindows) {

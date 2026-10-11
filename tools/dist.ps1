@@ -100,6 +100,8 @@ Copy-Item -LiteralPath (Join-Path $build "asset-builder-native/$builder") -Desti
 Copy-Item -LiteralPath (Join-Path $build 'asset-builder-native/asset-builder-licenses') -Destination $out -Recurse
 Copy-Item -LiteralPath (Join-Path $root 'LICENSE') -Destination $out
 Copy-Item -LiteralPath (Join-Path $converter 'ASSETS.md') -Destination (Join-Path $out 'ASSETS.md')
+# Player-facing READMEs (English and Japanese) and their screenshots.
+Get-ChildItem -LiteralPath (Join-Path $root 'distribution') | Copy-Item -Destination $out -Recurse
 
 $size = (Get-Item $zip).Length / 1MB
 Write-Host ("done: {0} (game archive {1:N1} MB)" -f $launcher, $size)
