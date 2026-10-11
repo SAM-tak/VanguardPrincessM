@@ -945,7 +945,7 @@ public^let^status = f^{
         waitingFrames = flow.waitingFrames,
         roundPhase = flow.phase, presentationLeft = flow.left,
         matchMusicPlaying = matchArena != nil^ and^flow.music != nil^ and^flow.music.isPlaying(),
-        loadingKind = pendingKind, stagePrepared = matchArena != nil^ and^stage.layers.length^ > 0,
+        loading = pending != nil^, loadingKind = pendingKind, stagePrepared = matchArena != nil^ and^stage.layers.length^ > 0,
         story = storyMode, cpuActions = if^cpu != nil^: cpu.actions el^: 0;,
         enemyX = foe.x, enemyLife = foe.life, playerLife = me.life, enemySkill = foe.skillNo,
         paused = paused, roundFrames = roundFrames,
@@ -1219,7 +1219,7 @@ let^debugText = p^text:string^, x:number^, y:number^{
     love.graphics.print(text, x, y)
 }
 
-public^let^draw = p^{
+let^drawScene = p^{
     if^paused {
         let^tex = vp.arena.texture($"{SYSTEM}/images/0165.png")
         if^tex != nil^ {
@@ -1363,6 +1363,18 @@ public^let^draw = p^{
     love.graphics.pop()
     debugText($"{me.skillName}  image {me.image}  palette {me.palette + 1}  fps {love.timer.getFPS()}", 16, 16)
     debugText($"arrows move  z x c a s d = A-F  F1 boxes  1-8 palette  F2 opponent at 1  g dummy guard: {GUARD_NAMES[dummyGuard] ?? ""}", 16, 36)
+}
+
+public^let^draw = p^{
+    drawScene()
+    # What the pending load is reading (source runs only, like other debug text).
+    if^pending != nil^ {
+        let^paths, waiting = vp.resource.progress()
+        let^_, h = love.graphics.getDimensions()
+        let^what = if^paths.length^ = 0: "  (preparing)" el^: "";
+        debugText($"loading {pendingKind}: {paths.length^} in flight, {waiting} waiting{what}", 16, h - 32)
+        for^path in^paths { debugText(path, 16, h - 52 - 18 * index^) }
+    }
 }
 
 # The palette keys 1-8.

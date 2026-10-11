@@ -1,0 +1,36 @@
+module^vp.loadthroughputtest
+import^love.keyboard
+import^love.event
+import^love.timer
+require^"../main.lh"
+require^"../src/arena.lh"
+
+# Real time from confirming the VS opponent until the match's stage and
+# both characters have finished loading (the VS presentation hides it).
+var^phase = 0
+var^began = 0
+var^start = 0
+var^frames = 0
+let^press = p^key:love.keyboard.Key{ vp.main.keypressed(key, love.keyboard.Scancode.unknown, false^) }
+public^let^load = p^{ began := love.timer.getTime() vp.main.load() }
+public^let^update = p^dt:number^{
+    vp.main.update(0.02)
+    let^where = vp.arena.names()
+    let^s = vp.main.status()
+    if^phase = 0 and^where = "system / opening" { press(love.keyboard.Key.z) phase := 1
+    elseif^phase = 1: press(love.keyboard.Key.z) phase := 2
+    elseif^phase = 2 and^where = "system / title": press(love.keyboard.Key.down) press(love.keyboard.Key.z) phase := 3
+    elseif^phase = 3 and^where = "system / select" and^!s.loading: press(love.keyboard.Key.z) phase := 4
+    elseif^phase = 4: press(love.keyboard.Key.j) phase := 5
+    elseif^phase = 5: press(love.keyboard.Key.l) start := love.timer.getTime() frames := 0 phase := 6
+    elseif^phase = 6:
+        frames += 1
+        if^!s.loading and^s.loadingKind = "match" {
+            print($"LOAD match seconds={love.timer.getTime() - start} updates={frames}")
+            love.event.quit()
+        }
+    }
+    if^love.timer.getTime() - began > 120 { panic^"load throughput test timeout" }
+}
+public^let^draw = p^{ vp.main.draw() }
+public^let^quit = p^-> bool^{ return^vp.main.quit() }

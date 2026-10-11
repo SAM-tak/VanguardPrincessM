@@ -170,6 +170,13 @@ var^queue : t^{Job[]} = {}
 var^next = 0
 var^active : t^{Job[]} = {}
 var^started = false^
+
+# For a debug overlay: the files in flight, and how many wait behind them.
+public^let^progress = f^-> t^{string^[]}, number^{
+    var^paths : t^{string^[]} = {}
+    for^j in^active { paths.push^(j.path) }
+    return^paths, queue.length^ - next
+}
 var^tables : t^{[string^]:t^{}|nil^} = {}
 var^scripts : t^{[string^]:vp.scriptdata.Data|nil^} = {}
 var^scriptUsers : t^{[string^]:number^|nil^} = {}
