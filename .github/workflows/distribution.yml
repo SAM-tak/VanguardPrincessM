@@ -78,6 +78,17 @@ jobs:
           name: VanguardPrincess-${{ matrix.platform }}
           path: ${{ runner.os == 'Windows' && 'dist/VanguardPrincess/' || format('build/VanguardPrincess-{0}.tar.gz', matrix.platform) }}
           if-no-files-found: error
+      # A version tag publishes the same folder as one archive per platform.
+      - name: Archive Windows distribution for release
+        if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/v')
+        run: Compress-Archive -Path dist/VanguardPrincess -DestinationPath build/VanguardPrincess-${{ matrix.platform }}.zip
+      - name: Upload release archive
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: release-${{ matrix.platform }}
+          path: build/VanguardPrincess-${{ matrix.platform }}.${{ runner.os == 'Windows' && 'zip' || 'tar.gz' }}
+          if-no-files-found: error
       - name: Upload engine check logs on failure
         if: failure()
         uses: actions/upload-artifact@v7.0.2
@@ -85,3 +96,34 @@ jobs:
           name: engine-check-logs-${{ matrix.platform }}
           path: build/engine-check/**/*.log
           if-no-files-found: ignore
+
+  release:
+    name: GitHub Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8.0.1
+        with:
+          pattern: release-*
+          path: release
+          merge-multiple: true
+      # Tags with a suffix such as v0.1.0-beta are published as pre-releases.
+      # Re-running the workflow for a tag replaces the attached archives.
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          ls -l release
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" release/* --clobber
+          else
+            prerelease=()
+            if [[ "$TAG" == *-* ]]; then prerelease=(--prerelease); fi
+            gh release create "$TAG" release/* --verify-tag --generate-notes --title "$TAG" "${prerelease[@]}"
+          fi

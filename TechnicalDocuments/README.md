@@ -210,3 +210,5 @@
 - [0136-unix-distribution.md](0136-unix-distribution.md) — Linux/macOSへ配布ビルドを拡張。macOSは署名済み.appの隣に.loveとlauncherを置く。
 
 - [0137-assets-zip.md](0137-assets-zip.md) — 外部assetsをフォルダからzipへ。Windowsの初回ロードでのスキャン待ちを回避。BuildAssetsがSTORED zipを出力。
+
+- [0138-github-release.md](0138-github-release.md) — vタグのpushで4プラットフォームのアーカイブを添付したGitHub Releaseを公開。
