@@ -1,7 +1,6 @@
 {
     "exclude": [
         "TechnicalDocuments/",
-        "tests/",
         "build/",
         "install/",
         "out/"
