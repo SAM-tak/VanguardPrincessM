@@ -219,3 +219,4 @@
 
 - [0141-selective-preload-oracle.md](0141-selective-preload-oracle.md) — selective-preloadの判定を「未選択サポートのフォルダ」から「本体・選択サポートが参照しない素材」へ。所有整理後の失敗を解消。
 - [0142-match-load-throughput.md](0142-match-load-throughput.md) — 試合前ロードの計測。ワーカー本数・同時件数・予算は律速でない。原作はカーソル時点で先読み。ロード中のデバッグ表示。
+- [0143-system-object-parent-position.md](0143-system-object-parent-position.md) — システムのOは "parent" のときだけ親基準、他は画面座標。試合前演出のきらめきが画面左上に出ていた件。

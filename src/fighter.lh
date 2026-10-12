@@ -1275,8 +1275,9 @@ public^let^Fighter = def^{
     # "parent" moves it with its owner. An occupied managed slot branches the
     # CALLER to outSkill (true return); without that branch it replaces/deletes.
     #
-    # The system file's objects (the round, the HUD) are placed at (x, y) of the
-    # view whatever the flags.
+    # The system file's objects (the round, the HUD) live in view coordinates:
+    # at (x, y) of the view, or from their spawner with "parent" ("ｖｓ" puts
+    # copies of itself at (300, 340) but its #123 at (-4, 17) from itself).
     spawn = p^self^, n:number^, b:number^, x:number^, y:number^, slot:number^, depth:number^, outSkill:number^, outBlock:number^, flags:string^-> bool^{
         let^root = self^.owner ?? self^
         let^managed = !root.system and^flags.find("unCond") is^nil^ and^slot >= 0 and^slot < 10
@@ -1294,8 +1295,9 @@ public^let^Fighter = def^{
         # A preloaded round presentation owns the #31 face animation.
         if^root.externalIntroPortrait and^self^.skillNo = 31 and^depth = 117 and^flags.find("picXY") != nil^ { return^false^ }
         let^atView = flags.find("picXY") != nil^ or^root.system
-        let^wx = if^atView: x el^: self^.x + x * self^.facing;
-        let^wy = if^atView: y el^: self^.y + y;
+        let^absolute = flags.find("picXY") != nil^ or^(root.system and^flags.find("parent") is^nil^)
+        let^wx = if^absolute: x el^: self^.x + x * self^.facing;
+        let^wy = if^absolute: y el^: self^.y + y;
         let^below = std.math.max(self^.depth - 1, 10)
         let^d = if^flags.find("out") != nil^: std.math.min(self^.depth + 1, 127) el^flags.find("point") != nil^: depth el^: below;
         let^o = self^.makeObject(n, b, wx, wy, d)

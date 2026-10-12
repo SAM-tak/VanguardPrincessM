@@ -1,0 +1,33 @@
+module^vp.systemobjectpositiontest
+import^love.event
+require^"../src/round.lh"
+
+# System objects spawned with "parent" are placed from their spawner, others
+# at view coordinates: "ラウンド 1" (#15) runs #111, which puts "ｖｓ" (#122) at
+# (300, 320); ｖｓ puts copies of itself at (300, 340) and its sparkle #123
+# at (-4, 17) from itself.
+public^let^load = p^{
+    let^r = vp.round.load("assets/system/ヴァンガードプリンセス")
+    let^root = r.runAt(15, 0, 0)
+    var^sparkles = 0
+    var^copies = 0
+    for^frame from^1 to^300 {
+        root.step()
+        root.stepObjects()
+        for^o in^root.objects {
+            if^!o.alive { continue^ }
+            if^o.skillNo = 123 and^o.image >= 0 {
+                sparkles += 1
+                if^o.x < 100 or^o.y < 300 { panic^$"ｖｓ sparkle at view ({o.x}, {o.y}), not beside ｖｓ" }
+            }
+            if^o.skillNo = 122 and^o.y > 330 {
+                copies += 1
+                if^o.y > 400 { panic^$"ｖｓ copy at ({o.x}, {o.y}): placed from its spawner" }
+            }
+        }
+    }
+    if^sparkles = 0 or^copies = 0 { panic^$"ｖｓ objects missing: sparkles={sparkles} copies={copies}" }
+    print($"PASS: ｖｓ sparkle follows ｖｓ, its copies stay at view coordinates ({sparkles}, {copies} samples)")
+    love.event.quit()
+}
+public^let^draw = p^{}
