@@ -57,7 +57,8 @@ public^let^Batch = def^{
 
 let^Job = def^{
     self^{
-        abstract^batch : Batch, path = "", kind = "", loop = false^,
+        abstract^batch : Batch,
+        path = "", kind = "", loop = false^,
         tableTask : std.task.Task<t^{}|nil^>|nil^= nil^,
         mediaTask : std.task.Task<string^|nil^>|nil^= nil^,
         scriptTask : std.task.Task<vp.scriptdata.Data|nil^>|nil^= nil^,
