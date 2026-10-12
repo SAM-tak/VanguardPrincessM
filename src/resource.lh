@@ -10,6 +10,7 @@ import^love.audio
 import^love.timer
 require^"arena.lh"
 require^"scriptdata.lh"
+require^"locale.lh"
 
 public^let^Batch = def^{
     self^{
@@ -38,6 +39,12 @@ public^let^Batch = def^{
                     tables[path] := nil^
                 }
             })
+        }
+        if^kind = "image" and^vp.locale.entry(path) != nil^ {
+            # Localized text: drawn here on the main thread, no file to read.
+            let^localized = vp.locale.render(path)
+            if^localized != nil^ { self^.arena.textures[path] := localized }
+            return^
         }
         if^kind = "lton" and^tables[path] != nil^ { return^ }
         if^kind = "script" and^scripts[path] != nil^ { return^ }

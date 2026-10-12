@@ -16,6 +16,7 @@ module^vp.arena
 
 import^love.graphics
 import^love.audio
+require^"locale.lh"
 
 public^let^Arena = def^{
     self^{
@@ -104,6 +105,12 @@ public^let^texture = p^path:string^-> love.graphics.Texture|nil^{
     }
     let^kept = resident.textures[path]
     if^kept? { return^kept }
+    # A localized image is text drawn into a canvas, not the file.
+    let^localized = vp.locale.render(path)
+    if^localized != nil^ {
+        top().textures[path] := localized
+        return^localized
+    }
     let^loaded = love.graphics.newImage(path) catch^nil^
     if^loaded fits^love.graphics.Texture {
         fallbackLoads += 1

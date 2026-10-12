@@ -1,0 +1,35 @@
+module^vp.localeimagetest
+import^love.event
+import^love.filesystem
+require^"../src/locale.lh"
+require^"../src/sprite.lh"
+
+# In English the HUD's name images become text in canvases of the entry's
+# size, drawn as RGBA (the "and Eko" file is a palette image) and moved by
+# the entry's offset; files without an entry stay as they are.
+let^SYSTEM = "assets/system/ヴァンガードプリンセス"
+public^let^load = p^{
+    let^previous = love.filesystem.read("locale.txt") catch^nil^
+    let^_ = love.filesystem.write("locale.txt", "en\n")
+    let^check = p^-> string^{
+        if^vp.locale.locale() != "en" { return^"locale.txt was not read" }
+        let^yui = vp.locale.render($"{SYSTEM}/images/0241.png")
+        if^yui is^nil^ { return^"0241 not replaced" }
+        let^w, h = yui.getDimensions()
+        if^w != 40 or^h != 17 { return^$"0241 canvas {w}x{h}" }
+        let^dx, dy = vp.locale.offset($"{SYSTEM}/images/0241.png")
+        if^dx != 0 or^dy != -1 { return^$"0241 offset {dx},{dy}" }
+        if^vp.locale.render($"{SYSTEM}/images/0270.png") != nil^ { return^"0270 has no entry but was replaced" }
+        let^sheet = vp.sprite.Sheet.new(SYSTEM)
+        if^sheet.image(242) is^nil^ or^sheet.isIndexed(242) { return^"0242 must load as an RGBA canvas" }
+        if^!sheet.isIndexed(251) { return^"0251 without an entry must stay indexed" }
+        return^""
+    }
+    let^problem = check()
+    if^previous fits^string^ { let^_ = love.filesystem.write("locale.txt", previous)
+    else^: let^_ = love.filesystem.remove("locale.txt") }
+    if^problem != "" { panic^problem }
+    print("PASS: English name images are RGBA canvases of their entry's size and offset; others unchanged")
+    love.event.quit()
+}
+public^let^draw = p^{}

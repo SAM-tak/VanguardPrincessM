@@ -1,0 +1,204 @@
+# Localized images: in a locale other than the original's, an image file may
+# be replaced by text drawn with a font (data/locale/<locale>/images.lton,
+# keyed by the file's path). The text is drawn once into a canvas that takes
+# the file's place, so everything that draws the image (I blocks, blends,
+# COLOR tints, the HUD) goes on unchanged. The original locale, "ja", replaces
+# nothing.
+#
+# An entry: size = { w, h } (the canvas), rect = { x, y, w, h } (where the
+# text is set; the whole canvas by default), align "left" / "center" /
+# "right", valign "top" / "middle" / "bottom", offset = { x, y } (added where
+# the image is drawn, for a canvas larger than the original), and the text:
+# text = "..." or runs = { { text = "...", fontSize = n, color = {...} }, ... }
+# set on one line, bottoms aligned, shrunk to fit the rect's width. font (a
+# file; LOVE's default when absent), fontSize, color = { r, g, b }, outline =
+# { color = { r, g, b }, width = n } are defaults for the runs.
+module^vp.locale
+
+import^love.graphics
+import^love.filesystem
+import^std.lton
+import^std.math
+
+public^let^ORIGINAL = "ja"
+
+var^current = ""
+var^entries : t^{[string^]:any^} = {}
+var^loaded = false^
+
+# The locale: the first line of locale.txt in the save directory (or the
+# game's), else the original's.
+public^let^locale = p^-> string^{
+    if^current = "" {
+        let^text = love.filesystem.read("locale.txt") catch^nil^
+        var^name = ORIGINAL
+        if^text fits^string^ {
+            let^line = ((text.split("\n")[0] ?? "").split("\r")[0] ?? "").split(" ")[0] ?? ""
+            if^line != "" { name := line }
+        }
+        current := name
+    }
+    return^current
+}
+
+let^load = p^{
+    if^loaded { return^}
+    loaded := true^
+    if^locale() = ORIGINAL { return^}
+    let^raw = std.lton.load($"data/locale/{locale()}/images.lton") catch^nil^
+    if^raw fits^t^{[string^]:any^} { entries := raw }
+}
+
+# The entry replacing the image file at path, if any.
+public^let^entry = p^path:string^-> any^{
+    load()
+    return^entries[path]
+}
+
+let^number = f^v:any^, i:number^, default:number^-> number^{
+    if^v fits^t^{number^[]} { return^v[i] ?? default }
+    return^default
+}
+
+# How far a replaced image is moved from where it would be drawn.
+public^let^offset = p^path:string^-> number^, number^{
+    let^e = entry(path)
+    if^e fits^t^{ offset : any^ } { return^number(e.offset, 0, 0), number(e.offset, 1, 0) }
+    return^0, 0
+}
+
+# Drawn from a canvas holding white text: the text in `fill`, and `edge`
+# where the text is within `radius` pixels (a square: the pixel art's
+# outline). The result is straight (not premultiplied) alpha.
+let^outlineCode = "extern vec2 texel;
+extern number radius;
+extern vec4 fill;
+extern vec4 edge;
+vec4 effect(vec4 color, Image tex, vec2 uv, vec2 sc) {
+    float a = Texel(tex, uv).a;
+    float near = 0.0;
+    for (int dy = -4; dy <= 4; dy++) {
+        for (int dx = -4; dx <= 4; dx++) {
+            if (float(max(abs(dx), abs(dy))) <= radius) {
+                near = max(near, Texel(tex, uv + vec2(float(dx), float(dy)) * texel).a);
+            }
+        }
+    }
+    return vec4(mix(edge.rgb, fill.rgb, a), max(a * fill.a, near * edge.a));
+}
+"
+var^outline : love.graphics.Shader|nil^= nil^
+
+var^fonts : t^{[string^]:love.graphics.Font|nil^} = {}
+
+let^fontFor = p^file:string^, size:number^-> love.graphics.Font {
+    let^key = $"{file}:{size}"
+    let^known = fonts[key]
+    if^known? { return^known }
+    var^font = love.graphics.newFont(size)
+    if^file != "" {
+        let^f = love.graphics.newFont(file, size) catch^nil^
+        if^f fits^love.graphics.Font { font := f }
+    }
+    fonts[key] := font
+    return^font
+}
+
+let^Run = t^{ text:string^, font:love.graphics.Font, r:number^, g:number^, b:number^ }
+
+# The canvas replacing the image file at path, nil^ when it is not replaced.
+# Called on the main thread; the graphics state is left as it was.
+public^let^render = p^path:string^-> love.graphics.Texture|nil^{
+    let^e = entry(path)
+    if^e is^nil^ { return^nil^ }
+    let^size : any^= if^e fits^t^{ size : any^ }: e.size el^: nil^;
+    let^w = std.math.max(number(size, 0, 1), 1)
+    let^h = std.math.max(number(size, 1, 1), 1)
+    let^rect : any^= if^e fits^t^{ rect : any^ }: e.rect el^: nil^;
+    let^rx = number(rect, 0, 0)
+    let^ry = number(rect, 1, 0)
+    let^rw = number(rect, 2, w)
+    let^rh = number(rect, 3, h)
+    let^file = if^e fits^t^{ font : string^ }: e.font el^: "";
+    let^baseSize = if^e fits^t^{ fontSize : number^ }: e.fontSize el^: 12;
+    let^colour : any^= if^e fits^t^{ color : any^ }: e.color el^: nil^;
+    var^runs : t^{Run[]} = {}
+    let^addRun = p^r:any^{
+        var^text = ""
+        var^size = baseSize
+        var^c : any^= colour
+        if^r fits^t^{ text : string^ } { text := r.text }
+        if^r fits^t^{ fontSize : number^ } { size := r.fontSize }
+        if^r fits^t^{ color : any^ } { c := r.color }
+        if^text = "" { return^}
+        runs.push^({ text = text, font = fontFor(file, size), r = number(c, 0, 1), g = number(c, 1, 1), b = number(c, 2, 1) })
+    }
+    if^e fits^t^{ runs : t^{any^[]} } {
+        for^r in^e.runs { addRun(r) }
+    else^:
+        addRun(e)
+    }
+    var^width = 0
+    var^height = 0
+    for^r in^runs {
+        width += r.font.getWidth(r.text)
+        height := std.math.max(height, r.font.getHeight())
+    }
+    let^scale = if^width > rw and^width > 0: rw / width el^: 1;
+    let^align = if^e fits^t^{ align : string^ }: e.align el^: "left";
+    let^valign = if^e fits^t^{ valign : string^ }: e.valign el^: "middle";
+    var^x = rx + (if^align = "center": (rw - width * scale) / 2 el^align = "right": rw - width * scale el^: 0;)
+    let^bottom = ry + (if^valign = "top": height * scale el^valign = "bottom": rh el^: (rh + height * scale) / 2;)
+
+    let^previous = love.graphics.getCanvas()
+    let^shader = love.graphics.getShader()
+    let^font = love.graphics.getFont()
+    let^mode, alphaMode = love.graphics.getBlendMode()
+    let^cr, cg, cb, ca = love.graphics.getColor()
+    love.graphics.push()
+    love.graphics.origin()
+    love.graphics.setShader()
+
+    # The text, white; the colours come in with the outline pass.
+    let^text = love.graphics.newCanvas(w, h)
+    love.graphics.setCanvas(text)
+    love.graphics.clear(0, 0, 0, 0)
+    love.graphics.setBlendMode(love.graphics.BlendMode.alpha)
+    love.graphics.setColor(1, 1, 1, 1)
+    for^r in^runs {
+        let^rh2 = r.font.getHeight() * scale
+        love.graphics.setFont(r.font)
+        love.graphics.print(r.text, x.floor(), (bottom - rh2).floor(), 0, scale, scale)
+        x += r.font.getWidth(r.text) * scale
+    }
+
+    # One run's colour fills the text (per-run colours: TODO when needed).
+    let^first = runs[0]
+    let^edge : any^= if^e fits^t^{ outline : t^{ color : any^ } }: e.outline.color el^: nil^;
+    let^radius = if^e fits^t^{ outline : t^{ width : number^ } }: e.outline.width el^: 0;
+    let^out = love.graphics.newCanvas(w, h)
+    love.graphics.setCanvas(out)
+    love.graphics.clear(0, 0, 0, 0)
+    if^outline is^nil^ { outline := love.graphics.newShader(outlineCode) catch^nil^ }
+    let^s = outline
+    if^s fits^love.graphics.Shader {
+        s.send("texel", { 1 / w, 1 / h })
+        s.send("radius", radius)
+        s.send("fill", { first?.r ?? 1, first?.g ?? 1, first?.b ?? 1, 1 })
+        s.send("edge", { number(edge, 0, 0), number(edge, 1, 0), number(edge, 2, 0), if^radius > 0: 1 el^: 0; })
+        love.graphics.setShader(s)
+    }
+    love.graphics.setBlendMode(love.graphics.BlendMode.replace)
+    love.graphics.draw(text, 0, 0)
+    text.dispose()
+
+    love.graphics.setShader()
+    if^previous != nil^ { love.graphics.setCanvas(previous) else^: love.graphics.setCanvas() }
+    love.graphics.pop()
+    if^shader != nil^ { love.graphics.setShader(shader) }
+    love.graphics.setFont(font)
+    love.graphics.setBlendMode(mode, alphaMode)
+    love.graphics.setColor(cr, cg, cb, ca)
+    out.setFilter(love.graphics.FilterMode.nearest, love.graphics.FilterMode.nearest)
+    return^out
+}

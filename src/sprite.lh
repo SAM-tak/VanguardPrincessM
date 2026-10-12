@@ -6,6 +6,7 @@ import^love.graphics
 
 require^"arena.lh"
 require^"resource.lh"
+require^"locale.lh"
 
 # Indexed images look their colour up in a palette row; images that carried
 # their own palette are already RGBA. Either way FM2K's COLOR tint is added:
@@ -91,6 +92,10 @@ public^let^Sheet = def^{
         imagePalettesTried : t^{[number^]:bool^|nil^} = {},
         images : t^{[number^]:love.graphics.Texture|nil^} = {},
         missing : t^{[number^]:bool^|nil^} = {},    # asked for, not there (logged once)
+        # Localized images (vp.locale): text in a canvas, moved by its offset.
+        localized : t^{[number^]:bool^|nil^} = {},
+        shiftX : t^{[number^]:number^|nil^} = {},
+        shiftY : t^{[number^]:number^|nil^} = {},
         gen = -1,                   # the scene (vp.arena) its images were loaded in
     },
     override^new = f^dir:string^{ self^{ dir = dir } },
@@ -115,6 +120,7 @@ public^let^Sheet = def^{
         let^l = self^.listing()
         if^l is^nil^{ return^false^ }
         let^e : any^= l[i]
+        if^self^.localized[i] != nil^ { return^false^ }
         return^e fits^t^{ format : string^ } and^e.format = "indexed"
     },
 
@@ -132,6 +138,12 @@ public^let^Sheet = def^{
         let^loaded = if^path != nil^: vp.arena.texture(path) el^: nil^;
         if^loaded fits^love.graphics.Texture {
             self^.images[i] := loaded
+            if^path != nil^ and^vp.locale.entry(path) != nil^ {
+                let^dx, dy = vp.locale.offset(path)
+                self^.localized[i] := true^
+                self^.shiftX[i] := dx
+                self^.shiftY[i] := dy
+            }
         else^:
             self^.missing[i] := true^
             # past the listing's end is no image at all (FM2K's 8191 = 0x1FFF,
@@ -186,6 +198,8 @@ public^let^Sheet = def^{
         if^!(tex fits^love.graphics.Texture) or^width <= 0 { return^}
         self^.useShader(i, 0, tr, tg, tb)
         let^w, h = tex.getDimensions()
+        let^px = x + (self^.shiftX[i] ?? 0)
+        let^py = y + (self^.shiftY[i] ?? 0)
         var^q = partQuad
         if^q is^nil^{
             q := love.graphics.newQuad(from, 0, width, h, w, h)
@@ -195,9 +209,9 @@ public^let^Sheet = def^{
         }
         if^q fits^love.graphics.Quad {
             if^mirrored {
-                love.graphics.draw(tex, q, x + w - from, y, 0, -1, 1)
+                love.graphics.draw(tex, q, px + w - from, py, 0, -1, 1)
             else^:
-                love.graphics.draw(tex, q, x + from, y)
+                love.graphics.draw(tex, q, px + from, py)
             }
         }
         love.graphics.setShader()
@@ -210,7 +224,9 @@ public^let^Sheet = def^{
         if^!(tex fits^love.graphics.Texture) { return^}
         self^.useShader(i, row, tr, tg, tb)
         let^w, h = tex.getDimensions()
-        love.graphics.draw(tex, x, y - h + (h / 2).floor(), 0, sx, sy, (w / 2).floor(), (h / 2).floor())
+        let^dx = (self^.shiftX[i] ?? 0) * sx
+        let^dy = (self^.shiftY[i] ?? 0) * sy
+        love.graphics.draw(tex, x + dx, y + dy - h + (h / 2).floor(), 0, sx, sy, (w / 2).floor(), (h / 2).floor())
         love.graphics.setShader()
     },
 }

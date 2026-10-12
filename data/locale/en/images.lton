@@ -1,0 +1,16 @@
+# English replacements for images with Japanese text (src/locale.lh).
+# Keyed by the image file's path; drawn once into a canvas of `size`.
+["assets/system/ヴァンガードプリンセス/images/0241.png"] = {
+    text = "Yui",
+    size = { 40, 17 }, rect = { 1, 1, 38, 15 }, align = "left", valign = "middle",
+    offset = { 0, -1 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 13,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 1 },
+},
+["assets/system/ヴァンガードプリンセス/images/0242.dds"] = {
+    runs = { { text = "and ", fontSize = 9 }, { text = "Eko", fontSize = 13 } },
+    size = { 60, 17 }, rect = { 1, 1, 58, 15 }, align = "left", valign = "middle",
+    offset = { 0, -2 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 13,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 1 },
+},
