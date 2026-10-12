@@ -19,6 +19,10 @@ public^let^load = p^{
         if^w != 60 or^h != 17 { return^$"0241 canvas {w}x{h}" }
         let^dx, dy = vp.locale.offset($"{SYSTEM}/images/0241.png")
         if^dx != -28 or^dy != -3 { return^$"0241 offset {dx},{dy}" }
+        let^support = vp.locale.render($"{SYSTEM}/images/0198.png")
+        if^support is^nil^ { return^"0198 (two lines) not replaced" }
+        let^sw, sh = support.getDimensions()
+        if^sw != 180 or^sh != 52 { return^$"0198 canvas {sw}x{sh}" }
         if^vp.locale.render($"{SYSTEM}/images/0001.png") != nil^ { return^"0001 has no entry but was replaced" }
         let^sheet = vp.sprite.Sheet.new(SYSTEM)
         if^sheet.image(242) is^nil^ or^sheet.isIndexed(242) { return^"0242 must load as an RGBA canvas" }

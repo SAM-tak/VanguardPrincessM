@@ -23,7 +23,8 @@
 - `offset = { x, y }`: 描画位置への加算。描画は左上（HUD）または下端中央（`Sheet.draw`）基準なので、大きさを変えたときの寄せに使う
 - 文字: `text` か `runs = { { text, fontSize, color }, ... }`（1行に並べ、下端揃え。ベースライン取得 API が binding に無いため）
 - 既定値: `font`（ファイル。無ければ LÖVE 既定）、`fontSize`、`color`、`outline = { color, width }`（width ≤ 4）
-- 未対応: ランごとの塗り色（現状は先頭ランの色）、複数行
+- 複数行: `lines = { 行, 行 }`（各行は `text` か `runs`）。行ごとに揃え・縮小し、`leading` で行間を足す。ブロック全体を `valign` で置く
+- 未対応: ランごとの塗り色（現状は先頭ランの色）
 
 ## 検討して採らなかったもの
 
@@ -44,6 +45,34 @@
 - 確認: 全17枚を HUD と同じ座標で描く一時プローブで撮影。VS の実画面でも 1P「Yui and Eko」、2P「はるか and Eko」（この時点では 270 未登録）を確認
 - `tests/locale-image.lh`（`-Test locale-image`）: `locale.txt` を一時的に en にし、Canvas の大きさ・オフセット・rgba 扱い・未登録画像の不変を確認
 - 既定（ja）で match-intro・system-object-position・story-continue・victory-preload・selective-preload PASS
+
+## 英語: ロード画面のネームプレート（全17枚）
+
+試合前ロード画面上部の「姓名 and サポート」（システム #119 プレイヤーネーム、#120 サポートネーム）。表記はユーザー指定。
+
+- キャラ名（1行、名 22px＋姓 13px）: 203 Haruka Kutuna、204 Lilith、205 Luna Himeki、208 Kurumi Mirumati、209 Saki Mitonoya、210 Kaede Hioh、211 Eri Hasumi、214 Yui Kutuna、215 Ayane Ikuse、216 Natalia Glinka、235 Hilda Rize（2P のみ）
+- サポート名（2行、"and" 13px／名前 22px）: 198 Eko、234 Sierra、199 Juliet、200 Kanae、201 Kaya&Maya（2P のみ）、202 Hilda Rize
+- 縁取りは原画像に合わせて 2px（HUD は 1px）。フォントは HUD と同じ Playfair Display BoldItalic
+- 配置: 原作はキャラ名を基準 (21, -4)／(500, -4) から I ブロックで左寄せ、サポート名を中心 x≈65／545 付近で中央寄せ
+  - キャラ名は幅140（216 は 160）の Canvas に左寄せし、オフセットで左端を 1P の基準 x=21 に揃える（216 の 2P 側は I ブロックで 20px 左）。2P は右端 640 に収まる幅。最長の 208 は幅146で6px 左へ（縮小を避けるため）
+  - 上端は y=13 に揃え、下揃えで組む
+  - サポート名は幅180の Canvas に中央揃えし、原画像の中心に合わせる。"and" の位置を原作に合わせ、行間0・上へ6px
+- 確認: 同じ場面を ja と en で撮影して位置を比較。全17枚を #119／#120 の座標で並べて、縮小・重なりが無いことを確認
+
+## 英語: キャラクターセレクトのネームプレート（全16枚）
+
+セレクト画面の名前はシステムの素材ではなく、キャラセレのデモ自身の画像（ロード画面の約1.3倍、`assets/demos/キャラセレ/images/`）。
+レイヤー 27・28（キャラ名）、23・24（"and"）、25・26（サポート名）が、カーソル位置に応じて画像を差し替える。
+
+- キャラ名（名 29px＋姓 17px）: 40 Yui Kutuna、45 Haruka Kutuna、46 Lilith、47 Luna Himeki、48 Kurumi Mirumati、49 Saki Mitonoya、50 Kaede Hioh、51 Eri Hasumi、52 Natalia Glinka、53 Ayane Ikuse（ヒルダは選べないので無し）
+- "and"（42、独立した1枚、17px）
+- サポート名（29px）: 43 Eko、54 Sierra、55 Juliet、56 Kanae、57 Hilda Rize（カーヤ＆マーヤは無し）
+- 配置: 同じ画像を 1P／2P で別の I ブロック x から描き、両側の差も画像ごとに違うため、画像ごとのオフセット1つでは両側を同時に揃えられない
+  - 文字の中心を原画像の中心に合わせ（幅200の Canvas に中央揃え）、両側とも原作と同じ場所を中心にする
+  - 下端を揃え、ja／en の同じ場面を撮影して文字の高さを原作に合わせた
+  - 最長の 48 は 1P 側で左端が切れたため6px 右へ
+  - 原画像の「リリス」（短く右寄り）、「じゅりえっと」（長く中心が右）に合わせた結果、Lilith と "and Juliet" は他より内側に寄る
+- 確認: 全16枚をレイヤーの座標で両側に並べて撮影
 
 ## 言語の決め方（未実装・方針）
 

@@ -10,9 +10,11 @@
 # "right", valign "top" / "middle" / "bottom", offset = { x, y } (added where
 # the image is drawn, for a canvas larger than the original), and the text:
 # text = "..." or runs = { { text = "...", fontSize = n, color = {...} }, ... }
-# set on one line, bottoms aligned, shrunk to fit the rect's width. font (a
-# file; LOVE's default when absent), fontSize, color = { r, g, b }, outline =
-# { color = { r, g, b }, width = n } are defaults for the runs.
+# set on one line, bottoms aligned, shrunk to fit the rect's width; or
+# lines = { <a text or runs line>, ... } stacked (leading = n pixels between),
+# each aligned and shrunk on its own. font (a file; LOVE's default when
+# absent), fontSize, color = { r, g, b }, outline = { color = { r, g, b },
+# width = n } are defaults for the runs.
 module^vp.locale
 
 import^love.graphics
@@ -122,8 +124,9 @@ public^let^render = p^path:string^-> love.graphics.Texture|nil^{
     let^file = if^e fits^t^{ font : string^ }: e.font el^: "";
     let^baseSize = if^e fits^t^{ fontSize : number^ }: e.fontSize el^: 12;
     let^colour : any^= if^e fits^t^{ color : any^ }: e.color el^: nil^;
-    var^runs : t^{Run[]} = {}
-    let^addRun = p^r:any^{
+    # The lines, each a list of runs; text = "..." or runs = {...} is one line.
+    var^lines : t^{t^{Run[]}[]} = {}
+    let^addRun = p^into:t^{Run[]}, r:any^{
         var^text = ""
         var^size = baseSize
         var^c : any^= colour
@@ -131,24 +134,44 @@ public^let^render = p^path:string^-> love.graphics.Texture|nil^{
         if^r fits^t^{ fontSize : number^ } { size := r.fontSize }
         if^r fits^t^{ color : any^ } { c := r.color }
         if^text = "" { return^}
-        runs.push^({ text = text, font = fontFor(file, size), r = number(c, 0, 1), g = number(c, 1, 1), b = number(c, 2, 1) })
+        into.push^({ text = text, font = fontFor(file, size), r = number(c, 0, 1), g = number(c, 1, 1), b = number(c, 2, 1) })
     }
-    if^e fits^t^{ runs : t^{any^[]} } {
-        for^r in^e.runs { addRun(r) }
+    let^addLine = p^l:any^{
+        var^runs : t^{Run[]} = {}
+        if^l fits^t^{ runs : t^{any^[]} } {
+            for^r in^l.runs { addRun(runs, r) }
+        else^:
+            addRun(runs, l)
+        }
+        if^runs.length^ > 0 { lines.push^(runs) }
+    }
+    if^e fits^t^{ lines : t^{any^[]} } {
+        for^l in^e.lines { addLine(l) }
     else^:
-        addRun(e)
+        addLine(e)
     }
-    var^width = 0
-    var^height = 0
-    for^r in^runs {
-        width += r.font.getWidth(r.text)
-        height := std.math.max(height, r.font.getHeight())
-    }
-    let^scale = if^width > rw and^width > 0: rw / width el^: 1;
     let^align = if^e fits^t^{ align : string^ }: e.align el^: "left";
     let^valign = if^e fits^t^{ valign : string^ }: e.valign el^: "middle";
-    var^x = rx + (if^align = "center": (rw - width * scale) / 2 el^align = "right": rw - width * scale el^: 0;)
-    let^bottom = ry + (if^valign = "top": height * scale el^valign = "bottom": rh el^: (rh + height * scale) / 2;)
+    let^leading = if^e fits^t^{ leading : number^ }: e.leading el^: 0;
+    # Each line shrunk on its own to the rect's width; the block set by valign.
+    var^widths : t^{number^[]} = {}
+    var^heights : t^{number^[]} = {}
+    var^scales : t^{number^[]} = {}
+    var^total = leading * std.math.max(lines.length^ - 1, 0)
+    for^line in^lines {
+        var^lw = 0
+        var^lh = 0
+        for^r in^line {
+            lw += r.font.getWidth(r.text)
+            lh := std.math.max(lh, r.font.getHeight())
+        }
+        let^scale = if^lw > rw and^lw > 0: rw / lw el^: 1;
+        widths.push^(lw * scale)
+        heights.push^(lh * scale)
+        scales.push^(scale)
+        total += lh * scale
+    }
+    var^top = ry + (if^valign = "top": 0 el^valign = "bottom": rh - total el^: (rh - total) / 2;)
 
     let^previous = love.graphics.getCanvas()
     let^shader = love.graphics.getShader()
@@ -165,15 +188,23 @@ public^let^render = p^path:string^-> love.graphics.Texture|nil^{
     love.graphics.clear(0, 0, 0, 0)
     love.graphics.setBlendMode(love.graphics.BlendMode.alpha)
     love.graphics.setColor(1, 1, 1, 1)
-    for^r in^runs {
-        let^rh2 = r.font.getHeight() * scale
-        love.graphics.setFont(r.font)
-        love.graphics.print(r.text, x.floor(), (bottom - rh2).floor(), 0, scale, scale)
-        x += r.font.getWidth(r.text) * scale
+    var^first : Run|nil^= nil^
+    for^line in^lines {
+        let^k = index^
+        let^scale = scales[k] ?? 1
+        let^bottom = top + (heights[k] ?? 0)
+        let^lw = widths[k] ?? 0
+        var^x = rx + (if^align = "center": (rw - lw) / 2 el^align = "right": rw - lw el^: 0;)
+        for^r in^line {
+            if^first is^nil^ { first := r }
+            love.graphics.setFont(r.font)
+            love.graphics.print(r.text, x.floor(), (bottom - r.font.getHeight() * scale).floor(), 0, scale, scale)
+            x += r.font.getWidth(r.text) * scale
+        }
+        top := bottom + leading
     }
 
-    # One run's colour fills the text (per-run colours: TODO when needed).
-    let^first = runs[0]
+    # The first run's colour fills the text (per-run colours: TODO when needed).
     let^edge : any^= if^e fits^t^{ outline : t^{ color : any^ } }: e.outline.color el^: nil^;
     let^radius = if^e fits^t^{ outline : t^{ width : number^ } }: e.outline.width el^: 0;
     let^out = love.graphics.newCanvas(w, h)

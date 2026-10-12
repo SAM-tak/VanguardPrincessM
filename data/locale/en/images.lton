@@ -143,3 +143,285 @@
     font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 13,
     color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 1 },
 },
+
+# Loading screen name plates (system #119 / #120, TechnicalDocuments/0144):
+# given name large, family name small, starting at the side's column
+# (x 21 / 500 from the 1P side's I block x); "and" over the support's name,
+# centred where the original is centred.
+# image 203
+["assets/system/ヴァンガードプリンセス/images/0203.png"] = {
+    runs = { { text = "Haruka" }, { text = " Kutuna", fontSize = 13 } },
+    size = { 140, 32 }, rect = { 2, 2, 133, 28 }, align = "left", valign = "bottom",
+    offset = { 5, -3 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 22,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 204
+["assets/system/ヴァンガードプリンセス/images/0204.png"] = {
+    runs = { { text = "Lilith" } },
+    size = { 140, 32 }, rect = { 2, 2, 133, 28 }, align = "left", valign = "bottom",
+    offset = { -14, -4 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 22,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 205
+["assets/system/ヴァンガードプリンセス/images/0205.png"] = {
+    runs = { { text = "Luna" }, { text = " Himeki", fontSize = 13 } },
+    size = { 140, 32 }, rect = { 2, 2, 133, 28 }, align = "left", valign = "bottom",
+    offset = { -6, -2 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 22,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 208
+["assets/system/ヴァンガードプリンセス/images/0208.png"] = {
+    runs = { { text = "Kurumi" }, { text = " Mirumati", fontSize = 13 } },
+    # the longest name: 6 px further left, so the 2P side still ends at 640
+    size = { 146, 32 }, rect = { 2, 2, 139, 28 }, align = "left", valign = "bottom",
+    offset = { -6, -1 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 22,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 209
+["assets/system/ヴァンガードプリンセス/images/0209.png"] = {
+    runs = { { text = "Saki" }, { text = " Mitonoya", fontSize = 13 } },
+    size = { 140, 32 }, rect = { 2, 2, 133, 28 }, align = "left", valign = "bottom",
+    offset = { -5, -2 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 22,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 210
+["assets/system/ヴァンガードプリンセス/images/0210.png"] = {
+    runs = { { text = "Kaede" }, { text = " Hioh", fontSize = 13 } },
+    size = { 140, 32 }, rect = { 2, 2, 133, 28 }, align = "left", valign = "bottom",
+    offset = { 0, -2 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 22,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 211
+["assets/system/ヴァンガードプリンセス/images/0211.png"] = {
+    runs = { { text = "Eri" }, { text = " Hasumi", fontSize = 13 } },
+    size = { 140, 32 }, rect = { 2, 2, 133, 28 }, align = "left", valign = "bottom",
+    offset = { -10, -4 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 22,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 214
+["assets/system/ヴァンガードプリンセス/images/0214.png"] = {
+    runs = { { text = "Yui" }, { text = " Kutuna", fontSize = 13 } },
+    size = { 140, 32 }, rect = { 2, 2, 133, 28 }, align = "left", valign = "bottom",
+    offset = { -5, -2 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 22,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 215
+["assets/system/ヴァンガードプリンセス/images/0215.png"] = {
+    runs = { { text = "Ayane" }, { text = " Ikuse", fontSize = 13 } },
+    size = { 140, 32 }, rect = { 2, 2, 133, 28 }, align = "left", valign = "bottom",
+    offset = { -2, -1 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 22,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 216
+["assets/system/ヴァンガードプリンセス/images/0216.png"] = {
+    runs = { { text = "Natalia" }, { text = " Glinka", fontSize = 13 } },
+    size = { 160, 32 }, rect = { 2, 2, 153, 28 }, align = "left", valign = "bottom",
+    offset = { 0, -2 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 22,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 235
+["assets/system/ヴァンガードプリンセス/images/0235.png"] = {
+    runs = { { text = "Hilda" }, { text = " Rize", fontSize = 13 } },
+    size = { 140, 32 }, rect = { 2, 2, 133, 28 }, align = "left", valign = "bottom",
+    offset = { 0, -4 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 22,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 198
+["assets/system/ヴァンガードプリンセス/images/0198.png"] = {
+    lines = { { text = "and", fontSize = 13 }, { text = "Eko" } },
+    leading = 0,
+    size = { 180, 52 }, rect = { 3, 2, 174, 48 }, align = "center", valign = "middle",
+    offset = { -66, -6 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 22,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 234
+["assets/system/ヴァンガードプリンセス/images/0234.png"] = {
+    lines = { { text = "and", fontSize = 13 }, { text = "Sierra" } },
+    leading = 0,
+    size = { 180, 52 }, rect = { 3, 2, 174, 48 }, align = "center", valign = "middle",
+    offset = { -56, -6 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 22,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 199
+["assets/system/ヴァンガードプリンセス/images/0199.png"] = {
+    lines = { { text = "and", fontSize = 13 }, { text = "Juliet" } },
+    leading = 0,
+    size = { 180, 52 }, rect = { 3, 2, 174, 48 }, align = "center", valign = "middle",
+    offset = { -24, -6 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 22,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 200
+["assets/system/ヴァンガードプリンセス/images/0200.png"] = {
+    lines = { { text = "and", fontSize = 13 }, { text = "Kanae" } },
+    leading = 0,
+    size = { 180, 52 }, rect = { 3, 2, 174, 48 }, align = "center", valign = "middle",
+    offset = { -50, -6 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 22,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 201
+["assets/system/ヴァンガードプリンセス/images/0201.png"] = {
+    lines = { { text = "and", fontSize = 13 }, { text = "Kaya&Maya" } },
+    leading = 0,
+    size = { 180, 52 }, rect = { 3, 2, 174, 48 }, align = "center", valign = "middle",
+    offset = { -4, -6 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 22,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 202
+["assets/system/ヴァンガードプリンセス/images/0202.png"] = {
+    lines = { { text = "and", fontSize = 13 }, { runs = { { text = "Hilda" }, { text = " Rize", fontSize = 13 } } } },
+    leading = 0,
+    size = { 180, 52 }, rect = { 3, 2, 174, 48 }, align = "center", valign = "middle",
+    offset = { -33, -6 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 22,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+
+# Character select name plates (the キャラセレ demo's own, larger images,
+# layers 23-28; TechnicalDocuments/0144). Each is centred where its original
+# is centred, which keeps both sides' places (the same file serves both, from
+# different I block x); bottoms aligned.
+# image 40
+["assets/demos/キャラセレ/images/0040.png"] = {
+    runs = { { text = "Yui" }, { text = " Kutuna", fontSize = 17 } },
+    size = { 200, 44 }, rect = { 4, 2, 192, 40 }, align = "center", valign = "bottom",
+    offset = { -42, -5 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 29,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 45
+["assets/demos/キャラセレ/images/0045.png"] = {
+    runs = { { text = "Haruka" }, { text = " Kutuna", fontSize = 17 } },
+    size = { 200, 44 }, rect = { 4, 2, 192, 40 }, align = "center", valign = "bottom",
+    offset = { -24, -6 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 29,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 46
+["assets/demos/キャラセレ/images/0046.png"] = {
+    runs = { { text = "Lilith" } },
+    size = { 200, 44 }, rect = { 4, 2, 192, 40 }, align = "center", valign = "bottom",
+    offset = { -56, -6 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 29,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 47
+["assets/demos/キャラセレ/images/0047.png"] = {
+    runs = { { text = "Luna" }, { text = " Himeki", fontSize = 17 } },
+    size = { 200, 44 }, rect = { 4, 2, 192, 40 }, align = "center", valign = "bottom",
+    offset = { -34, -4 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 29,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 48
+["assets/demos/キャラセレ/images/0048.png"] = {
+    # the widest: 6 px right of centre, so the 1P side keeps its K
+    runs = { { text = "Kurumi" }, { text = " Mirumati", fontSize = 17 } },
+    size = { 200, 44 }, rect = { 4, 2, 192, 40 }, align = "center", valign = "bottom",
+    offset = { -16, -4 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 29,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 49
+["assets/demos/キャラセレ/images/0049.png"] = {
+    runs = { { text = "Saki" }, { text = " Mitonoya", fontSize = 17 } },
+    size = { 200, 44 }, rect = { 4, 2, 192, 40 }, align = "center", valign = "bottom",
+    offset = { -31, -4 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 29,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 50
+["assets/demos/キャラセレ/images/0050.png"] = {
+    runs = { { text = "Kaede" }, { text = " Hioh", fontSize = 17 } },
+    size = { 200, 44 }, rect = { 4, 2, 192, 40 }, align = "center", valign = "bottom",
+    offset = { -25, -5 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 29,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 51
+["assets/demos/キャラセレ/images/0051.png"] = {
+    runs = { { text = "Eri" }, { text = " Hasumi", fontSize = 17 } },
+    size = { 200, 44 }, rect = { 4, 2, 192, 40 }, align = "center", valign = "bottom",
+    offset = { -48, -6 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 29,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 52
+["assets/demos/キャラセレ/images/0052.png"] = {
+    runs = { { text = "Natalia" }, { text = " Glinka", fontSize = 17 } },
+    size = { 200, 44 }, rect = { 4, 2, 192, 40 }, align = "center", valign = "bottom",
+    offset = { 0, -6 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 29,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 53
+["assets/demos/キャラセレ/images/0053.dds"] = {
+    runs = { { text = "Ayane" }, { text = " Ikuse", fontSize = 17 } },
+    size = { 200, 44 }, rect = { 4, 2, 192, 40 }, align = "center", valign = "bottom",
+    offset = { -24, -5 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 29,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 42
+["assets/demos/キャラセレ/images/0042.png"] = {
+    text = "and", fontSize = 17,
+    size = { 49, 26 }, rect = { 2, 2, 45, 22 }, align = "center", valign = "middle",
+    offset = { -4, -2 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf",
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 43
+["assets/demos/キャラセレ/images/0043.png"] = {
+    runs = { { text = "Eko" } },
+    size = { 200, 44 }, rect = { 4, 2, 192, 40 }, align = "center", valign = "bottom",
+    offset = { -67, -5 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 29,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 54
+["assets/demos/キャラセレ/images/0054.dds"] = {
+    runs = { { text = "Sierra" } },
+    size = { 200, 44 }, rect = { 4, 2, 192, 40 }, align = "center", valign = "bottom",
+    offset = { -54, -4 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 29,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 55
+["assets/demos/キャラセレ/images/0055.dds"] = {
+    runs = { { text = "Juliet" } },
+    size = { 200, 44 }, rect = { 4, 2, 192, 40 }, align = "center", valign = "bottom",
+    offset = { -11, -4 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 29,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 56
+["assets/demos/キャラセレ/images/0056.png"] = {
+    runs = { { text = "Kanae" } },
+    size = { 200, 44 }, rect = { 4, 2, 192, 40 }, align = "center", valign = "bottom",
+    offset = { -47, -3 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 29,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
+# image 57
+["assets/demos/キャラセレ/images/0057.dds"] = {
+    runs = { { text = "Hilda" }, { text = " Rize", fontSize = 17 } },
+    size = { 200, 44 }, rect = { 4, 2, 192, 40 }, align = "center", valign = "bottom",
+    offset = { -24, -3 },
+    font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 29,
+    color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
+},
