@@ -13,6 +13,8 @@ var^phase = 0
 var^wait = 0
 var^began = 0
 var^heldLoad = false^
+var^escaped = false^
+var^sinceEscape = 0
 let^press = p^{ vp.main.keypressed(love.keyboard.Key.z, love.keyboard.Scancode.unknown, false^) }
 let^demo = f^name:string^-> vp.story.Event { { kind = "demo", name = name, stage = "", level = 0, rounds = 0, seconds = 0 } }
 public^let^load = p^{ began := love.timer.getTime() vp.main.load() }
@@ -37,7 +39,16 @@ public^let^update = p^dt:number^{
         phase := 6
     elseif^phase = 6 and^st != nil^:
         let^running : vp.story.State = st
+        if^escaped and^running.at = 0 {
+            sinceEscape += 1
+            if^sinceEscape > 20 { panic^"ESC did not skip the demo" }
+        }
         if^running.at = 0 and^s.phase = "loading" and^running.demo != nil^ { panic^"first ending held a demo" }
+        if^running.at = 0 and^s.phase = "event" and^!escaped {
+            escaped := true^
+            vp.main.keypressed(love.keyboard.Key.escape, love.keyboard.Scancode.unknown, false^)
+            if^vp.main.story() is^nil^ or^vp.main.status().phase != "event" { panic^"ESC left the story demo" }
+        }
         if^running.at = 1 and^s.phase = "loading" {
             if^running.demo is^nil^ { panic^"loading picture between ending demos" }
             heldLoad := true^
@@ -45,7 +56,7 @@ public^let^update = p^dt:number^{
         if^running.at = 1 and^s.phase = "event" {
             if^!heldLoad { panic^"no held transition seen" }
             if^where != "system / select / story / story-event" { panic^$"held demo arena not released: {where}" }
-            print("PASS: エンディング１ -> エンディング0 held its last frame, arena released")
+            print("PASS: ESC skips the story demo without leaving it; エンディング１ -> エンディング0 held its last frame, arena released")
             love.event.quit()
         }
     }

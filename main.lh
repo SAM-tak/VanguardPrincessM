@@ -824,12 +824,15 @@ let^goBack = p^{
     let^st = campaign
     if^st != nil^ and^selecting is^nil^ {
         if^st.phase = "battle" or^st.phase = "gameover" or^st.phase = "return-title" { return^ }
-        let^event = st.current()
-        if^st.phase = "event" and^event != nil^ and^event.name = "ゆい勝ち" { return^ }
+        # During a story demo, back is just another button: it skips where
+        # the demo allows skipping, and never leaves the story.
+        if^st.phase = "event" {
+            if^pressed % 2 = 0 { pressed += 1 }
+            return^
+        }
         if^st.phase = "intro" { st.enter("difficulty") return^ }
         love.audio.stop()
         if^matchArena != nil^ { vp.arena.pop() matchArena := nil^ }
-        if^st.phase = "event" { vp.arena.pop() }
         vp.arena.pop()
         campaign := nil^
         brain := nil^
