@@ -16,13 +16,13 @@ public^let^load = p^{
         let^yui = vp.locale.render($"{SYSTEM}/images/0241.png")
         if^yui is^nil^ { return^"0241 not replaced" }
         let^w, h = yui.getDimensions()
-        if^w != 40 or^h != 17 { return^$"0241 canvas {w}x{h}" }
+        if^w != 60 or^h != 17 { return^$"0241 canvas {w}x{h}" }
         let^dx, dy = vp.locale.offset($"{SYSTEM}/images/0241.png")
-        if^dx != 0 or^dy != -1 { return^$"0241 offset {dx},{dy}" }
-        if^vp.locale.render($"{SYSTEM}/images/0270.png") != nil^ { return^"0270 has no entry but was replaced" }
+        if^dx != -28 or^dy != -3 { return^$"0241 offset {dx},{dy}" }
+        if^vp.locale.render($"{SYSTEM}/images/0001.png") != nil^ { return^"0001 has no entry but was replaced" }
         let^sheet = vp.sprite.Sheet.new(SYSTEM)
         if^sheet.image(242) is^nil^ or^sheet.isIndexed(242) { return^"0242 must load as an RGBA canvas" }
-        if^!sheet.isIndexed(251) { return^"0251 without an entry must stay indexed" }
+        if^!sheet.isIndexed(193) { return^"0193 without an entry must stay indexed" }
         return^""
     }
     let^problem = check()

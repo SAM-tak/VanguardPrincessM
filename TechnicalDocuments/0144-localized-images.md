@@ -31,11 +31,17 @@
 - SDF: エンジン（FreeType `FT_RENDER_MODE_SDF`）にはあるが binding の `newFont` が設定表を受けない。固定サイズで1回描くだけなので利点が薄い
 - 8方向ずらし描画の縁取り: 後処理シェーダーで同等以上（太さ指定可）
 
-## 試作（英語）
+## 英語: HUD のネームプレート（全17枚）
 
-- 0241「ゆい」→ "Yui"、0242「and えこ」→ "and Eko"（"and" 9px、名前 13px）。フォントは Playfair Display BoldItalic（ネームプレートはイタリック。ユーザー指定。OFL、`data/Playfair_Display/`）、白に紺 (0.2, 0.12, 0.62) の1px縁
-- HUD の名前表示: 0241/0270/291〜299 がキャラ名（レイアウト3・8）、242/251/248/250/259/252 が「and サポート名」（レイアウト6・10）。システムパレット固定のパレット画像を含む
-- VS を自動で進めて HUD を撮影し、1P「Yui and Eko」、2P「はるか and Eko」（0242 は両側共通）を確認
+- キャラ名（レイアウト3・8、1P/2P で同じ画像）: 241 Yui、270 Haruka、291 Lilith、292 Luna、293 Kurumi、294 Saki、295 Kaede、296 Eri、297 Natalia、298 Ayane、299 Hilda（2P のみ）
+- サポート名（レイアウト6・10）: 242 Eko、251 Sierra、248 Juliet、250 Kanae、259 Hilda、252 Kaya & Maya（2P のみ、原画像は x=479）。"and" 9px＋名前 13px
+- フォントは Playfair Display BoldItalic（ネームプレートはイタリック。ユーザー指定。OFL、`data/Playfair_Display/`）、白に紺 (0.2, 0.12, 0.62) の1px縁
+- 配置: 原作はキャラ名を右揃え（右端 1P x≈118、2P x≈490）、サポート名を左揃え（x=120 / 491）で並べている
+  - キャラ名は幅60の Canvas に右揃え（右3px はイタリックのはみ出し用）。原画像ではなく列の右端 x=118 に合わせる（299 は原画像の右端が x=480 で他より10px左のため）。2P は画像共用のため ±2px
+  - サポート名は幅100（252 は 130。100 では縮小されて線が細った）の Canvas に左揃え。252 は x=491 に寄せる
+  - 原画像の I ブロックの y が 23〜26 とまちまちなので、オフセットで上端を揃える。y=24 では原画像（文字 y 26〜37）より文字の中心が約2px 低く見えたため（ユーザー指摘）、y=22
+- 英語表記は Claude の判断（公式英語版の表記と照合していない）
+- 確認: 全17枚を HUD と同じ座標で描く一時プローブで撮影。VS の実画面でも 1P「Yui and Eko」、2P「はるか and Eko」（この時点では 270 未登録）を確認
 - `tests/locale-image.lh`（`-Test locale-image`）: `locale.txt` を一時的に en にし、Canvas の大きさ・オフセット・rgba 扱い・未登録画像の不変を確認
 - 既定（ja）で match-intro・system-object-position・story-continue・victory-preload・selective-preload PASS
 
