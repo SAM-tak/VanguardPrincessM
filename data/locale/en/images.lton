@@ -459,7 +459,7 @@
     lines = {
         { text = "As she grows into a beautiful young woman, mysterious powers gradually awaken within her." },
         { text = "Her power can bend even the established laws of physics." },
-        { text = "People come to call it “Cyber Sorcery.”" },
+        { text = "People come to call it “Mechanical Sorcery.”" },
     },
     wrap = true^, leading = 4, weight = 2,
     size = { 640, 64 }, rect = { 6, 2, 628, 60 }, align = "center", valign = "top",
@@ -520,7 +520,7 @@
 ["assets/demos/タイトル/images/0013.png"] = {
     lines = {
         { text = "A shock wave imbued with immense magical power sweeps across the Earth," },
-        { text = "bestowing Cyber Sorcery upon countless girls." },
+        { text = "bestowing Mechanical Sorcery upon countless girls." },
     },
     wrap = true^, leading = 4, weight = 2,
     size = { 640, 64 }, rect = { 6, 2, 628, 60 }, align = "center", valign = "top",
@@ -544,7 +544,7 @@
 ["assets/demos/タイトル/images/0015.png"] = {
     lines = {
         { text = "A year passes. As the war draws toward its end, the original girl, long believed missing," },
-        { text = "is reborn as the “Arbiter of Reason” and plots her revenge against humanity." },
+        { text = "is reborn as the “Astral Arbiter” and plots her revenge against humanity." },
     },
     wrap = true^, leading = 4, weight = 2,
     size = { 640, 64 }, rect = { 6, 2, 628, 60 }, align = "center", valign = "top",
