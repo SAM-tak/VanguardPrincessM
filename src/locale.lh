@@ -14,7 +14,9 @@
 # lines = { <a text or runs line>, ... } stacked (leading = n pixels between),
 # each aligned and shrunk on its own. font (a file; LOVE's default when
 # absent), fontSize, color = { r, g, b }, outline = { color = { r, g, b },
-# width = n } are defaults for the runs.
+# width = n } are defaults for the runs, and a run may name its own font.
+# weight = n (1 by default) thickens the fill of thin strokes.
+# wrap = true^ breaks each line between words to the rect's width.
 module^vp.locale
 
 import^love.graphics
@@ -43,12 +45,21 @@ public^let^locale = p^-> string^{
     return^current
 }
 
+# A broken table would otherwise silently leave every image as it is.
+let^readEntries = p^path:string^-> t^{[string^]:any^}{
+    let^raw = try^std.lton.load(path)
+    if^raw fits^t^{[string^]:any^} { return^raw }
+    return^{}
+catch^:
+    print($"Localized images not read: {it^.message}")
+    return^{}
+}
+
 let^load = p^{
     if^loaded { return^}
     loaded := true^
     if^locale() = ORIGINAL { return^}
-    let^raw = std.lton.load($"data/locale/{locale()}/images.lton") catch^nil^
-    if^raw fits^t^{[string^]:any^} { entries := raw }
+    entries := readEntries($"data/locale/{locale()}/images.lton")
 }
 
 # The entry replacing the image file at path, if any.
@@ -71,13 +82,16 @@ public^let^offset = p^path:string^-> number^, number^{
 
 # Drawn from a canvas holding white text: the text in `fill`, and `edge`
 # where the text is within `radius` pixels (a square: the pixel art's
-# outline). The result is straight (not premultiplied) alpha.
+# outline). `weight` above 1 fills thin, faint strokes (small text's dashes
+# and quotes) instead of letting the edge colour show through them. The
+# result is straight (not premultiplied) alpha.
 let^outlineCode = "extern vec2 texel;
 extern number radius;
 extern vec4 fill;
 extern vec4 edge;
+extern number weight;
 vec4 effect(vec4 color, Image tex, vec2 uv, vec2 sc) {
-    float a = Texel(tex, uv).a;
+    float a = min(Texel(tex, uv).a * weight, 1.0);
     float near = 0.0;
     for (int dy = -4; dy <= 4; dy++) {
         for (int dx = -4; dx <= 4; dx++) {
@@ -130,11 +144,13 @@ public^let^render = p^path:string^-> love.graphics.Texture|nil^{
         var^text = ""
         var^size = baseSize
         var^c : any^= colour
+        var^face = file
         if^r fits^t^{ text : string^ } { text := r.text }
         if^r fits^t^{ fontSize : number^ } { size := r.fontSize }
         if^r fits^t^{ color : any^ } { c := r.color }
+        if^r fits^t^{ font : string^ } { face := r.font }
         if^text = "" { return^}
-        into.push^({ text = text, font = fontFor(file, size), r = number(c, 0, 1), g = number(c, 1, 1), b = number(c, 2, 1) })
+        into.push^({ text = text, font = fontFor(face, size), r = number(c, 0, 1), g = number(c, 1, 1), b = number(c, 2, 1) })
     }
     let^addLine = p^l:any^{
         var^runs : t^{Run[]} = {}
@@ -149,6 +165,39 @@ public^let^render = p^path:string^-> love.graphics.Texture|nil^{
         for^l in^e.lines { addLine(l) }
     else^:
         addLine(e)
+    }
+    # wrap = true^: each line is a paragraph, broken between words to the
+    # rect's width (a run's words keep its font and colour).
+    if^e fits^t^{ wrap : bool^ } and^e.wrap {
+        var^wrapped : t^{t^{Run[]}[]} = {}
+        for^line in^lines {
+            var^current : t^{Run[]} = {}
+            var^used = 0
+            for^r in^line {
+                let^words = r.text.split(" ")
+                for^word in^words {
+                    let^last = index^ = words.length^ - 1
+                    let^piece = if^last: word el^: word .. " ";
+                    if^piece = "" { continue^}
+                    if^used > 0 and^used + r.font.getWidth(word) > rw {
+                        # The line ends here: its last word drops its space.
+                        let^tail = current[current.length^ - 1]
+                        if^tail != nil^ {
+                            let^parts = tail.text.split(" ")
+                            if^parts.length^ = 2 and^parts[1] = "" { tail.text := parts[0] ?? "" }
+                        }
+                        wrapped.push^(current)
+                        current := {}
+                        used := 0
+                        if^word = "" { continue^}
+                    }
+                    current.push^({ text = piece, font = r.font, r = r.r, g = r.g, b = r.b })
+                    used += r.font.getWidth(piece)
+                }
+            }
+            if^current.length^ > 0 { wrapped.push^(current) }
+        }
+        lines := wrapped
     }
     let^align = if^e fits^t^{ align : string^ }: e.align el^: "left";
     let^valign = if^e fits^t^{ valign : string^ }: e.valign el^: "middle";
@@ -215,6 +264,7 @@ public^let^render = p^path:string^-> love.graphics.Texture|nil^{
     if^s fits^love.graphics.Shader {
         s.send("texel", { 1 / w, 1 / h })
         s.send("radius", radius)
+        s.send("weight", if^e fits^t^{ weight : number^ }: e.weight el^: 1;)
         s.send("fill", { first?.r ?? 1, first?.g ?? 1, first?.b ?? 1, 1 })
         s.send("edge", { number(edge, 0, 0), number(edge, 1, 0), number(edge, 2, 0), if^radius > 0: 1 el^: 0; })
         love.graphics.setShader(s)

@@ -425,3 +425,141 @@
     font = "data/Playfair_Display/static/PlayfairDisplay-BoldItalic.ttf", fontSize = 29,
     color = { 1, 1, 1 }, outline = { color = { 0.2, 0.12, 0.62 }, width = 2 },
 },
+
+# Title demo captions (タイトル #4 shows each at y 409-414 for 800 frames;
+# TechnicalDocuments/0144): the screen's width, centred, top at y 408; each
+# line a paragraph, wrapped if it ever outgrows the width. The English is
+# the user's, rearranged a little from the Japanese.
+# image 6
+["assets/demos/タイトル/images/0006.png"] = {
+    lines = {
+        { text = "Those who seek to preserve the world as it is, and those who seek to transform it." },
+        { text = "In a future not so far away, the world is divided by conflict, ravaged by war, and weary of it all…" },
+    },
+    wrap = true^, leading = 4, weight = 2,
+    size = { 640, 64 }, rect = { 6, 2, 628, 60 }, align = "center", valign = "top",
+    offset = { -162, -2 },
+    font = "data/montserrat/Montserrat-Regular.ttf", fontSize = 12,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+# image 7
+["assets/demos/タイトル/images/0007.png"] = {
+    lines = {
+        { text = "As the fighting intensifies, a civilian airliner is mistakenly shot down." },
+        { text = "All aboard are presumed dead—yet one girl miraculously survives without a scratch." },
+    },
+    wrap = true^, leading = 4, weight = 2,
+    size = { 640, 64 }, rect = { 6, 2, 628, 60 }, align = "center", valign = "top",
+    offset = { -123, -3 },
+    font = "data/montserrat/Montserrat-Regular.ttf", fontSize = 12,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+# image 8
+["assets/demos/タイトル/images/0008.png"] = {
+    lines = {
+        { text = "As she grows into a beautiful young woman, mysterious powers gradually awaken within her." },
+        { text = "Her power can bend even the established laws of physics." },
+        { text = "People come to call it “Cyber Sorcery.”" },
+    },
+    wrap = true^, leading = 4, weight = 2,
+    size = { 640, 64 }, rect = { 6, 2, 628, 60 }, align = "center", valign = "top",
+    offset = { -63, -6 },
+    font = "data/montserrat/Montserrat-Regular.ttf", fontSize = 12,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+# image 9
+["assets/demos/タイトル/images/0009.png"] = {
+    lines = {
+        { text = "Her extraordinary abilities draw the attention of government forces," },
+        { text = "who begin studying and analyzing them for military use." },
+    },
+    wrap = true^, leading = 4, weight = 2,
+    size = { 640, 64 }, rect = { 6, 2, 628, 60 }, align = "center", valign = "top",
+    offset = { -164, -3 },
+    font = "data/montserrat/Montserrat-Regular.ttf", fontSize = 12,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+# image 10
+["assets/demos/タイトル/images/0010.png"] = {
+    lines = {
+        { text = "Eventually, they succeed in artificially reproducing her power," },
+        { text = "creating other girls with the same abilities." },
+    },
+    wrap = true^, leading = 4, weight = 2,
+    size = { 640, 64 }, rect = { 6, 2, 628, 60 }, align = "center", valign = "top",
+    offset = { -119, -3 },
+    font = "data/montserrat/Montserrat-Regular.ttf", fontSize = 12,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+# image 11
+["assets/demos/タイトル/images/0011.png"] = {
+    lines = {
+        { text = "As these girls achieve remarkable victories on the battlefield," },
+        { text = "the military demands ever greater power, subjecting them to increasingly brutal experiments." },
+    },
+    wrap = true^, leading = 4, weight = 2,
+    size = { 640, 64 }, rect = { 6, 2, 628, 60 }, align = "center", valign = "top",
+    offset = { -132, -1 },
+    font = "data/montserrat/Montserrat-Regular.ttf", fontSize = 12,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+# image 12
+["assets/demos/タイトル/images/0012.png"] = {
+    lines = {
+        { text = "These experiments cause the power of the original girl—the first of them all—to spiral out of control." },
+        { text = "An unrestrained torrent of magic annihilates friend and foe alike." },
+        { text = "This catastrophe would later be known as the “Astral Impact.”" },
+    },
+    wrap = true^, leading = 4, weight = 2,
+    size = { 640, 64 }, rect = { 6, 2, 628, 60 }, align = "center", valign = "top",
+    offset = { -169, -2 },
+    font = "data/montserrat/Montserrat-Regular.ttf", fontSize = 12,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+# image 13
+["assets/demos/タイトル/images/0013.png"] = {
+    lines = {
+        { text = "A shock wave imbued with immense magical power sweeps across the Earth," },
+        { text = "bestowing Cyber Sorcery upon countless girls." },
+    },
+    wrap = true^, leading = 4, weight = 2,
+    size = { 640, 64 }, rect = { 6, 2, 628, 60 }, align = "center", valign = "top",
+    offset = { -196, -3 },
+    font = "data/montserrat/Montserrat-Regular.ttf", fontSize = 12,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+# image 14
+["assets/demos/タイトル/images/0014.png"] = {
+    lines = {
+        { text = "Dubbed “Vanguard Princesses” for their beauty in battle," },
+        { text = "these newly empowered girls are deployed to the front lines." },
+    },
+    wrap = true^, leading = 4, weight = 2,
+    size = { 640, 64 }, rect = { 6, 2, 628, 60 }, align = "center", valign = "top",
+    offset = { -117, -2 },
+    font = "data/montserrat/Montserrat-Regular.ttf", fontSize = 12,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+# image 15
+["assets/demos/タイトル/images/0015.png"] = {
+    lines = {
+        { text = "A year passes. As the war draws toward its end, the original girl, long believed missing," },
+        { text = "is reborn as the “Arbiter of Reason” and plots her revenge against humanity." },
+    },
+    wrap = true^, leading = 4, weight = 2,
+    size = { 640, 64 }, rect = { 6, 2, 628, 60 }, align = "center", valign = "top",
+    offset = { -87, -2 },
+    font = "data/montserrat/Montserrat-Regular.ttf", fontSize = 12,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+# image 16
+["assets/demos/タイトル/images/0016.png"] = {
+    lines = {
+        { runs = { { text = "As though answering the call of destiny, the " }, { text = "Vanguard Princesses", font = "data/montserrat/Montserrat-Bold.ttf" }, { text = " resolve to stand against her…" } } },
+    },
+    wrap = true^, leading = 4, weight = 2,
+    size = { 640, 64 }, rect = { 6, 2, 628, 60 }, align = "center", valign = "top",
+    offset = { -128, -5 },
+    font = "data/montserrat/Montserrat-Regular.ttf", fontSize = 12,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
