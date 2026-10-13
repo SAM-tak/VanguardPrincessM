@@ -1,7 +1,8 @@
 # PRACTICE MODE's pause menu (TechnicalDocuments/0145): a deliberately plain
 # stand-in for a proper practice menu. ESC / Start opens it over the frozen
 # match instead of the pause image; up / down choose, left / right change the
-# opponent's guard, a button confirms, ESC / Start closes it.
+# opponent's guard or the hitbox display, a button confirms, ESC / Start
+# closes it.
 module^vp.practicemenu
 
 import^love.graphics
@@ -14,14 +15,16 @@ let^Key = love.keyboard.Key
 # attack), standing only, crouching only. main.lh's dummyGuard.
 public^let^GUARDS = 4
 let^GUARD = 0
-let^RESUME = 1
-let^SELECT = 2
-let^ITEMS = 3
+let^BOXES = 1
+let^RESUME = 2
+let^SELECT = 3
+let^ITEMS = 4
 
-let^Words = t^{ title:string^, guard:string^, guards:t^{string^[]}, resume:string^, select:string^, hint:string^, marker:string^, font:string^ }
+let^Words = t^{ title:string^, guard:string^, guards:t^{string^[]}, boxes:string^, onOff:t^{string^[]}, resume:string^, select:string^, hint:string^, marker:string^, font:string^ }
 let^JA : Words = {
     title = "プラクティスメニュー", guard = "相手のガード",
     guards = { "なし", "全部", "立ちのみ", "しゃがみのみ" },
+    boxes = "ヒットボックス表示", onOff = { "オフ", "オン" },
     resume = "試合に戻る", select = "キャラクター選択へ",
     hint = "↑↓ 選択　←→ 変更　ボタン 決定", marker = "▶",
     font = "data/NotoSansMonoCJKjp-Regular.otf",
@@ -29,6 +32,7 @@ let^JA : Words = {
 let^EN : Words = {
     title = "PRACTICE MENU", guard = "Opponent's guard",
     guards = { "None", "All", "Standing only", "Crouching only" },
+    boxes = "Show hitboxes", onOff = { "Off", "On" },
     resume = "Resume", select = "Character select",
     hint = "Up/Down: choose   Left/Right: change   Button: OK", marker = ">",
     font = "data/montserrat/Montserrat-Bold.ttf",
@@ -42,19 +46,21 @@ public^let^isOpen = f^-> bool^{ shown }
 public^let^open = p^{ shown := true^ item := 0 }
 public^let^close = p^{ shown := false^ }
 
-# A key while open: "resume", "select" or "" (stay), and the guard setting.
-public^let^key = p^k:love.keyboard.Key, guard:number^-> string^, number^{
-    if^k = Key.escape or^k = Key.return { return^"resume", guard }
-    if^k = Key.up { item := (item + ITEMS - 1) % ITEMS return^"", guard }
-    if^k = Key.down { item := (item + 1) % ITEMS return^"", guard }
-    if^item = GUARD and^(k = Key.left or^k = Key.right) {
-        return^"", (guard + (if^k = Key.right: 1 el^: GUARDS - 1;)) % GUARDS
-    }
+# A key while open: "resume", "select" or "" (stay), the guard setting and
+# whether hitboxes are shown.
+public^let^key = p^k:love.keyboard.Key, guard:number^, boxes:bool^-> string^, number^, bool^{
+    if^k = Key.escape or^k = Key.return { return^"resume", guard, boxes }
+    if^k = Key.up { item := (item + ITEMS - 1) % ITEMS return^"", guard, boxes }
+    if^k = Key.down { item := (item + 1) % ITEMS return^"", guard, boxes }
     let^confirm = k = Key.z or^k = Key.x or^k = Key.c or^k = Key.a or^k = Key.s or^k = Key.d
-    if^confirm and^item = RESUME { return^"resume", guard }
-    if^confirm and^item = SELECT { return^"select", guard }
-    if^confirm and^item = GUARD { return^"", (guard + 1) % GUARDS }
-    return^"", guard
+    if^item = GUARD and^(k = Key.left or^k = Key.right) {
+        return^"", (guard + (if^k = Key.right: 1 el^: GUARDS - 1;)) % GUARDS, boxes
+    }
+    if^item = BOXES and^(confirm or^k = Key.left or^k = Key.right) { return^"", guard, !boxes }
+    if^confirm and^item = RESUME { return^"resume", guard, boxes }
+    if^confirm and^item = SELECT { return^"select", guard, boxes }
+    if^confirm and^item = GUARD { return^"", (guard + 1) % GUARDS, boxes }
+    return^"", guard, boxes
 }
 
 let^fontFor = p^file:string^, size:number^-> love.graphics.Font {
@@ -68,7 +74,7 @@ let^fontFor = p^file:string^, size:number^-> love.graphics.Font {
 }
 
 # Drawn in window pixels (sharp text whatever the scale), over the match.
-public^let^draw = p^guard:number^{
+public^let^draw = p^guard:number^, boxes:bool^{
     if^!shown { return^}
     let^words = if^vp.locale.locale() = "en": EN el^: JA;
     let^w, h = love.graphics.getDimensions()
@@ -79,7 +85,7 @@ public^let^draw = p^guard:number^{
     love.graphics.setColor(0, 0, 0, 0.55)
     love.graphics.rectangle(love.graphics.DrawMode.fill, 0, 0, w, h)
     let^bw = 360 * u
-    let^bh = 150 * u
+    let^bh = 174 * u
     let^bx = (w - bw) / 2
     let^by = (h - bh) / 2
     love.graphics.setColor(0.08, 0.06, 0.18, 0.92)
@@ -91,8 +97,10 @@ public^let^draw = p^guard:number^{
     love.graphics.setFont(big)
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.print(words.title, bx + 16 * u, by + 12 * u)
+    let^onOff = words.onOff[if^boxes: 1 el^: 0;] ?? ""
     let^lines : t^{string^[]} = {
         $"{words.guard}:  < {words.guards[guard] ?? ""} >",
+        $"{words.boxes}:  < {onOff} >",
         words.resume,
         words.select,
     }

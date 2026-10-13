@@ -50,13 +50,21 @@ public^let^update = p^dt:number^{
         if^s.roundPhase = "fight" { fighting += 1 switch() }
         if^fighting > 150 {
             # ESC opens the practice menu over the frozen match; right sets
-            # the opponent's guard to "everything"; ESC resumes.
+            # the opponent's guard to "everything"; the next item shows
+            # hitboxes (off at first); ESC resumes.
             press(Key.escape)
             let^opened = vp.main.status()
             if^!opened.paused or^!opened.practiceMenu { panic^"ESC did not open the practice menu" }
             let^before = opened.guard
             press(Key.right)
             if^vp.main.status().guard != (before + 1) % 4 { panic^"right did not change the guard setting" }
+            if^opened.boxes { panic^"hitboxes shown before the menu turned them on" }
+            press(Key.down)
+            press(Key.z)
+            if^!vp.main.status().boxes { panic^"the hitbox item did not turn hitboxes on" }
+            press(Key.left)
+            if^vp.main.status().boxes { panic^"the hitbox item did not turn hitboxes off" }
+            press(Key.right)            # left on, to see that leaving practice turns them off
             press(Key.escape)
             let^resumed = vp.main.status()
             if^resumed.paused or^resumed.practiceMenu { panic^"ESC did not close the practice menu" }
@@ -64,13 +72,16 @@ public^let^update = p^dt:number^{
             press(Key.escape)
             press(Key.down)
             press(Key.down)
+            press(Key.down)
             press(Key.z)
             phase := 7
             fighting := 0
         }
     elseif^phase = 7 and^s.phase = "select" and^where = "system / select":
-        print("practice: 1P picks both sides, 140 = 500 throughout, no clock, F switch inert, ESC menu: guard, resume, select")
+        print("practice: 1P picks both sides, 140 = 500 throughout, no clock, F switch inert, ESC menu: guard, hitboxes, resume, select; F8 turns hitboxes off")
+        if^!s.boxes { panic^"hitboxes turned off going back to practice's select" }
         press(Key.f8)
+        if^vp.main.status().boxes { panic^"leaving practice (F8) left hitboxes on" }
         phase := 8
         wait := 0
     elseif^phase = 8 and^where = "system / opening": press(Key.z) phase := 13
@@ -89,7 +100,7 @@ public^let^update = p^dt:number^{
         if^fighting > 150 {
             press(Key.escape)
             if^!vp.main.status().paused { panic^"ESC no longer pauses VS" }
-            print("PASS: PRACTICE MODE: 1P picks both, starts in practice, ESC menu sets the guard and leads back to select; VS F switch inert, ESC pauses")
+            print("PASS: PRACTICE MODE: 1P picks both, starts in practice, ESC menu sets the guard and hitboxes and leads back to select; VS F switch inert, ESC pauses")
             love.event.quit()
         }
     }

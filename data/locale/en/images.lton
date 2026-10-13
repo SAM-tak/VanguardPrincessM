@@ -592,15 +592,31 @@
     color = { 0, 0, 0.03 },
 },
 
-# PRACTICE MODE, the port's third mode menu item (TechnicalDocuments/0145),
-# and its caption.
+# The mode menu's labels, all three in one face (src/title.lh), over its
+# background without the original's STORY MODE / VS MODE.
+["assets/demos/モードセレクト/images/0007.png"] = { base = "data/images/modeselectbg.png", size = { 640, 480 } },
+["locale:mode-menu/story"] = {
+    text = "STORY  MODE",
+    size = { 260, 26 }, rect = { 2, 3, 250, 20 }, align = "left", valign = "middle",
+    stretch = 1.4, skew = 0.25,
+    font = "data/montserrat/Montserrat-Regular.ttf", fontSize = 16,
+    color = { 0.08, 0.07, 0.07 }, outline = { color = { 1, 0.88, 0.72 }, width = 1 },
+},
+["locale:mode-menu/vs"] = {
+    text = "VS  MODE",
+    size = { 260, 26 }, rect = { 2, 3, 250, 20 }, align = "left", valign = "middle",
+    stretch = 1.4, skew = 0.25,
+    font = "data/montserrat/Montserrat-Regular.ttf", fontSize = 16,
+    color = { 0.08, 0.07, 0.07 }, outline = { color = { 1, 0.88, 0.72 }, width = 1 },
+},
 ["locale:mode-menu/practice"] = {
     text = "PRACTICE  MODE",
     size = { 260, 26 }, rect = { 2, 3, 250, 20 }, align = "left", valign = "middle",
-    stretch = 1.6, skew = 0.25,
-    font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 12,
+    stretch = 1.4, skew = 0.25,
+    font = "data/montserrat/Montserrat-Regular.ttf", fontSize = 16,
     color = { 0.08, 0.07, 0.07 }, outline = { color = { 1, 0.88, 0.72 }, width = 1 },
 },
+# PRACTICE MODE's caption (TechnicalDocuments/0145).
 ["locale:mode-menu/practice-caption"] = {
     text = "Practice your moves freely.",
     size = { 300, 18 }, rect = { 0, 2, 300, 14 }, align = "left", valign = "middle",

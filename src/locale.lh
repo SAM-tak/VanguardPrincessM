@@ -20,7 +20,7 @@
 # absent), fontSize, color = { r, g, b }, outline = { color = { r, g, b },
 # width = n } are defaults for the runs, and a run may name its own font.
 # weight = n (1 by default) thickens the fill of thin strokes; stretch = n
-# widens the letters, skew = n slants them.
+# widens the letters, tall = n heightens them, skew = n slants them.
 # wrap = true^ breaks each line between words to the rect's width.
 module^vp.locale
 
@@ -211,9 +211,10 @@ let^drawBlock = p^e:any^, out:love.graphics.Texture, w:number^, h:number^, over:
     let^align = if^e fits^t^{ align : string^ }: e.align el^: "left";
     let^valign = if^e fits^t^{ valign : string^ }: e.valign el^: "middle";
     let^leading = if^e fits^t^{ leading : number^ }: e.leading el^: 0;
-    # stretch: letters widened (an extended face); skew: slanted to the right
-    # by this much of their height (an italic).
+    # stretch: letters widened (an extended face); tall: heightened; skew:
+    # slanted to the right by this much of their height (an italic).
     let^stretch = if^e fits^t^{ stretch : number^ }: e.stretch el^: 1;
+    let^tall = if^e fits^t^{ tall : number^ }: e.tall el^: 1;
     let^skew = if^e fits^t^{ skew : number^ }: e.skew el^: 0;
     # Each line shrunk on its own to the rect's width; the block set by valign.
     var^widths : t^{number^[]} = {}
@@ -225,7 +226,7 @@ let^drawBlock = p^e:any^, out:love.graphics.Texture, w:number^, h:number^, over:
         var^lh = 0
         for^r in^line {
             lw += r.font.getWidth(r.text) * stretch
-            lh := std.math.max(lh, r.font.getHeight())
+            lh := std.math.max(lh, r.font.getHeight() * tall)
         }
         let^room = rw - (indents[index^] ?? 0)
         let^scale = if^lw > room and^lw > 0: room / lw el^: 1;
@@ -252,9 +253,9 @@ let^drawBlock = p^e:any^, out:love.graphics.Texture, w:number^, h:number^, over:
             if^first is^nil^ { first := r }
             love.graphics.setColor(r.r, r.g, r.b, 1)
             love.graphics.setFont(r.font)
-            let^h2 = r.font.getHeight() * scale
+            let^h2 = r.font.getHeight() * scale * tall
             # The shear pivots on the top; moved so the slant leans from the bottom.
-            love.graphics.print(r.text, (x + skew * h2).floor(), (bottom - h2).floor(), 0, scale * stretch, scale, 0, 0, -skew, 0)
+            love.graphics.print(r.text, (x + skew * h2).floor(), (bottom - h2).floor(), 0, scale * stretch, scale * tall, 0, 0, -skew * tall, 0)
             x += r.font.getWidth(r.text) * scale * stretch
         }
         top := bottom + leading

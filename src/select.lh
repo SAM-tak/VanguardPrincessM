@@ -207,14 +207,17 @@ public^let^Select = def^{
             i.system := system
             list.push^(i)
         }
-        for^sd in^self^.sides {
+        # Solo: 2P's cursor stays hidden until 1P confirms (it still runs, for
+        # the system variables it sets).
+        let^hidden2 = self^.solo and^!self^.story and^!(self^.sides[0]?.confirmed ?? false^)
+        for^k, sd in^self^.sides {
             let^p = sd.portrait
             if^p? {
                 add(p, false^)
                 for^o in^p.objects { add(o, false^) }
             }
             let^c = sd.cursor
-            if^c? {
+            if^c? and^!(k = 1 and^hidden2) {
                 add(c, true^)
                 for^o in^c.objects { add(o, true^) }
             }

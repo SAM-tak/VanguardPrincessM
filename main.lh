@@ -661,7 +661,14 @@ let^startStoryBattle = p^st:vp.story.State, e:vp.story.Event {
 }
 
 # Load metadata and decode assets without pausing the scene being left.
+# Leaving PRACTICE MODE (back to the title, or F8) turns its hitbox display off.
+let^leavePractice = p^{
+    if^practiceMode { showBoxes := false^ }
+    practiceMode := false^
+}
+
 let^prepare = p^kind:string^{
+    if^kind = "title" { leavePractice() }
     let^l = vp.preload.Load.new(if^kind = "boot": "system" el^: kind;)
     if^kind = "boot" {
         l.add(SYSTEM, false^)
@@ -889,6 +896,7 @@ let^goBack = p^{
 # Development escape hatch, independent of menu and pause restrictions.
 let^debugTitle = p^{
     if^!initialized { titleAfterBoot := true^ return^ }
+    leavePractice()
     let^l = pending
     if^l != nil^ { l.batch.cancel() pending := nil^ }
     love.audio.stop()
@@ -963,7 +971,7 @@ public^let^status = f^{
         loading = pending != nil^, loadingKind = pendingKind, stagePrepared = matchArena != nil^ and^stage.layers.length^ > 0,
         story = storyMode, practice = practiceMode, modeVariable = me.v(140), cpuActions = if^cpu != nil^: cpu.actions el^: 0;,
         enemyX = foe.x, enemyLife = foe.life, playerLife = me.life, enemySkill = foe.skillNo,
-        paused = paused, practiceMenu = vp.practicemenu.isOpen(), guard = dummyGuard, roundFrames = roundFrames,
+        paused = paused, practiceMenu = vp.practicemenu.isOpen(), guard = dummyGuard, boxes = showBoxes, roundFrames = roundFrames,
         battleResourcesHeld = me.skills[1] != nil^ or^foe.skills[1] != nil^ or^stage.layers.length^ > 0,
         modeExitFrames = if^sc != nil^: sc.exitFrames el^: -1;,
         modeCuePlaying = cue != nil^ and^cue.isPlaying(), selectCuePlayed = selectCue,
@@ -1384,7 +1392,7 @@ let^drawScene = p^{
 
 public^let^draw = p^{
     drawScene()
-    if^paused { vp.practicemenu.draw(dummyGuard) }
+    if^paused { vp.practicemenu.draw(dummyGuard, showBoxes) }
     # What the pending load is reading (source runs only, like other debug text).
     if^pending != nil^ {
         let^paths, waiting = vp.resource.progress()
@@ -1416,15 +1424,16 @@ public^let^keypressed = p^key:love.keyboard.Key, scancode:love.keyboard.Scancode
     let^openingScene = scene
     if^!isrepeat and^openingScene != nil^ and^openingScene.customOpening { openingScene.idleSeconds := 0 }
     # Gamepad Start is mapped to Return by vp.input.
-    # Practice pauses into its menu (the guard setting, resume, back to the
+    # Practice pauses into its menu (the guard setting, hitboxes, resume, back to the
     # select screen) instead of the pause image.
     if^practiceMode and^inBattle() {
         # A menu left open by a way out of the match (F8) is not open now.
         if^!paused { vp.practicemenu.close() }
         if^vp.practicemenu.isOpen() {
             if^!isrepeat {
-                let^action, guard = vp.practicemenu.key(key, dummyGuard)
+                let^action, guard, boxes = vp.practicemenu.key(key, dummyGuard, showBoxes)
                 dummyGuard := guard
+                showBoxes := boxes
                 if^action = "resume" {
                     vp.practicemenu.close()
                     togglePause()
