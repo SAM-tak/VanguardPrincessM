@@ -63,6 +63,10 @@ public^let^Select = def^{
         wait = 0,                   # frames since both confirmed
         done = false^,
         story = false^,
+        # PRACTICE MODE: one player picks both sides, 2P's once 1P's is
+        # confirmed (TechnicalDocuments/0145).
+        solo = false^,
+        handedOver = false^,        # solo: 1P's input now moves 2P's side
     },
 
     systemRun = p^self^, n:number^, x:number^, y:number^-> Fighter {
@@ -126,10 +130,17 @@ public^let^Select = def^{
     step = p^self^, up:bool^, down:bool^, dir:number^, pressed:number^, up2:bool^, down2:bool^, dir2:number^, pressed2:number^{
         self^.demo?.step()
 
+        # Solo: 2P's side takes 1P's input from the frame after 1P confirms
+        # (the confirming press must not confirm 2P's side too).
+        let^solo = self^.solo and^!self^.story
+        let^handOver = solo and^!self^.handedOver and^(self^.sides[0]?.confirmed ?? false^)
+        let^second = solo and^self^.handedOver
         for^k from^0 to^(if^self^.story: 0 el^: 1;) {
-            let^u = if^k = 0: up el^: up2;
-            let^d = if^k = 0: down el^: down2;
-            let^b = if^k = 0: pressed el^: pressed2;
+            let^own = k = 0 or^second
+            let^idle = solo and^k = 1 and^!second
+            let^u = !idle and^(if^own: up el^: up2;)
+            let^d = !idle and^(if^own: down el^: down2;)
+            let^b = if^idle: 0 el^own: pressed el^: pressed2;
             let^maybe = self^.sides[k]
             if^maybe != nil^ and^!maybe.confirmed {
                 let^side : Side = maybe
@@ -156,7 +167,7 @@ public^let^Select = def^{
             let^p = sd.portrait
             if^p != nil^ {
                 sd.confirmFlag(p)
-                p.record(if^sd.confirmed: 5 el^i = 0: dir el^: dir2;, 0)
+                p.record(if^sd.confirmed: 5 el^i = 0 or^second: dir el^solo: 5 el^: dir2;, 0)
                 p.step()
                 p.stepObjects()
             }
@@ -167,6 +178,7 @@ public^let^Select = def^{
             }
         }
 
+        if^handOver { self^.handedOver := true^ }
         if^self^.bothChosen() {
             self^.wait += 1
             if^self^.wait > AFTER_BOTH { self^.done := true^ }

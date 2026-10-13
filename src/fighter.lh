@@ -134,6 +134,14 @@ public^let^Fighter = def^{
         owner : Fighter|nil^= nil^,
         objects : t^{Fighter[]} = {},
         slots : t^{[number^]:Fighter|nil^} = {},    # managed numbers 0-9
+        # The original's in-match practice switch (F by 2P then 1P sets system
+        # variable 140 to 300, then 500): these skills are never spawned, as
+        # practice is its own menu item (TechnicalDocuments/0145).
+        practiceToggles : t^{[number^]:bool^|nil^} = {},
+        # PRACTICE MODE's "guard everything": while guarding, an attack is met
+        # in whichever posture can guard it (low ones crouching, overheads and
+        # air attacks standing).
+        guardEither = false^,
         baseDepth = 75,             # main actor depth before RP +/- 1
         depth = 75,                 # draw order: characters are 70-80, below is behind them
         parent : Fighter|nil^= nil^,   # what spawned it (the character or another object)
@@ -967,7 +975,12 @@ public^let^Fighter = def^{
             return^false^, 0
         }
         self^.confirmCancel()
-        let^pose = def.posture(if^def.guarding: def.guardCrouched el^: crouched;)
+        var^pose = def.posture(if^def.guarding: def.guardCrouched el^: crouched;)
+        if^def.guarding and^def.guardEither {
+            let^other = def.posture(!def.guardCrouched)
+            let^canGuard = f^at:number^-> bool^{ return^(self^.onGuard[at] ?? 0) > 0 and^self^.onGuard[at] != self^.onHit[at] }
+            if^!canGuard(pose) and^canGuard(other) { pose := other }
+        }
         let^onHit = self^.onHit[pose] ?? 0
         let^onGuard = self^.onGuard[pose] ?? 0
         let^guardable = box.flags.find("guardFail") is^nil^ and^onGuard > 0 and^onGuard != onHit
@@ -1294,6 +1307,7 @@ public^let^Fighter = def^{
         # "picXY" objects, and whatever they spawn, live in view coordinates.
         # A preloaded round presentation owns the #31 face animation.
         if^root.externalIntroPortrait and^self^.skillNo = 31 and^depth = 117 and^flags.find("picXY") != nil^ { return^false^ }
+        if^!root.system and^root.practiceToggles[n] != nil^ { return^false^ }
         let^atView = flags.find("picXY") != nil^ or^root.system
         let^absolute = flags.find("picXY") != nil^ or^(root.system and^flags.find("parent") is^nil^)
         let^wx = if^absolute: x el^: self^.x + x * self^.facing;

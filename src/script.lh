@@ -22,6 +22,19 @@ require^"resource.lh"
 let^Skill = vp.scriptdata.Skill
 public^let^SUPPORTS = {"えこ", "シエラ", "ジュリエット", "かなえ", "ヒルダ", "common"}
 
+# A character's in-match practice switch: it sets system variable 140 to 300
+# (2P asked with F) or 500 (1P agreed: practice on). Found by what it does,
+# as the skill's number and name differ between characters.
+let^practiceToggle = f^sk:Skill-> bool^{
+    for^b in^sk.blocks {
+        if^b.op = "V" and^(b.n[0] ?? -1) = 140 and^(b.n[1] ?? -1) = 1 {
+            let^value = b.n[3] ?? -1
+            if^value = 300 or^value = 500 { return^true^ }
+        }
+    }
+    return^false^
+}
+
 public^let^Script = def^{
     self^{
         skills : t^{Skill[]} = {},     # compact definitions owned by this package
@@ -187,6 +200,7 @@ public^let^Script = def^{
         for^n:number^, sk:Skill in^self^.byId {
             me.skills[n] := self^.entry(n)
             if^sk.level != 0 { me.levels[n] := sk.level }
+            if^practiceToggle(sk) { me.practiceToggles[n] := true^ }
         }
         let^d = self^.raw
         if^d fits^t^{ reactions : t^{} } {

@@ -1,0 +1,49 @@
+# PRACTICE MODE をモードメニューの独立項目に
+
+2026-10-13。原作は VS の試合中に F で練習状態へ切り替える。これをやめ、タイトルのモードメニューに3つ目の項目 PRACTICE MODE を設けた（ユーザー指定）。
+
+## 原作の仕組み
+
+練習状態はシステム変数 V140 = 500。各キャラの開始時 #21 が生成する見えないオブジェクト2つが切り替える
+（多くのキャラは #348（1P 側）と #349（2P 側）。くるみ #349／#350、サキ #394「押し出し空」、ナタリア #352「技名8」など番号・名前はキャラごとに違う）。
+
+1. 2P が F → V140 = 300（申し込み）
+2. 1P が F → V140 = 500（練習開始。エフェクト #359「キャンセルエフェクト」と効果音）
+3. 練習中に 2P が F → V140 = 0（終了）
+
+ラウンドが fight に入ってからしか反応しない。練習中の動作（体力など）は各キャラ・システムの技が V140 = 500 を見て行う（再現済み）。
+
+## 変更
+
+- 切り替えの停止: `src/script.lh` の `install` が、V140 に 300 か 500 を代入する V ブロックを持つ技を `practiceToggles` に記録し、
+  `Fighter.spawn` はキャラ側（システム以外）でその技のオブジェクトを生成しない。番号でなく中身で判定するので全キャラに効く。
+  システムの KO 技も V140 に 500 を書くため、システムには適用しない
+- メニュー（`src/title.lh`）: 項目を3つに（カーソル y 70／92／114、上下キーで循環）。
+  背景画像に焼き込まれた STORY MODE／VS MODE（y 64／88）の下 y=104 に、ローカライズの仮想キー `locale:mode-menu/practice` の文字を描く
+- 説明文: カーソルの #107 はストーリーと VS しか知らない（y=114 では VS の説明を出す）ため、PRACTICE MODE のときは #107 の画像を描かず、
+  同じ位置に `locale:mode-menu/practice-caption` を描く。VS の説明文（システム 0168）は練習に触れない文に変更
+  - 日本語: VS「対人戦を行います。」、PRACTICE「技の練習を行います。」（Noto Sans Mono CJK 14px）
+  - 英語: VS "Fight against another player."、PRACTICE "Practice your moves freely."（Montserrat Bold 12px）
+- キャラ選択（`src/select.lh` の `solo`）: 1P だけで両側を選ぶ（ユーザー指定）。1P の決定の次のフレームから、1P の上下・決定・左右（サポート選択）が 2P 側を動かす。
+  決定したフレームでは渡さない（同じ押下で 2P 側まで決定しないため）。それまで 2P 側は動かず、2P の入力は使わない
+- 流れ（`main.lh`、`practiceMode`）: VS と同じキャラ選択画面。試合開始時に V140 = 500、タイマーは∞（秒数0）。
+  VS は試合開始時に V140 = 0
+- 練習メニュー（`src/practicemenu.lh`、ユーザー指定の簡素な仮のもの）: 練習中の ESC／Start でポーズ画像（システム 0165）の代わりに、止まった試合の上に重ねて開く。
+  項目は「相手のガード（なし・全部・立ちのみ・しゃがみのみ。左右で切替）」「試合に戻る」「キャラクター選択へ」。ESC／Start で閉じる。
+  文字はウィンドウ解像度で描く（拡大でぼやけない）。文言は日本語・英語の2通りをコード内に持つ。将来のちゃんとした練習メニューまでのつなぎ
+- 相手のガード（`main.lh` の `dummyGuard`、開発用の G キーと共用）: 0 なし、1 全部、2 立ち、3 しゃがみ。
+  立ちはガード入力、しゃがみはガード入力＋下入力。全部は `Fighter.guardEither`: 被弾時に、立ち・しゃがみのうちガードできる姿勢で受ける
+  （R ブロックのガード枠がヒット枠と同じ姿勢はガード不可。下段は屈み、中段・空中攻撃は立って防ぐ）
+- `status()` に `practice` と `modeVariable`（V140）を追加
+
+## 検証
+
+- `tests/practice-mode.lh`（`tools/test-async.ps1 -Test practice-mode`）:
+  PRACTICE MODE で 1P のキーだけで両側を選び（2P 側は1段下のはるか）、試合 → ゆい対はるか、V140 = 500・タイマー∞、fight 中に 2P→1P の F を繰り返しても 500 のまま。
+  ESC でメニューが開いてポーズ、右でガード設定が進み、ESC で再開、メニュー最下段の決定でキャラ選択へ。
+  F8 → VS で試合 → fight 中の F で V140 が 0 のまま、ESC はポーズ。
+  切り替え停止を外すと失敗（V140 = 300）することを確認済み
+- `tests/practice-guard.lh`（`-Test practice-guard`）: 実キャラで反応表を設定して被弾処理を呼び、「全部」が下段を屈んで、中段を立って防ぐこと、固定姿勢は従来どおりであることを確認
+- タイトル画面を ja／en でカーソル3位置とも撮影し、文字の大きさ・間隔と説明文を確認。練習メニューも ja／en で撮影
+- 既存の combat-flow・locale-image・vs-memory-return・match-intro・attract-flow・story-continue・story-navigation・ending-chain・hilda-whiteout・victory-preload・
+  selective-preload・turn-result・system-object-position・support-flow・vs-memory-return PASS

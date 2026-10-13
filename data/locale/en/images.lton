@@ -563,3 +563,48 @@
     font = "data/montserrat/Montserrat-Regular.ttf", fontSize = 12,
     color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
 },
+
+# Victory demo prompt (ゆい勝ち #22 at (491, 463), bottom right): ends where
+# the original ends.
+["assets/demos/ゆい勝ち/images/0053.png"] = {
+    text = "Press any key",
+    size = { 143, 18 }, rect = { 2, 2, 139, 14 }, align = "right", valign = "middle",
+    offset = { 0, -2 }, weight = 2,
+    font = "data/montserrat/Montserrat-Regular.ttf", fontSize = 12,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+
+# Mode menu captions (system #107, which the title cursor #78 spawns, picks
+# one by the cursor's y): dark text without an outline, from where the
+# original starts.
+["assets/system/ヴァンガードプリンセス/images/0167.dds"] = {
+    text = "Battle your way through CPU opponents.",
+    size = { 300, 18 }, rect = { 0, 2, 300, 14 }, align = "left", valign = "middle",
+    offset = { 0, -2 },
+    font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 12,
+    color = { 0, 0, 0.03 },
+},
+["assets/system/ヴァンガードプリンセス/images/0168.dds"] = {
+    text = "Fight against another player.",
+    size = { 300, 18 }, rect = { 0, 2, 300, 14 }, align = "left", valign = "middle",
+    offset = { 0, -2 },
+    font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 12,
+    color = { 0, 0, 0.03 },
+},
+
+# PRACTICE MODE, the port's third mode menu item (TechnicalDocuments/0145),
+# and its caption.
+["locale:mode-menu/practice"] = {
+    text = "PRACTICE  MODE",
+    size = { 260, 26 }, rect = { 2, 3, 250, 20 }, align = "left", valign = "middle",
+    stretch = 1.6, skew = 0.25,
+    font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 12,
+    color = { 0.08, 0.07, 0.07 }, outline = { color = { 1, 0.88, 0.72 }, width = 1 },
+},
+["locale:mode-menu/practice-caption"] = {
+    text = "Practice your moves freely.",
+    size = { 300, 18 }, rect = { 0, 2, 300, 14 }, align = "left", valign = "middle",
+    offset = { 0, -2 },
+    font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 12,
+    color = { 0, 0, 0.03 },
+},

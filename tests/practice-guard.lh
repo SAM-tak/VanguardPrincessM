@@ -1,0 +1,37 @@
+module^vp.practiceguardtest
+import^love.event
+require^"../src/fighter.lh"
+require^"../src/script.lh"
+let^Fighter = vp.fighter.Fighter
+
+# PRACTICE MODE's "guard everything" (guardEither): a guarding defender meets
+# each attack in the posture that can guard it. R's guard slot equal to its
+# hit slot means that posture cannot guard: a low attack standing, an
+# overhead crouching.
+let^guards = p^low:bool^, crouching:bool^, either:bool^-> bool^{
+    let^a = Fighter.new("assets/characters/ゆい", 500, 920)
+    let^d = Fighter.new("assets/characters/はるか", 560, 920)
+    let^sa = vp.script.load("assets/characters/ゆい/script.lton")
+    let^sd = vp.script.load("assets/characters/はるか/script.lton")
+    if^sa is^nil^ or^sd is^nil^ { panic^"Missing scripts" }
+    sa.install(a) sd.install(d)
+    a.enemy := d d.enemy := a d.facing := -1
+    # hit 1 / 2 / 3; guard 4 / 5 / 6, with the unguardable posture's equal to its hit
+    if^low { a.reactions(1, 2, 3, 1, 5, 6) else^: a.reactions(1, 2, 3, 4, 2, 6) }
+    d.guardEither := either
+    d.updateGuard(true^, crouching, true^)
+    let^box = vp.fighter.Box.new(0, 0, 10, 10)
+    box.power := 40
+    let^guarded, spark = a.struck(box, d, 100, crouching, "")
+    return^guarded
+}
+public^let^load = p^{
+    if^guards(true^, false^, false^) { panic^"a low attack was guarded standing" }
+    if^!guards(true^, false^, true^) { panic^"guard everything did not crouch for a low attack" }
+    if^guards(false^, true^, false^) { panic^"an overhead was guarded crouching" }
+    if^!guards(false^, true^, true^) { panic^"guard everything did not stand for an overhead" }
+    if^!guards(true^, true^, false^) { panic^"a crouching guard no longer guards a low attack" }
+    print("PASS: guard everything meets low attacks crouching and overheads standing; fixed postures unchanged")
+    love.event.quit()
+}
+public^let^draw = p^{}

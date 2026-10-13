@@ -1,0 +1,115 @@
+# PRACTICE MODE's pause menu (TechnicalDocuments/0145): a deliberately plain
+# stand-in for a proper practice menu. ESC / Start opens it over the frozen
+# match instead of the pause image; up / down choose, left / right change the
+# opponent's guard, a button confirms, ESC / Start closes it.
+module^vp.practicemenu
+
+import^love.graphics
+import^love.keyboard
+require^"locale.lh"
+
+let^Key = love.keyboard.Key
+
+# The opponent's guard: none, everything (the posture that can guard each
+# attack), standing only, crouching only. main.lh's dummyGuard.
+public^let^GUARDS = 4
+let^GUARD = 0
+let^RESUME = 1
+let^SELECT = 2
+let^ITEMS = 3
+
+let^Words = t^{ title:string^, guard:string^, guards:t^{string^[]}, resume:string^, select:string^, hint:string^, marker:string^, font:string^ }
+let^JA : Words = {
+    title = "プラクティスメニュー", guard = "相手のガード",
+    guards = { "なし", "全部", "立ちのみ", "しゃがみのみ" },
+    resume = "試合に戻る", select = "キャラクター選択へ",
+    hint = "↑↓ 選択　←→ 変更　ボタン 決定", marker = "▶",
+    font = "data/NotoSansMonoCJKjp-Regular.otf",
+}
+let^EN : Words = {
+    title = "PRACTICE MENU", guard = "Opponent's guard",
+    guards = { "None", "All", "Standing only", "Crouching only" },
+    resume = "Resume", select = "Character select",
+    hint = "Up/Down: choose   Left/Right: change   Button: OK", marker = ">",
+    font = "data/montserrat/Montserrat-Bold.ttf",
+}
+
+var^shown = false^
+var^item = 0
+var^fonts : t^{[string^]:love.graphics.Font|nil^} = {}
+
+public^let^isOpen = f^-> bool^{ shown }
+public^let^open = p^{ shown := true^ item := 0 }
+public^let^close = p^{ shown := false^ }
+
+# A key while open: "resume", "select" or "" (stay), and the guard setting.
+public^let^key = p^k:love.keyboard.Key, guard:number^-> string^, number^{
+    if^k = Key.escape or^k = Key.return { return^"resume", guard }
+    if^k = Key.up { item := (item + ITEMS - 1) % ITEMS return^"", guard }
+    if^k = Key.down { item := (item + 1) % ITEMS return^"", guard }
+    if^item = GUARD and^(k = Key.left or^k = Key.right) {
+        return^"", (guard + (if^k = Key.right: 1 el^: GUARDS - 1;)) % GUARDS
+    }
+    let^confirm = k = Key.z or^k = Key.x or^k = Key.c or^k = Key.a or^k = Key.s or^k = Key.d
+    if^confirm and^item = RESUME { return^"resume", guard }
+    if^confirm and^item = SELECT { return^"select", guard }
+    if^confirm and^item = GUARD { return^"", (guard + 1) % GUARDS }
+    return^"", guard
+}
+
+let^fontFor = p^file:string^, size:number^-> love.graphics.Font {
+    let^known = fonts[$"{file}:{size}"]
+    if^known? { return^known }
+    var^font = love.graphics.newFont(size)
+    let^f = love.graphics.newFont(file, size) catch^nil^
+    if^f fits^love.graphics.Font { font := f }
+    fonts[$"{file}:{size}"] := font
+    return^font
+}
+
+# Drawn in window pixels (sharp text whatever the scale), over the match.
+public^let^draw = p^guard:number^{
+    if^!shown { return^}
+    let^words = if^vp.locale.locale() = "en": EN el^: JA;
+    let^w, h = love.graphics.getDimensions()
+    let^u = h / 480                 # one view pixel
+    let^previous = love.graphics.getFont()
+    love.graphics.push()
+    love.graphics.origin()
+    love.graphics.setColor(0, 0, 0, 0.55)
+    love.graphics.rectangle(love.graphics.DrawMode.fill, 0, 0, w, h)
+    let^bw = 360 * u
+    let^bh = 150 * u
+    let^bx = (w - bw) / 2
+    let^by = (h - bh) / 2
+    love.graphics.setColor(0.08, 0.06, 0.18, 0.92)
+    love.graphics.rectangle(love.graphics.DrawMode.fill, bx, by, bw, bh)
+    love.graphics.setColor(0.55, 0.5, 0.9, 1)
+    love.graphics.rectangle(love.graphics.DrawMode.line, bx, by, bw, bh)
+    let^big = fontFor(words.font, (14 * u).floor())
+    let^small = fontFor(words.font, (10 * u).floor())
+    love.graphics.setFont(big)
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.print(words.title, bx + 16 * u, by + 12 * u)
+    let^lines : t^{string^[]} = {
+        $"{words.guard}:  < {words.guards[guard] ?? ""} >",
+        words.resume,
+        words.select,
+    }
+    for^line in^lines {
+        let^y = by + (44 + 24 * index^) * u
+        if^index^ = item {
+            love.graphics.setColor(1, 0.85, 0.3, 1)
+            love.graphics.print(words.marker, bx + 16 * u, y)
+        else^:
+            love.graphics.setColor(0.8, 0.8, 0.85, 1)
+        }
+        love.graphics.print(line, bx + 34 * u, y)
+    }
+    love.graphics.setFont(small)
+    love.graphics.setColor(0.7, 0.7, 0.8, 1)
+    love.graphics.print(words.hint, bx + 16 * u, by + bh - 20 * u)
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setFont(previous)
+    love.graphics.pop()
+}

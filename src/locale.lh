@@ -2,8 +2,10 @@
 # be replaced by text drawn with a font (data/locale/<locale>/images.lton,
 # keyed by the file's path). The text is drawn once into a canvas that takes
 # the file's place, so everything that draws the image (I blocks, blends,
-# COLOR tints, the HUD) goes on unchanged. The original locale, "ja", replaces
-# nothing.
+# COLOR tints, the HUD) goes on unchanged. The original locale, "ja", has a
+# table only for the port's own changes (its new menu item, reworded
+# captions). A key need not be a file: "locale:..." names text the original
+# never had, which the game draws through vp.arena.texture like any image.
 #
 # An entry: size = { w, h } (the canvas), rect = { x, y, w, h } (where the
 # text is set; the whole canvas by default), align "left" / "center" /
@@ -15,7 +17,8 @@
 # each aligned and shrunk on its own. font (a file; LOVE's default when
 # absent), fontSize, color = { r, g, b }, outline = { color = { r, g, b },
 # width = n } are defaults for the runs, and a run may name its own font.
-# weight = n (1 by default) thickens the fill of thin strokes.
+# weight = n (1 by default) thickens the fill of thin strokes; stretch = n
+# widens the letters, skew = n slants them.
 # wrap = true^ breaks each line between words to the rect's width.
 module^vp.locale
 
@@ -58,8 +61,8 @@ catch^:
 let^load = p^{
     if^loaded { return^}
     loaded := true^
-    if^locale() = ORIGINAL { return^}
-    entries := readEntries($"data/locale/{locale()}/images.lton")
+    let^path = $"data/locale/{locale()}/images.lton"
+    if^love.filesystem.getInfo(path) != nil^ { entries := readEntries(path) }
 }
 
 # The entry replacing the image file at path, if any.
@@ -202,6 +205,10 @@ public^let^render = p^path:string^-> love.graphics.Texture|nil^{
     let^align = if^e fits^t^{ align : string^ }: e.align el^: "left";
     let^valign = if^e fits^t^{ valign : string^ }: e.valign el^: "middle";
     let^leading = if^e fits^t^{ leading : number^ }: e.leading el^: 0;
+    # stretch: letters widened (an extended face); skew: slanted to the right
+    # by this much of their height (an italic).
+    let^stretch = if^e fits^t^{ stretch : number^ }: e.stretch el^: 1;
+    let^skew = if^e fits^t^{ skew : number^ }: e.skew el^: 0;
     # Each line shrunk on its own to the rect's width; the block set by valign.
     var^widths : t^{number^[]} = {}
     var^heights : t^{number^[]} = {}
@@ -211,7 +218,7 @@ public^let^render = p^path:string^-> love.graphics.Texture|nil^{
         var^lw = 0
         var^lh = 0
         for^r in^line {
-            lw += r.font.getWidth(r.text)
+            lw += r.font.getWidth(r.text) * stretch
             lh := std.math.max(lh, r.font.getHeight())
         }
         let^scale = if^lw > rw and^lw > 0: rw / lw el^: 1;
@@ -247,8 +254,10 @@ public^let^render = p^path:string^-> love.graphics.Texture|nil^{
         for^r in^line {
             if^first is^nil^ { first := r }
             love.graphics.setFont(r.font)
-            love.graphics.print(r.text, x.floor(), (bottom - r.font.getHeight() * scale).floor(), 0, scale, scale)
-            x += r.font.getWidth(r.text) * scale
+            let^h2 = r.font.getHeight() * scale
+            # The shear pivots on the top; moved so the slant leans from the bottom.
+            love.graphics.print(r.text, (x + skew * h2).floor(), (bottom - h2).floor(), 0, scale * stretch, scale, 0, 0, -skew, 0)
+            x += r.font.getWidth(r.text) * scale * stretch
         }
         top := bottom + leading
     }

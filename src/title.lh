@@ -8,6 +8,9 @@
 # - The title demo is the mode menu. The engine puts the system's title
 #   cursor (#78) at the chosen item's position (#79 story, #80 VS); the
 #   cursor's #107 reads its y and shows the item's caption.
+# - PRACTICE MODE is the port's third item (TechnicalDocuments/0145): its
+#   label and caption are localized text (src/locale.lh; the original has
+#   neither), drawn where the background's labels and #107's caption are.
 module^vp.title
 
 import^love.graphics
@@ -19,12 +22,20 @@ require^"stage.lh"
 require^"round.lh"
 require^"arena.lh"
 require^"resource.lh"
+require^"locale.lh"
 
 let^Fighter = vp.fighter.Fighter
 
 let^CURSOR = 78
 let^ITEM_X = 291              # "position: title cursor" story (#79) / VS single (#80)
-let^ITEM_Y : t^{number^[]} = { 70, 92 }
+let^ITEM_Y : t^{number^[]} = { 70, 92, 114 }
+let^PRACTICE = 2
+# The background has STORY MODE / VS MODE at y 64 / 88 from x 300.
+let^PRACTICE_LABEL = "locale:mode-menu/practice"
+let^PRACTICE_LABEL_X = 300
+let^PRACTICE_LABEL_Y = 104
+let^PRACTICE_CAPTION = "locale:mode-menu/practice-caption"
+let^CAPTION = 107             # the cursor's caption object
 let^MODE_CURTAIN = 7         # mode demo's スクリプト4: image 11 fading to transparent
 let^OPENING_DIR = "assets/demos/タイトル"
 let^SCROLL_SECONDS = 35
@@ -57,6 +68,8 @@ public^let^Demos = def^{
         let^s = self^.play(self^.title)
         s.item := 0
         s.extras := { systemRun(systemDir, system, CURSOR, ITEM_X, ITEM_Y[0] ?? 70) }
+        s.practiceLabel := vp.arena.texture(PRACTICE_LABEL)
+        s.practiceCaption := vp.arena.texture(PRACTICE_CAPTION)
         let^st = s.layers
         if^st != nil^ {
             for^k, l in^st.layers {
@@ -95,7 +108,9 @@ public^let^Scene = def^{
         frames = 0,
         time = 0,                   # frames it lasts, 0: no limit
         skip = false^,              # a button ends it
-        item = 0,                   # the title menu's choice (0 story, 1 VS)
+        item = 0,                   # the title menu's choice (0 story, 1 VS, 2 practice)
+        practiceLabel : love.graphics.Texture|nil^= nil^,
+        practiceCaption : love.graphics.Texture|nil^= nil^,
         done = false^,
         exitFrames = -1,
         confirmSound : love.audio.Source|nil^= nil^,
@@ -195,7 +210,8 @@ public^let^Scene = def^{
         let^cursor = self^.extras[0]
         if^cursor != nil^ {
             if^up or^down {
-                self^.item := (self^.item + 1) % 2    # two items: story, VS
+                let^count = ITEM_Y.length^
+                self^.item := (self^.item + (if^down: 1 el^: count - 1;)) % count
                 cursor.y := ITEM_Y[self^.item] ?? 92
             }
             if^pressed != 0 {
@@ -236,8 +252,30 @@ public^let^Scene = def^{
         }
         vp.round.byDepth(list)
         st.draw(0, 0, 0, st.players)
+        let^label = self^.practiceLabel
+        if^label != nil^ {
+            let^dx, dy = vp.locale.offset(PRACTICE_LABEL)
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.draw(label, PRACTICE_LABEL_X + dx, PRACTICE_LABEL_Y + dy)
+        }
+        # On PRACTICE MODE, #107 (which knows only story and VS) gives way to
+        # the practice caption, drawn where it shows its own.
+        let^practice = self^.item = PRACTICE
+        let^caption = self^.practiceCaption
+        let^show = p^i:vp.round.Item{
+            let^f = i.f
+            if^practice and^f != nil^ and^f.skillNo = CAPTION {
+                if^caption != nil^ and^f.alive {
+                    let^dx, dy = vp.locale.offset(PRACTICE_CAPTION)
+                    love.graphics.setColor(1, 1, 1, 1)
+                    love.graphics.draw(caption, f.x + f.ix + dx, f.y + f.iy + dy)
+                }
+                return^
+            }
+            i.draw()
+        }
         for^i in^list {
-            if^i.depth <= 100 { i.draw() }
+            if^i.depth <= 100 { show(i) }
         }
         for^k, l in^st.layers {
             if^k >= st.players and^k != self^.curtainLayer {
@@ -245,7 +283,7 @@ public^let^Scene = def^{
             }
         }
         for^i in^list {
-            if^i.depth > 100 { i.draw() }
+            if^i.depth > 100 { show(i) }
         }
         # Deliberate presentation change: the original fade layer (depth 100)
         # covers the cursor (101) and its caption (127), keeping its own timing.

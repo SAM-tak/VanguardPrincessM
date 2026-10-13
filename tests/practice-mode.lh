@@ -1,0 +1,99 @@
+module^vp.practicemodetest
+import^love.keyboard
+import^love.event
+import^love.timer
+require^"../main.lh"
+require^"../src/arena.lh"
+require^"../src/input.lh"
+
+# PRACTICE MODE: the menu's third item leads through VS's select (1P picks
+# both sides) to a match
+# already in practice (system variable 140 = 500) with the clock off, where
+# the original's F switch does nothing and ESC opens the practice menu
+# (guard setting, resume, back to the select screen). In VS mode the F switch no longer starts practice either.
+var^phase = 0
+var^wait = 0
+var^fighting = 0             # frames into the round's fight: the switch answers only then
+var^began = 0
+let^Key = love.keyboard.Key
+let^press = p^key:love.keyboard.Key{ vp.main.keypressed(key, love.keyboard.Scancode.unknown, false^) }
+# The original's switch: 2P's F, then 1P's F (battle reads held keys).
+let^switch = p^{
+    if^fighting % 40 = 10 { vp.input.tap(Key.leftbracket) }
+    if^fighting % 40 = 25 { vp.input.tap(Key.d) }
+}
+public^let^load = p^{ began := love.timer.getTime() vp.main.load() }
+public^let^update = p^dt:number^{
+    vp.main.update(0.02)
+    let^where = vp.arena.names()
+    let^s = vp.main.status()
+    if^phase = 0 and^where = "system / opening" { press(Key.z) phase := 1
+    elseif^phase = 1: press(Key.z) phase := 2
+    elseif^phase = 2 and^where = "system / title":
+        wait += 1
+        # One move per frame: the menu reads "down was pressed", not how often.
+        if^wait = 20 or^wait = 30 { press(Key.down) }
+        if^wait = 40 { press(Key.z) phase := 3 }
+    # 1P's keys alone: confirm 1P's side, then move 2P's down a row (はるか)
+    # and confirm it.
+    elseif^phase = 3 and^where = "system / select" and^!s.loading: press(Key.z) phase := 4 wait := 0
+    elseif^phase = 4:
+        wait += 1
+        if^wait = 10 { press(Key.down) }
+        if^wait = 20 { press(Key.z) phase := 6 wait := 0 }
+    elseif^phase = 6 and^s.phase = "battle":
+        wait += 1
+        if^!s.practice { panic^"PRACTICE MODE did not start a practice match" }
+        if^s.playerCode != 100 or^s.enemyCode != 200 { panic^$"1P alone should pick ゆい and はるか: {s.playerCode} / {s.enemyCode}" }
+        if^s.modeVariable != 500 { panic^$"practice match without practice: variable 140 = {s.modeVariable}" }
+        if^s.roundFrames < 1000000 { panic^"practice match has a running clock" }
+        if^s.roundPhase = "fight" { fighting += 1 switch() }
+        if^fighting > 150 {
+            # ESC opens the practice menu over the frozen match; right sets
+            # the opponent's guard to "everything"; ESC resumes.
+            press(Key.escape)
+            let^opened = vp.main.status()
+            if^!opened.paused or^!opened.practiceMenu { panic^"ESC did not open the practice menu" }
+            let^before = opened.guard
+            press(Key.right)
+            if^vp.main.status().guard != (before + 1) % 4 { panic^"right did not change the guard setting" }
+            press(Key.escape)
+            let^resumed = vp.main.status()
+            if^resumed.paused or^resumed.practiceMenu { panic^"ESC did not close the practice menu" }
+            # The menu's last item goes back to the select screen.
+            press(Key.escape)
+            press(Key.down)
+            press(Key.down)
+            press(Key.z)
+            phase := 7
+            fighting := 0
+        }
+    elseif^phase = 7 and^s.phase = "select" and^where = "system / select":
+        print("practice: 1P picks both sides, 140 = 500 throughout, no clock, F switch inert, ESC menu: guard, resume, select")
+        press(Key.f8)
+        phase := 8
+        wait := 0
+    elseif^phase = 8 and^where = "system / opening": press(Key.z) phase := 13
+    elseif^phase = 13 and^where = "system / title":
+        wait += 1
+        if^wait = 20 { press(Key.down) }
+        if^wait = 40 { press(Key.z) phase := 9 }
+    elseif^phase = 9 and^where = "system / select" and^!s.loading: press(Key.z) phase := 10
+    elseif^phase = 10: press(Key.j) phase := 11
+    elseif^phase = 11: press(Key.l) phase := 12 wait := 0
+    elseif^phase = 12 and^s.phase = "battle":
+        wait += 1
+        if^s.practice { panic^"VS MODE started in practice" }
+        if^s.modeVariable != 0 { panic^$"VS F switch changed variable 140 to {s.modeVariable}" }
+        if^s.roundPhase = "fight" { fighting += 1 switch() }
+        if^fighting > 150 {
+            press(Key.escape)
+            if^!vp.main.status().paused { panic^"ESC no longer pauses VS" }
+            print("PASS: PRACTICE MODE: 1P picks both, starts in practice, ESC menu sets the guard and leads back to select; VS F switch inert, ESC pauses")
+            love.event.quit()
+        }
+    }
+    if^love.timer.getTime() - began > 150 { panic^$"practice mode test timeout at phase {phase}" }
+}
+public^let^draw = p^{ vp.main.draw() }
+public^let^quit = p^-> bool^{ return^vp.main.quit() }
