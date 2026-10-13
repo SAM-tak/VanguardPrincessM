@@ -14,7 +14,9 @@
 # text = "..." or runs = { { text = "...", fontSize = n, color = {...} }, ... }
 # set on one line, bottoms aligned, shrunk to fit the rect's width; or
 # lines = { <a text or runs line>, ... } stacked (leading = n pixels between),
-# each aligned and shrunk on its own. font (a file; LOVE's default when
+# each aligned and shrunk on its own (a line's indent = n puts it n pixels
+# in). Each run is filled in its own colour. underline = true^ rules a line
+# under the block. font (a file; LOVE's default when
 # absent), fontSize, color = { r, g, b }, outline = { color = { r, g, b },
 # width = n } are defaults for the runs, and a run may name its own font.
 # weight = n (1 by default) thickens the fill of thin strokes; stretch = n
@@ -83,18 +85,20 @@ public^let^offset = p^path:string^-> number^, number^{
     return^0, 0
 }
 
-# Drawn from a canvas holding white text: the text in `fill`, and `edge`
+# Drawn from a canvas holding the coloured text (premultiplied, as drawn
+# onto a clear canvas): the text in its own colours, and `edge`
 # where the text is within `radius` pixels (a square: the pixel art's
 # outline). `weight` above 1 fills thin, faint strokes (small text's dashes
 # and quotes) instead of letting the edge colour show through them. The
 # result is straight (not premultiplied) alpha.
 let^outlineCode = "extern vec2 texel;
 extern number radius;
-extern vec4 fill;
 extern vec4 edge;
 extern number weight;
 vec4 effect(vec4 color, Image tex, vec2 uv, vec2 sc) {
-    float a = min(Texel(tex, uv).a * weight, 1.0);
+    vec4 c = Texel(tex, uv);
+    vec3 fill = c.a > 0.0 ? c.rgb / c.a : vec3(1.0);
+    float a = min(c.a * weight, 1.0);
     float near = 0.0;
     for (int dy = -4; dy <= 4; dy++) {
         for (int dx = -4; dx <= 4; dx++) {
@@ -103,7 +107,7 @@ vec4 effect(vec4 color, Image tex, vec2 uv, vec2 sc) {
             }
         }
     }
-    return vec4(mix(edge.rgb, fill.rgb, a), max(a * fill.a, near * edge.a));
+    return vec4(mix(edge.rgb, fill, a), max(a, near * edge.a));
 }
 "
 var^outline : love.graphics.Shader|nil^= nil^
@@ -143,6 +147,7 @@ public^let^render = p^path:string^-> love.graphics.Texture|nil^{
     let^colour : any^= if^e fits^t^{ color : any^ }: e.color el^: nil^;
     # The lines, each a list of runs; text = "..." or runs = {...} is one line.
     var^lines : t^{t^{Run[]}[]} = {}
+    var^indents : t^{number^[]} = {}     # a line's indent = n: pixels before it
     let^addRun = p^into:t^{Run[]}, r:any^{
         var^text = ""
         var^size = baseSize
@@ -162,7 +167,10 @@ public^let^render = p^path:string^-> love.graphics.Texture|nil^{
         else^:
             addRun(runs, l)
         }
-        if^runs.length^ > 0 { lines.push^(runs) }
+        if^runs.length^ > 0 {
+            lines.push^(runs)
+            indents.push^(if^l fits^t^{ indent : number^ }: l.indent el^: 0;)
+        }
     }
     if^e fits^t^{ lines : t^{any^[]} } {
         for^l in^e.lines { addLine(l) }
@@ -201,6 +209,8 @@ public^let^render = p^path:string^-> love.graphics.Texture|nil^{
             if^current.length^ > 0 { wrapped.push^(current) }
         }
         lines := wrapped
+        indents := {}
+        for^line in^lines { indents.push^(0) }
     }
     let^align = if^e fits^t^{ align : string^ }: e.align el^: "left";
     let^valign = if^e fits^t^{ valign : string^ }: e.valign el^: "middle";
@@ -221,8 +231,9 @@ public^let^render = p^path:string^-> love.graphics.Texture|nil^{
             lw += r.font.getWidth(r.text) * stretch
             lh := std.math.max(lh, r.font.getHeight())
         }
-        let^scale = if^lw > rw and^lw > 0: rw / lw el^: 1;
-        widths.push^(lw * scale)
+        let^room = rw - (indents[index^] ?? 0)
+        let^scale = if^lw > room and^lw > 0: room / lw el^: 1;
+        widths.push^(lw * scale + (indents[index^] ?? 0))
         heights.push^(lh * scale)
         scales.push^(scale)
         total += lh * scale
@@ -238,21 +249,21 @@ public^let^render = p^path:string^-> love.graphics.Texture|nil^{
     love.graphics.origin()
     love.graphics.setShader()
 
-    # The text, white; the colours come in with the outline pass.
+    # The text in its colours; the outline pass adds the edge.
     let^text = love.graphics.newCanvas(w, h)
     love.graphics.setCanvas(text)
     love.graphics.clear(0, 0, 0, 0)
     love.graphics.setBlendMode(love.graphics.BlendMode.alpha)
-    love.graphics.setColor(1, 1, 1, 1)
     var^first : Run|nil^= nil^
     for^line in^lines {
         let^k = index^
         let^scale = scales[k] ?? 1
         let^bottom = top + (heights[k] ?? 0)
         let^lw = widths[k] ?? 0
-        var^x = rx + (if^align = "center": (rw - lw) / 2 el^align = "right": rw - lw el^: 0;)
+        var^x = rx + (indents[k] ?? 0) + (if^align = "center": (rw - lw) / 2 el^align = "right": rw - lw el^: 0;)
         for^r in^line {
             if^first is^nil^ { first := r }
+            love.graphics.setColor(r.r, r.g, r.b, 1)
             love.graphics.setFont(r.font)
             let^h2 = r.font.getHeight() * scale
             # The shear pivots on the top; moved so the slant leans from the bottom.
@@ -261,8 +272,13 @@ public^let^render = p^path:string^-> love.graphics.Texture|nil^{
         }
         top := bottom + leading
     }
+    # underline = true^: a rule under the block across the rect, in the first
+    # run's colour (the stage names' underline).
+    if^e fits^t^{ underline : bool^ } and^e.underline {
+        love.graphics.setColor(first?.r ?? 1, first?.g ?? 1, first?.b ?? 1, 1)
+        love.graphics.rectangle(love.graphics.DrawMode.fill, rx, (top - leading + 2).floor(), rw, 2)
+    }
 
-    # The first run's colour fills the text (per-run colours: TODO when needed).
     let^edge : any^= if^e fits^t^{ outline : t^{ color : any^ } }: e.outline.color el^: nil^;
     let^radius = if^e fits^t^{ outline : t^{ width : number^ } }: e.outline.width el^: 0;
     let^out = love.graphics.newCanvas(w, h)
@@ -274,7 +290,6 @@ public^let^render = p^path:string^-> love.graphics.Texture|nil^{
         s.send("texel", { 1 / w, 1 / h })
         s.send("radius", radius)
         s.send("weight", if^e fits^t^{ weight : number^ }: e.weight el^: 1;)
-        s.send("fill", { first?.r ?? 1, first?.g ?? 1, first?.b ?? 1, 1 })
         s.send("edge", { number(edge, 0, 0), number(edge, 1, 0), number(edge, 2, 0), if^radius > 0: 1 el^: 0; })
         love.graphics.setShader(s)
     }
