@@ -2741,7 +2741,7 @@
 
 ["assets/demos/ランダムかえで/images/0045.png"] = {
     lines = {
-        { text = "You seem so different now..." },
+        { text = "You've changed a lot..." },
         { text = "...Have you lost your memory?" },
     },
     leading = 8, weight = 2,

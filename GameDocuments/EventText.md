@@ -411,7 +411,7 @@ What are you looking at?
 assets\demos\ランダムかえで\images\0041.png
 あなたの身に付けている鈴。
 見覚えがあるわ。
-> はるかのセリフ
+> えりのセリフ
 
 ```text
 That bell you're wearing.
@@ -421,7 +421,7 @@ I've seen it before.
 assets\demos\ランダムかえで\images\0043.png
 …あなたセクターBにいたでしょ？
 わたしも、政府の研究機関にいたことがあるの。
-> はるかのセリフ
+> えりのセリフ
 
 ```text
 ...You were in Sector B, weren't you?
@@ -431,10 +431,10 @@ I spent some time at the government's research institute too.
 assets\demos\ランダムかえで\images\0045.png
 だいぶ雰囲気変わったみたいだけど…。
 …もしかして記憶がないの？
-> はるかのセリフ
+> えりのセリフ
 
 ```text
-You seem so different now...
+You've changed a lot...
 ...Have you lost your memory?
 ```
 
