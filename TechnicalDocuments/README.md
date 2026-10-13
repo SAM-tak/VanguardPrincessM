@@ -220,6 +220,7 @@
 - [0141-selective-preload-oracle.md](0141-selective-preload-oracle.md) — selective-preloadの判定を「未選択サポートのフォルダ」から「本体・選択サポートが参照しない素材」へ。所有整理後の失敗を解消。
 - [0142-match-load-throughput.md](0142-match-load-throughput.md) — 試合前ロードの計測。ワーカー本数・同時件数・予算は律速でない。原作はカーソル時点で先読み。ロード中のデバッグ表示。
 - [0143-system-object-parent-position.md](0143-system-object-parent-position.md) — システムのOは "parent" のときだけ親基準、他は画面座標。試合前演出のきらめきが画面左上に出ていた件。
-- [0144-localized-images.md](0144-localized-images.md) — 文字画像をロケールごとにフォント描画のCanvasへ置き換え（パスでテクスチャをすり替え、大きさ・枠・オフセット・縁取り）。英語の名前表示で試作。
+- [0144-localized-images.md](0144-localized-images.md) — 文字画像をロケールごとにフォント描画のCanvasへ置き換え（パスでテクスチャをすり替え、大きさ・枠・オフセット・縁取り）。英語の名前表示で試作。 F8 で表を読み直す。
 - [0145-practice-mode.md](0145-practice-mode.md) — PRACTICE MODEをモードメニューの独立項目に。原作の試合中F切替（V140=300→500）を、V140に300/500を書く技の生成停止で無効化。
 - [0146-support-no-wall-recoil.md](0146-support-no-wall-recoil.md) — 画面端の押し戻しはサポート（本体の管理番号5とその子）の攻撃では返さず、本体の攻撃でのみ返す。
+- [0147-settings-and-fullscreen.md](0147-settings-and-fullscreen.md) — 設定ファイル settings.json（"lang"・"fullscreen"、lang が無ければ OS の優先言語、JSON なのは配布版エンジンがLTONテキストを読めないため。lhat-love に std.json を登録）と、Alt+Enter のデスクトップフルスクリーン（1280x960 を拡縮・中央寄せ・黒帯）。

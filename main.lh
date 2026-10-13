@@ -12,7 +12,7 @@
 #   F1             show boxes      1-8         palette
 #   F2             opponent at 1 life (the next hit KOs); F3 sound log
 #   t              (select screen) the stage: random, or one of them in turn
-#   F8             return to title from any scene (development)
+#   F8             return to title from any scene, settings.json and the locale table read again (development)
 #   escape         back (quit on title); pause/resume during battle
 #   return         confirm menus; pause/resume during battle (gamepad Start)
 #
@@ -26,6 +26,7 @@ import^love.timer
 import^love.math
 import^love.audio
 import^love.filesystem
+import^love.window
 import^std.math
 
 require^"src/arena.lh"
@@ -45,6 +46,8 @@ require^"src/practicemenu.lh"
 require^"src/cpu.lh"
 require^"src/input.lh"
 require^"src/media.lh"
+require^"src/settings.lh"
+require^"src/locale.lh"
 
 let^Fighter = vp.fighter.Fighter
 let^Key = love.keyboard.Key
@@ -58,6 +61,10 @@ let^WORLD_H = 960
 let^VIEW_W = 640
 let^VIEW_H = 480
 let^SCALE = 2
+# The window conf.lton opens; a larger one (fullscreen) shows the same,
+# scaled to fit and centred, with black bars.
+let^WINDOW_W = VIEW_W * SCALE
+let^WINDOW_H = VIEW_H * SCALE
 # Measured in the original's memory (TechnicalDocuments/0011).
 let^GROUND = 920
 let^WALL_GROUND = 50         # Original EXE uses [50, 1230] on the ground and in the air.
@@ -699,6 +706,7 @@ let^prepare = p^kind:string^{
 }
 
 public^let^load = p^{
+    if^vp.settings.fullscreen() { love.window.setFullscreen(true^) }
     vp.media.prepare()
     # Finish incremental cycles before transient battle objects accumulate.
     # Configure before loading so task workers inherit the same pacing.
@@ -901,6 +909,12 @@ let^debugTitle = p^{
     if^l != nil^ { l.batch.cancel() pending := nil^ }
     love.audio.stop()
     vp.arena.popToRoot()
+    # The locale's table read again (an edited images.lton shows): what was
+    # drawn from the old one and what the new one draws are dropped.
+    let^before = vp.locale.keys()
+    vp.locale.reload()
+    vp.arena.forget(before)
+    vp.arena.forget(vp.locale.keys())
     campaign := nil^
     selecting := nil^
     matchArena := nil^
@@ -1248,9 +1262,8 @@ let^drawScene = p^{
     if^paused and^!(practiceMode and^vp.practicemenu.isOpen()) {
         let^tex = vp.arena.texture($"{SYSTEM}/images/0165.png")
         if^tex != nil^ {
-            let^w, h = love.graphics.getDimensions()
             love.graphics.setColor(1, 1, 1, 1)
-            love.graphics.draw(tex, 0, 0, 0, w / 640, h / 480)
+            love.graphics.draw(tex, 0, 0, 0, WINDOW_W / 640, WINDOW_H / 480)
         }
         return^
     }
@@ -1391,12 +1404,35 @@ let^drawScene = p^{
 }
 
 public^let^draw = p^{
+    let^w, h = love.graphics.getDimensions()
+    let^k = std.math.min(w / WINDOW_W, h / WINDOW_H)
+    let^ox = ((w - WINDOW_W * k) / 2).floor()
+    let^oy = ((h - WINDOW_H * k) / 2).floor()
+    love.graphics.push()
+    love.graphics.translate(ox, oy)
+    love.graphics.scale(k)
+    drawGame()
+    love.graphics.pop()
+    # The bars: what the scaled game leaves of the window.
+    love.graphics.setColor(0, 0, 0, 1)
+    if^ox > 0 {
+        love.graphics.rectangle(love.graphics.DrawMode.fill, 0, 0, ox, h)
+        love.graphics.rectangle(love.graphics.DrawMode.fill, w - ox - 1, 0, ox + 1, h)
+    }
+    if^oy > 0 {
+        love.graphics.rectangle(love.graphics.DrawMode.fill, 0, 0, w, oy)
+        love.graphics.rectangle(love.graphics.DrawMode.fill, 0, h - oy - 1, w, oy + 1)
+    }
+    love.graphics.setColor(1, 1, 1, 1)
+}
+
+let^drawGame = p^{
     drawScene()
     if^paused { vp.practicemenu.draw(dummyGuard, showBoxes) }
     # What the pending load is reading (source runs only, like other debug text).
     if^pending != nil^ {
         let^paths, waiting = vp.resource.progress()
-        let^_, h = love.graphics.getDimensions()
+        let^h = WINDOW_H
         let^what = if^paths.length^ = 0: "  (preparing)" el^: "";
         debugText($"loading {pendingKind}: {paths.length^} in flight, {waiting} waiting{what}", 16, h - 32)
         for^path in^paths { debugText(path, 16, h - 52 - 18 * index^) }
@@ -1414,6 +1450,16 @@ let^addButton = f^mask:number^, bit:number^-> number^{
 }
 
 public^let^keypressed = p^key:love.keyboard.Key, scancode:love.keyboard.Scancode, isrepeat:bool^{
+    # Alt+Enter: fullscreen (a borderless window over the desktop) or not,
+    # kept in settings.json. The Enter is not Start.
+    if^key = Key.return and^(love.keyboard.isDown(Key.lalt) or^love.keyboard.isDown(Key.ralt)) {
+        if^!isrepeat {
+            let^on = !vp.settings.fullscreen()
+            love.window.setFullscreen(on)
+            vp.settings.setFullscreen(on)
+        }
+        return^
+    }
     if^key = Key.f8 { if^!isrepeat { debugTitle() } return^ }
     if^attract {
         let^action = key = Key.z or^key = Key.x or^key = Key.c or^key = Key.a or^key = Key.s or^key = Key.d or^

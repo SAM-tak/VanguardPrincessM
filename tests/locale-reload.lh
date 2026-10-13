@@ -1,0 +1,56 @@
+module^vp.localereloadtest
+import^love.keyboard
+import^love.event
+import^love.filesystem
+require^"../main.lh"
+require^"../src/arena.lh"
+
+# F8 reads the locale table again: an edited images.lton shows without a
+# restart. The edit is a copy in the save directory, which PhysFS finds
+# before the game's; it and the player's settings are put back afterwards.
+let^COPY = "data/locale/en/images.lton"
+let^KEY = "locale:mode-menu/story"
+var^phase = 0
+var^previous : string^|nil^ = nil^
+let^press = p^key:love.keyboard.Key{ vp.main.keypressed(key, love.keyboard.Scancode.unknown, false^) }
+
+let^tidy = p^{
+    let^copy = love.filesystem.remove(COPY)
+    let^en = love.filesystem.remove("data/locale/en")
+    let^locale = love.filesystem.remove("data/locale")
+    let^data = love.filesystem.remove("data")
+    let^old = previous
+    if^old fits^string^ { let^_ = love.filesystem.write("settings.json", old)
+    else^: let^_ = love.filesystem.remove("settings.json") }
+}
+let^fail = p^why:string^{ tidy() panic^why }
+
+public^let^load = p^{
+    previous := love.filesystem.read("settings.json") catch^nil^
+    let^_ = love.filesystem.write("settings.json", "{\"lang\": \"en\"}")
+    vp.main.load()
+}
+public^let^update = p^dt:number^{
+    vp.main.update(0.02)
+    let^where = vp.arena.names()
+    if^phase = 0 and^where = "system / opening" {
+        let^before = vp.arena.texture(KEY)
+        if^before is^nil^ { fail("no label before the edit") }
+        let^w, h = before?.getDimensions() ?? (0, 0)
+        if^w != 260 or^h != 26 { fail($"label before the edit {w}x{h}") }
+        let^made = love.filesystem.createDirectory("data/locale/en")
+        let^written = love.filesystem.write(COPY, "[\"locale:mode-menu/story\"] = { text = \"EDITED\", size = { 300, 40 } },\n") catch^false^
+        press(love.keyboard.Key.f8)
+        phase := 1
+    elseif^phase = 1 and^where = "system / opening":
+        let^after = vp.arena.texture(KEY)
+        if^after is^nil^ { fail("no label after F8") }
+        let^w, h = after?.getDimensions() ?? (0, 0)
+        if^w != 300 or^h != 40 { fail($"F8 kept the old label: {w}x{h}") }
+        if^vp.arena.texture("locale:mode-menu/vs") != nil^ { fail("an entry the edit removed is still drawn") }
+        tidy()
+        print("PASS: F8 reads the edited locale table and draws its entries anew")
+        love.event.quit()
+    }
+}
+public^let^draw = p^{}

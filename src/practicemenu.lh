@@ -73,15 +73,18 @@ let^fontFor = p^file:string^, size:number^-> love.graphics.Font {
     return^font
 }
 
-# Drawn in window pixels (sharp text whatever the scale), over the match.
+# Drawn in the game window's pixels (sharper text than view pixels), over
+# the match; main.lh scales the window to the screen.
+let^WINDOW_W = 1280
+let^WINDOW_H = 960
 public^let^draw = p^guard:number^, boxes:bool^{
     if^!shown { return^}
     let^words = if^vp.locale.locale() = "en": EN el^: JA;
-    let^w, h = love.graphics.getDimensions()
+    let^w = WINDOW_W
+    let^h = WINDOW_H
     let^u = h / 480                 # one view pixel
     let^previous = love.graphics.getFont()
     love.graphics.push()
-    love.graphics.origin()
     love.graphics.setColor(0, 0, 0, 0.55)
     love.graphics.rectangle(love.graphics.DrawMode.fill, 0, 0, w, h)
     let^bw = 360 * u

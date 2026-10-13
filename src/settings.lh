@@ -1,0 +1,58 @@
+# The player's settings: settings.json in the save directory (TechnicalDocuments/0147).
+# "lang" is the locale (src/locale.lh), "fullscreen" the window (Alt+Enter);
+# key configuration is to join them. Keys this version does not know are kept
+# when it writes the file back. JSON rather than LTON: a distributed engine
+# has no front end, and std.lton reads through one.
+module^vp.settings
+
+import^love.filesystem
+import^std.json
+
+let^FILE = "settings.json"
+
+var^data : t^{[string^]:any^} = {}
+var^loaded = false^
+
+let^load = p^{
+    if^loaded { return^}
+    loaded := true^
+    let^text = love.filesystem.read(FILE) catch^nil^
+    if^text fits^string^ {
+        let^raw = std.json.decode(text) catch^nil^
+        if^raw fits^t^{[string^]:any^} { data := raw
+        else^: print($"Settings not read: {FILE} is not a JSON object") }
+    }
+}
+
+# Read the file again on next use (vp.locale.reload).
+public^let^reload = p^{
+    data := {}
+    loaded := false^
+}
+
+let^save = p^{
+    let^text = try^std.json.encode(data)
+    let^written = love.filesystem.write(FILE, text) catch^"failed"
+    if^written fits^string^ { print($"Settings not written: {FILE}") }
+catch^:
+    print($"Settings not written: {it^.message}")
+}
+
+# The locale's name, "" when none is set.
+public^let^lang = p^-> string^{
+    load()
+    let^v = data["lang"]
+    return^if^v fits^string^: v el^: "";
+}
+
+public^let^fullscreen = p^-> bool^{
+    load()
+    let^v = data["fullscreen"]
+    return^v fits^bool^ and^v
+}
+
+public^let^setFullscreen = p^on:bool^{
+    load()
+    data["fullscreen"] := on
+    save()
+}

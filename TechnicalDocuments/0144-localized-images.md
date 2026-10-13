@@ -10,7 +10,7 @@
 描画側（I ブロック、ブレンド、COLOR の色加算、HUD の `drawPart`、ステージ）は変更不要。
 
 - `src/locale.lh`（`vp.locale`）
-  - ロケール: セーブディレクトリ（またはゲーム側）の `locale.txt` の1行目。無ければ `ja`。L^ からはコマンドライン引数・環境変数が取れないため
+  - ロケール: セーブディレクトリの `settings.json` の `"lang"`（[0147](0147-settings-and-fullscreen.md)）。無ければ OS の優先言語のうちゲームにあるもの、それも無ければ `en`。当初は `locale.txt` の1行目（L^ からはコマンドライン引数・環境変数が取れないため）
   - 上書き表: `data/locale/<locale>/images.lton`。キーは実ファイルのパス（共有プールはハッシュ名なので、複数キャラの同一画像も1件）
   - `render(path)`: 文字を白で Canvas に描き、後処理シェーダーで塗り色と縁取り（正方形＝ピクセルアートの縁）を付ける。読み込み時の1回のみ
 - `src/sprite.lh`（Sheet）: 置き換えた画像は rgba 扱い（`isIndexed` が偽。パレット画像の 0242 など）。`draw` / `drawPart` で項目の `offset` を加算
@@ -53,7 +53,7 @@
   - 原画像の I ブロックの y が 23〜26 とまちまちなので、オフセットで上端を揃える。y=24 では原画像（文字 y 26〜37）より文字の中心が約2px 低く見えたため（ユーザー指摘）、y=22
 - 英語表記は Claude の判断（公式英語版の表記と照合していない）
 - 確認: 全17枚を HUD と同じ座標で描く一時プローブで撮影。VS の実画面でも 1P「Yui and Eko」、2P「はるか and Eko」（この時点では 270 未登録）を確認
-- `tests/locale-image.lh`（`-Test locale-image`）: `locale.txt` を一時的に en にし、Canvas の大きさ・オフセット・rgba 扱い・未登録画像の不変を確認
+- `tests/locale-image.lh`（`-Test locale-image`）: `settings.json` を一時的に `{"lang": "en"}` にし（元の内容は戻す）、Canvas の大きさ・オフセット・rgba 扱い・未登録画像の不変を確認
 - 既定（ja）で match-intro・system-object-position・story-continue・victory-preload・selective-preload PASS
 
 ## 英語: ロード画面のネームプレート（全17枚）
@@ -141,7 +141,17 @@
 
 ## 言語の決め方（未実装・方針）
 
-`locale.txt` は試作用の仮の切り替え。本番は、オプション画面などの設定の仕組み（キーコンフィグと共通）を決めてから実装する（ユーザー判断、2026-10-12）。
+`locale.txt` は試作用の仮の切り替えだった。設定ファイル `settings.json`（キーコンフィグ等と共通）に一本化し、`locale.txt` は読まなくなった（[0147](0147-settings-and-fullscreen.md)）。オプション画面は未実装
 
 - 既定は OS のロケール: `love.system.getPreferredLocales()`（lhat-love で公開済み）を先頭から見て、上書き表を持つ言語に当たれば採用（`en-US` → `en`）。無ければ `ja`
 - プレイヤーが設定で言語を選べるようにし、その設定を最優先にする
+
+## F8 で表を読み直す（2026-10-14）
+
+開発中に `images.lton` を直しても再起動しないと反映されなかったため、F8（開発用のタイトル復帰、`main.lh` の `debugTitle`）で読み直す。
+`vp.locale.reload` が `settings.json`（`vp.settings.reload`）と表を捨てて次の使用時に読み直させ、`vp.arena.forget` が旧表と新表のキーのテクスチャを
+全アリーナから破棄して世代を進める（Sheet は世代でキャッシュを作り直す。どの画像がローカライズ済みかの記録 `localized` / `shiftX` / `shiftY` も
+作り直すよう変更）。新表に無くなったキーは、次から元の画像ファイル（あれば）になる。
+`tests/locale-reload.lh`（`-Test locale-reload`）: 保存ディレクトリに同名の `data/locale/en/images.lton` を置き（PhysFS はゲームより先に見る）、
+F8 後に大きさの変わった項目が描き直され、消した項目が描かれないことを確認。置いたファイルと設定は戻す。
+

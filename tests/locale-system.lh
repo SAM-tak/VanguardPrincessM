@@ -1,0 +1,28 @@
+module^vp.localesystemtest
+import^love.event
+import^love.filesystem
+import^love.system
+require^"../src/locale.lh"
+
+# Without "lang" in settings.json the locale is the OS's first preferred
+# language the game has (ja, en), else en. The player's settings are put
+# back afterwards.
+public^let^load = p^{
+    let^previous = love.filesystem.read("settings.json") catch^nil^
+    let^_ = love.filesystem.write("settings.json", "{\"fullscreen\": false}")
+    let^chosen = vp.locale.locale()
+    if^previous fits^string^ { let^_ = love.filesystem.write("settings.json", previous)
+    else^: let^_ = love.filesystem.remove("settings.json") }
+
+    let^preferred = love.system.getPreferredLocales()
+    var^expected = "en"
+    for^tag in^preferred {
+        let^language = ((tag.split("_")[0] ?? "").split("-")[0] ?? "").tolower()
+        if^language = "ja" or^language = "en" { expected := language break^ }
+    }
+    print($"preferred: {preferred.join^(", ")} -> {chosen}")
+    if^chosen != expected { panic^$"locale {chosen}, expected {expected}" }
+    print("PASS: without lang, the locale follows the OS's preferred languages")
+    love.event.quit()
+}
+public^let^draw = p^{}

@@ -26,26 +26,40 @@ module^vp.locale
 
 import^love.graphics
 import^love.filesystem
+import^love.system
 import^std.lton
 import^std.math
+require^"settings.lh"
 
 public^let^ORIGINAL = "ja"
+# Where the OS prefers no language the game has.
+let^FALLBACK = "en"
 
 var^current = ""
 var^entries : t^{[string^]:any^} = {}
 var^loaded = false^
 
-# The locale: the first line of locale.txt in the save directory (or the
-# game's), else the original's.
+# A locale the game has: the original's, or one with a folder of its own.
+let^known = p^name:string^-> bool^{
+    return^name = ORIGINAL or^love.filesystem.getInfo($"data/locale/{name}") != nil^
+}
+
+# The OS's preferred languages in order ("ja_JP", "en-US", ...), the first
+# the game has, else FALLBACK. Not written to settings.json, so a change of
+# the OS's language is followed.
+let^fromSystem = p^-> string^{
+    for^tag in^love.system.getPreferredLocales() {
+        let^language = ((tag.split("_")[0] ?? "").split("-")[0] ?? "").tolower()
+        if^language != "" and^known(language) { return^language }
+    }
+    return^FALLBACK
+}
+
+# The locale: settings.json's "lang" (src/settings.lh), else the OS's.
 public^let^locale = p^-> string^{
     if^current = "" {
-        let^text = love.filesystem.read("locale.txt") catch^nil^
-        var^name = ORIGINAL
-        if^text fits^string^ {
-            let^line = ((text.split("\n")[0] ?? "").split("\r")[0] ?? "").split(" ")[0] ?? ""
-            if^line != "" { name := line }
-        }
-        current := name
+        let^name = vp.settings.lang()
+        current := if^name != "": name el^: fromSystem();
     }
     return^current
 }
@@ -65,6 +79,24 @@ let^load = p^{
     loaded := true^
     let^path = $"data/locale/{locale()}/images.lton"
     if^love.filesystem.getInfo(path) != nil^ { entries := readEntries(path) }
+}
+
+# The keys of the locale's table (what vp.arena may hold a canvas for).
+public^let^keys = p^-> t^{string^[]}{
+    load()
+    var^out : t^{string^[]} = {}
+    for^k:string^, v:any^ in^entries { out.push^(k) }
+    return^out
+}
+
+# Development (F8, main.lh): settings.json and the table are read again on
+# next use, so an edited images.lton shows without restarting. What was drawn
+# from the old table is dropped by the caller (vp.arena.forget).
+public^let^reload = p^{
+    vp.settings.reload()
+    current := ""
+    entries := {}
+    loaded := false^
 }
 
 # The entry replacing the image file at path, if any.

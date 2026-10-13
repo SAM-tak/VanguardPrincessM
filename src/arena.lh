@@ -88,6 +88,24 @@ public^let^popToRoot = p^{
     repeat^while^stack.length^ > 1 { pop() }
 }
 
+# These paths' textures leave every arena, disposed, and the caches start
+# over: a localized image drawn from a table that has since changed
+# (vp.locale.reload) is drawn again, or the file loaded, on next use.
+public^let^forget = p^paths:t^{string^[]}{
+    let^drop = p^a:Arena{
+        for^path in^paths {
+            let^t = a.textures[path]
+            if^t? {
+                t.dispose()
+                a.textures[path] := nil^
+            }
+        }
+    }
+    drop(resident)
+    for^a in^stack { drop(a) }
+    gen += 1
+}
+
 # The names of the arenas, bottom to top (for logging).
 public^let^names = f^-> string^{
     var^out = ""

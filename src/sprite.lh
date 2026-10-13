@@ -113,6 +113,11 @@ public^let^Sheet = def^{
         self^.paletteTried := false^
         self^.imagePalettes := {}
         self^.imagePalettesTried := {}
+        # Which images are localized is found again with them (a locale
+        # table read again may have changed it).
+        self^.localized := {}
+        self^.shiftX := {}
+        self^.shiftY := {}
     },
 
     # Whether image i is palette-indexed (images.lton says "indexed" or "rgba").
