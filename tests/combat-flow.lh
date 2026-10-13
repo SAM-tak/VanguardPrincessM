@@ -439,7 +439,7 @@ let^cornerRecoil = p^{
     let^dir = "assets/characters/ゆい"
     # No push boxes: this must work independently of FD body overlap.
     for^side in^{-1, 1} {
-        for^kind from^0 to^7 {
+        for^kind from^0 to^8 {
             let^a = Fighter.new(dir, 320, 920)
             let^d = Fighter.new(dir, if^side > 0: 588 el^: 52;, 920)
             a.enemy := d d.enemy := a
@@ -453,6 +453,7 @@ let^cornerRecoil = p^{
             if^kind = 5 { a.receiving := true^ }
             if^kind = 6 { d.owner := a }
             if^kind = 7 { d.x := 320 }
+            if^kind = 8 { d.recoilReturns := false^ }   # the support dealt the reaction
             let^expected = if^kind <= 2: -side * 4 el^: 0;
             d.step()
             if^a.x != 320 or^a.cornerPush != expected { panic^$"Corner queue: {side}/{kind}" }
@@ -464,6 +465,25 @@ let^cornerRecoil = p^{
             if^a.x != 320 + expected or^a.vx != 3 or^a.cornerPush != 0 { panic^$"Corner consume: {side}/{kind}" }
         }
     }
+    # The support is the owner's managed object 5; it and what it spawns
+    # count as the support's, the owner and its other objects do not.
+    let^owner = Fighter.new(dir, 320, 920)
+    let^support = owner.makeObject(0, 0, 320, 920, 75)
+    owner.slots[5] := support
+    let^shot = support.makeObject(0, 0, 320, 920, 75)
+    let^bodyShot = owner.makeObject(0, 0, 320, 920, 75)
+    if^!support.fromSupport() or^!shot.fromSupport() { panic^"Support attacks not recognized" }
+    if^owner.fromSupport() or^bodyShot.fromSupport() { panic^"Body attacks taken for the support's" }
+    # A hit marks whether the victim's wall clamp goes back to the attacker.
+    let^victim = Fighter.new(dir, 400, 920)
+    victim.enemy := owner
+    let^box = vp.fighter.Box.new(0, 0, 10, 10)
+    support.reactions(1, 2, 3, 4, 5, 6)
+    owner.reactions(1, 2, 3, 4, 5, 6)
+    let^g1, s1 = support.struck(box, victim, 100, false^, "")
+    if^victim.recoilReturns { panic^"A support hit still returns wall recoil" }
+    let^g2, s2 = owner.struck(box, victim, 100, false^, "")
+    if^!victim.recoilReturns { panic^"A body hit no longer returns wall recoil" }
     # Real M/SG reaction, both player orders and both walls. The lost victim
     # travel must exactly equal the opponent's retreat over the same reaction.
     let^sc = vp.script.load($"{dir}/script.lton")
@@ -491,7 +511,7 @@ let^cornerRecoil = p^{
             if^travel * side <= 0 or^(a.x - 640 + travel).abs() > 0.00001 { panic^$"Real wall recoil: {side}/{order}" }
         }
     }
-    print("PASS: corner recoil: hit/guard/air, excess only, KO/trade/object exclusions, real Yui reaction both sides/orders")
+    print("PASS: corner recoil: hit/guard/air, excess only, KO/trade/object/support exclusions, real Yui reaction both sides/orders")
     for^reaction in^{56, 59, 185} {
         for^side in^{-1, 1} {
             var^distances : t^{number^[]} = {}

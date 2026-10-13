@@ -222,3 +222,4 @@
 - [0143-system-object-parent-position.md](0143-system-object-parent-position.md) — システムのOは "parent" のときだけ親基準、他は画面座標。試合前演出のきらめきが画面左上に出ていた件。
 - [0144-localized-images.md](0144-localized-images.md) — 文字画像をロケールごとにフォント描画のCanvasへ置き換え（パスでテクスチャをすり替え、大きさ・枠・オフセット・縁取り）。英語の名前表示で試作。
 - [0145-practice-mode.md](0145-practice-mode.md) — PRACTICE MODEをモードメニューの独立項目に。原作の試合中F切替（V140=300→500）を、V140に300/500を書く技の生成停止で無効化。
+- [0146-support-no-wall-recoil.md](0146-support-no-wall-recoil.md) — 画面端の押し戻しはサポート（本体の管理番号5とその子）の攻撃では返さず、本体の攻撃でのみ返す。
