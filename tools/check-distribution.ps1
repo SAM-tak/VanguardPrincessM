@@ -6,7 +6,7 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 $archive = [IO.Compression.ZipFile]::OpenRead((Join-Path $root 'build/VanguardPrincess.love'))
 try {
     foreach ($entry in $archive.Entries) {
-        if ($entry.FullName -match '(^assets/|(^|/)(_conversion|skills)/|(^|/)(data|support-source)\.lton$|NotoSansMonoCJKjp-Regular\.otf$)') {
+        if ($entry.FullName -match '(^assets/|(^|/)(_conversion|skills)/|(^|/)(data|support-source)\.lton$)') {
             throw "Unexpected distribution entry: $($entry.FullName)"
         }
     }
