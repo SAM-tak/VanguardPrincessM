@@ -129,14 +129,10 @@ let^fontFor = p^file:string^, size:number^-> love.graphics.Font {
 
 let^Run = t^{ text:string^, font:love.graphics.Font, r:number^, g:number^, b:number^ }
 
-# The canvas replacing the image file at path, nil^ when it is not replaced.
-# Called on the main thread; the graphics state is left as it was.
-public^let^render = p^path:string^-> love.graphics.Texture|nil^{
-    let^e = entry(path)
-    if^e is^nil^ { return^nil^ }
-    let^size : any^= if^e fits^t^{ size : any^ }: e.size el^: nil^;
-    let^w = std.math.max(number(size, 0, 1), 1)
-    let^h = std.math.max(number(size, 1, 1), 1)
+# One block of text added to `out` (w x h): laid out and drawn in a canvas of
+# its own, then put through the outline pass onto out, replacing what out
+# holds unless `over` (then blended over the base image or earlier blocks).
+let^drawBlock = p^e:any^, out:love.graphics.Texture, w:number^, h:number^, over:bool^{
     let^rect : any^= if^e fits^t^{ rect : any^ }: e.rect el^: nil^;
     let^rx = number(rect, 0, 0)
     let^ry = number(rect, 1, 0)
@@ -240,15 +236,6 @@ public^let^render = p^path:string^-> love.graphics.Texture|nil^{
     }
     var^top = ry + (if^valign = "top": 0 el^valign = "bottom": rh - total el^: (rh - total) / 2;)
 
-    let^previous = love.graphics.getCanvas()
-    let^shader = love.graphics.getShader()
-    let^font = love.graphics.getFont()
-    let^mode, alphaMode = love.graphics.getBlendMode()
-    let^cr, cg, cb, ca = love.graphics.getColor()
-    love.graphics.push()
-    love.graphics.origin()
-    love.graphics.setShader()
-
     # The text in its colours; the outline pass adds the edge.
     let^text = love.graphics.newCanvas(w, h)
     love.graphics.setCanvas(text)
@@ -281,9 +268,7 @@ public^let^render = p^path:string^-> love.graphics.Texture|nil^{
 
     let^edge : any^= if^e fits^t^{ outline : t^{ color : any^ } }: e.outline.color el^: nil^;
     let^radius = if^e fits^t^{ outline : t^{ width : number^ } }: e.outline.width el^: 0;
-    let^out = love.graphics.newCanvas(w, h)
     love.graphics.setCanvas(out)
-    love.graphics.clear(0, 0, 0, 0)
     if^outline is^nil^ { outline := love.graphics.newShader(outlineCode) catch^nil^ }
     let^s = outline
     if^s fits^love.graphics.Shader {
@@ -293,9 +278,84 @@ public^let^render = p^path:string^-> love.graphics.Texture|nil^{
         s.send("edge", { number(edge, 0, 0), number(edge, 1, 0), number(edge, 2, 0), if^radius > 0: 1 el^: 0; })
         love.graphics.setShader(s)
     }
-    love.graphics.setBlendMode(love.graphics.BlendMode.replace)
+    love.graphics.setBlendMode(if^over: love.graphics.BlendMode.alpha el^: love.graphics.BlendMode.replace;)
+    love.graphics.setColor(1, 1, 1, 1)
     love.graphics.draw(text, 0, 0)
+    love.graphics.setShader()
     text.dispose()
+}
+
+# A block's settings: the entry's, with the block's own on top.
+let^merged = f^e:any^, b:any^-> t^{[string^]:any^}{
+    var^out : t^{[string^]:any^} = {}
+    if^e fits^t^{[string^]:any^} {
+        for^k:string^, v:any^ in^e {
+            if^k != "blocks" and^k != "erase" and^k != "base" { out[k] := v }
+        }
+    }
+    if^b fits^t^{[string^]:any^} {
+        for^k:string^, v:any^ in^b { out[k] := v }
+    }
+    return^out
+}
+
+# The canvas replacing the image file at path, nil^ when it is not replaced.
+# Called on the main thread; the graphics state is left as it was.
+#
+# Text over the original (the images whose Japanese is a part of a larger
+# picture): base = true^ starts from the file itself (an RGBA image), or
+# base = "<path>" from another image; erase = { { x, y, w, h, color = { r, g,
+# b, a } }, ... } paints rectangles over it (a = 0 clears them); blocks = {
+# <settings>, ... } then sets several blocks of text, each with the entry's
+# settings under its own.
+public^let^render = p^path:string^-> love.graphics.Texture|nil^{
+    let^e = entry(path)
+    if^e is^nil^ { return^nil^ }
+    let^size : any^= if^e fits^t^{ size : any^ }: e.size el^: nil^;
+    let^w = std.math.max(number(size, 0, 1), 1)
+    let^h = std.math.max(number(size, 1, 1), 1)
+
+    let^previous = love.graphics.getCanvas()
+    let^shader = love.graphics.getShader()
+    let^font = love.graphics.getFont()
+    let^mode, alphaMode = love.graphics.getBlendMode()
+    let^cr, cg, cb, ca = love.graphics.getColor()
+    love.graphics.push()
+    love.graphics.origin()
+    love.graphics.setShader()
+
+    let^out = love.graphics.newCanvas(w, h)
+    love.graphics.setCanvas(out)
+    love.graphics.clear(0, 0, 0, 0)
+    var^over = false^
+    let^source = if^e fits^t^{ base : string^ }: e.base el^e fits^t^{ base : bool^ } and^e.base: path el^: "";
+    if^source != "" {
+        let^image = love.graphics.newImage(source) catch^nil^
+        if^image fits^love.graphics.Texture {
+            love.graphics.setBlendMode(love.graphics.BlendMode.alpha)
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.draw(image, 0, 0)
+            image.dispose()
+        }
+        over := true^
+    }
+    if^e fits^t^{ erase : t^{any^[]} } {
+        love.graphics.setBlendMode(love.graphics.BlendMode.replace)
+        for^r in^e.erase {
+            let^c : any^= if^r fits^t^{ color : any^ }: r.color el^: nil^;
+            love.graphics.setColor(number(c, 0, 0), number(c, 1, 0), number(c, 2, 0), number(c, 3, 1))
+            love.graphics.rectangle(love.graphics.DrawMode.fill, number(r, 0, 0), number(r, 1, 0), number(r, 2, 0), number(r, 3, 0))
+        }
+        over := true^
+    }
+    if^e fits^t^{ blocks : t^{any^[]} } {
+        for^b in^e.blocks {
+            drawBlock(merged(e, b), out, w, h, over)
+            over := true^
+        }
+    else^:
+        drawBlock(e, out, w, h, over)
+    }
 
     love.graphics.setShader()
     if^previous != nil^ { love.graphics.setCanvas(previous) else^: love.graphics.setCanvas() }

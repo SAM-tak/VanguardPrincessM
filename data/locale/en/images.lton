@@ -5416,4 +5416,368 @@
     color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
 },
 
+# Text over the original pictures (GameDocuments/OverlayText.md): system
+# messages, story intro pictures and the pause screen (tools/locale/overlays.py).
+
+["assets/shared/images/bd12816f476555880380eeccf6ddb55d2ccb8189.png"] = {
+    base = true^, size = { 205, 37 },
+    erase = { { 0, 20, 205, 17, color = { 0, 0, 0, 0 } } },
+    blocks = {
+        {
+            lines = {
+                { text = "Guard broken" },
+            },
+            rect = { 16, 20, 187, 17 }, align = "left", valign = "middle",
+        },
+    },
+    font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 11, weight = 2,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+
+["assets/shared/images/a331396a7d808c403d4377e769011475d9139563.png"] = {
+    base = true^, size = { 205, 37 },
+    erase = { { 0, 20, 205, 17, color = { 0, 0, 0, 0 } } },
+    blocks = {
+        {
+            lines = {
+                { text = "Support disabled" },
+            },
+            rect = { 19, 20, 184, 17 }, align = "left", valign = "middle",
+        },
+    },
+    font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 11, weight = 2,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+
+["assets/shared/images/44cc6be82c28028eae2f1979675f23c6cc9efbb6.png"] = {
+    base = true^, size = { 205, 37 },
+    erase = { { 0, 20, 205, 17, color = { 0, 0, 0, 0 } } },
+    blocks = {
+        {
+            lines = {
+                { text = "Mash left/right to recover" },
+            },
+            rect = { 15, 20, 188, 17 }, align = "left", valign = "middle",
+        },
+    },
+    font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 11, weight = 2,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+
+["assets/shared/images/93fd36be93a0453262c8acf1063f37a9f64335e8.png"] = {
+    base = true^, size = { 138, 36 },
+    erase = { { 0, 19, 138, 17, color = { 0, 0, 0, 0 } } },
+    blocks = {
+        {
+            lines = {
+                { text = "Throw escaped" },
+            },
+            rect = { 12, 19, 124, 17 }, align = "left", valign = "middle",
+        },
+    },
+    font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 11, weight = 2,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+
+["assets/shared/images/f844b5967124b7136dc7436b4e90ec47497276e5.png"] = {
+    base = true^, size = { 205, 37 },
+    erase = { { 0, 20, 205, 17, color = { 0, 0, 0, 0 } } },
+    blocks = {
+        {
+            lines = {
+                { text = "Support gauge restored" },
+            },
+            rect = { 16, 20, 187, 17 }, align = "left", valign = "middle",
+        },
+    },
+    font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 11, weight = 2,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+
+["assets/characters/くるみ/images/0511.png"] = {
+    base = true^, size = { 205, 39 },
+    erase = { { 0, 22, 205, 17, color = { 0, 0, 0, 0 } } },
+    blocks = {
+        {
+            lines = {
+                { text = "Mash D to break free" },
+            },
+            rect = { 15, 22, 188, 17 }, align = "left", valign = "middle",
+        },
+    },
+    font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 11, weight = 2,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+
+["assets/characters/あやね/images/1978.png"] = {
+    base = true^, size = { 205, 37 },
+    erase = { { 0, 20, 205, 17, color = { 0, 0, 0, 0 } } },
+    blocks = {
+        {
+            lines = {
+                { text = "Slips past a rushing attack" },
+            },
+            rect = { 16, 20, 187, 17 }, align = "left", valign = "middle",
+        },
+    },
+    font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 11, weight = 2,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+
+["assets/characters/はるか/images/1978.png"] = {
+    base = true^, size = { 205, 37 },
+    erase = { { 0, 20, 205, 17, color = { 0, 0, 0, 0 } } },
+    blocks = {
+        {
+            lines = {
+                { text = "Slips past a rushing attack" },
+            },
+            rect = { 16, 20, 187, 17 }, align = "left", valign = "middle",
+        },
+    },
+    font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 11, weight = 2,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+
+["assets/characters/ルナ/images/0179.png"] = {
+    base = true^, size = { 205, 37 },
+    erase = { { 0, 20, 205, 17, color = { 0, 0, 0, 0 } } },
+    blocks = {
+        {
+            lines = {
+                { text = "Quick draw" },
+            },
+            rect = { 16, 20, 187, 17 }, align = "left", valign = "middle",
+        },
+    },
+    font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 11, weight = 2,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+
+["assets/characters/ルナ/images/1977.png"] = {
+    base = true^, size = { 205, 37 },
+    erase = { { 0, 20, 205, 17, color = { 0, 0, 0, 0 } } },
+    blocks = {
+        {
+            lines = {
+                { text = "Unblockable" },
+            },
+            rect = { 16, 20, 187, 17 }, align = "left", valign = "middle",
+        },
+    },
+    font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 11, weight = 2,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+
+["assets/characters/ゆい/images/1974.png"] = {
+    base = true^, size = { 640, 480 },
+    erase = { { 18, 100, 352, 189, color = { 1, 1, 1, 1 } } },
+    blocks = {
+        {
+            lines = {
+                { text = "107th heir to the Kutuna Muso school of swordsmanship." },
+                { text = "Wielder of Sakuya, an ancient divine sword" },
+                { text = "reborn through the Astral Impact." },
+                { text = " " },
+                { text = "In search of her missing sister, Haruka," },
+                { text = "she sets out for the battlefield..." },
+            },
+            wrap = true^, rect = { 24, 104, 338, 181 }, align = "left", valign = "middle",
+        },
+    },
+    leading = 2, font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 15,
+    color = { 0, 0, 0 },
+},
+
+["assets/characters/はるか/images/1971.png"] = {
+    base = true^, size = { 640, 480 },
+    erase = { { 18, 100, 379, 220, color = { 1, 1, 1, 1 } } },
+    blocks = {
+        {
+            lines = {
+                { text = "Raised as heir to the Kutuna school of swordsmanship," },
+                { text = "she suddenly turned to sorcery." },
+                { text = "At a government military research facility," },
+                { text = "she later gained immense magical power." },
+                { text = " " },
+                { text = "To save a friend from long ago," },
+                { text = "she sets out for the battlefield..." },
+            },
+            wrap = true^, rect = { 24, 104, 365, 212 }, align = "left", valign = "middle",
+        },
+    },
+    leading = 3, font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 15,
+    color = { 0, 0, 0 },
+},
+
+["assets/characters/リリス/images/1974.png"] = {
+    base = true^, size = { 640, 480 },
+    erase = { { 18, 95, 364, 220, color = { 1, 1, 1, 1 } } },
+    blocks = {
+        {
+            lines = {
+                { text = "A demon child who arrived from the underworld one day" },
+                { text = "and took the seat of the academy's chairwoman." },
+                { text = "Yet no matter how often she says she is a demon," },
+                { text = "not a single person around her believes it." },
+                { text = " " },
+                { text = "To show the world the greatness of demons," },
+                { text = "she sets out for the battlefield..." },
+            },
+            wrap = true^, rect = { 24, 99, 350, 212 }, align = "left", valign = "middle",
+        },
+    },
+    leading = 7, font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 13,
+    color = { 0, 0, 0 },
+},
+
+["assets/characters/ルナ/images/1974.png"] = {
+    base = true^, size = { 640, 480 },
+    erase = { { 18, 122, 359, 189, color = { 1, 1, 1, 1 } } },
+    blocks = {
+        {
+            lines = {
+                { text = "A former member of the special forces unit Blade Roar." },
+                { text = "Now a bounty hunter" },
+                { text = "famed throughout the underworld." },
+                { text = " " },
+                { text = "Having learned of a certain bounty," },
+                { text = "she sets out for the battlefield..." },
+            },
+            wrap = true^, rect = { 24, 126, 345, 181 }, align = "left", valign = "middle",
+        },
+    },
+    leading = 2, font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 15,
+    color = { 0, 0, 0 },
+},
+
+["assets/characters/くるみ/images/1971.png"] = {
+    base = true^, size = { 640, 480 },
+    erase = { { 18, 95, 341, 220, color = { 1, 1, 1, 1 } } },
+    blocks = {
+        {
+            lines = {
+                { text = "A mysterious girl who suddenly appeared" },
+                { text = "the day after a certain plane crash." },
+                { text = "Her fighting skills are modest," },
+                { text = "but she hides a great power." },
+                { text = " " },
+                { text = "Led on by her support character," },
+                { text = "she sets out for the battlefield..." },
+            },
+            wrap = true^, rect = { 24, 99, 327, 212 }, align = "left", valign = "middle",
+        },
+    },
+    leading = 8, font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 15,
+    color = { 0, 0, 0 },
+},
+
+["assets/characters/サキ/images/1974.png"] = {
+    base = true^, size = { 640, 480 },
+    erase = { { 18, 95, 371, 252, color = { 1, 1, 1, 1 } } },
+    blocks = {
+        {
+            lines = {
+                { text = "Captain of the kendo club and the academy's next student council president hopeful." },
+                { text = "She is entrusted with testing Hitohira," },
+                { text = "a divine blade the military built from the divine sword's data," },
+                { text = "and with gathering data." },
+                { text = " " },
+                { text = "Seeking a match with Yui Kutuna," },
+                { text = "wielder of the divine sword," },
+                { text = "she sets out for the battlefield..." },
+            },
+            wrap = true^, rect = { 24, 99, 357, 244 }, align = "left", valign = "middle",
+        },
+    },
+    leading = 2, font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 15,
+    color = { 0, 0, 0 },
+},
+
+["assets/characters/かえで/images/1971.png"] = {
+    base = true^, size = { 640, 480 },
+    erase = { { 18, 101, 330, 222, color = { 1, 1, 1, 1 } } },
+    blocks = {
+        {
+            lines = {
+                { text = "An assassin who lives in the underworld." },
+                { text = "Her memories of the past are lost," },
+                { text = "and everything about her is shrouded in mystery." },
+                { text = " " },
+                { text = "Hired to assassinate Colonel Miokawa," },
+                { text = "an officer of the government army," },
+                { text = "she sets out for the battlefield..." },
+            },
+            wrap = true^, rect = { 24, 105, 316, 214 }, align = "left", valign = "middle",
+        },
+    },
+    leading = 4, font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 15,
+    color = { 0, 0, 0 },
+},
+
+["assets/characters/ナタリア/images/1971.png"] = {
+    base = true^, size = { 640, 480 },
+    erase = { { 18, 95, 375, 189, color = { 1, 1, 1, 1 } } },
+    blocks = {
+        {
+            lines = {
+                { text = "A soldier and intelligence agent of a certain nation." },
+                { text = "Devout, loyal to her orders," },
+                { text = "and always calm and composed." },
+                { text = " " },
+                { text = "Upon the development of Mechanical Sorcery," },
+                { text = "she begins her infiltration..." },
+            },
+            wrap = true^, rect = { 24, 99, 361, 181 }, align = "left", valign = "middle",
+        },
+    },
+    leading = 4, font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 14,
+    color = { 0, 0, 0 },
+},
+
+["assets/characters/えり/images/1974.png"] = {
+    base = true^, size = { 640, 480 },
+    erase = { { 18, 95, 351, 220, color = { 1, 1, 1, 1 } } },
+    blocks = {
+        {
+            lines = {
+                { text = "Raised in an orphanage," },
+                { text = "her physical gifts were recognized" },
+                { text = "and she was sent to a government military lab." },
+                { text = " " },
+                { text = "But unable to endure" },
+                { text = "experiment after experiment," },
+                { text = "she escapes in search of freedom..." },
+            },
+            wrap = true^, rect = { 24, 99, 337, 212 }, align = "left", valign = "middle",
+        },
+    },
+    leading = 3, font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 15,
+    color = { 0, 0, 0 },
+},
+
+["assets/characters/あやね/images/1975.png"] = {
+    base = true^, size = { 640, 480 },
+    erase = { { 18, 95, 357, 252, color = { 1, 1, 1, 1 } } },
+    blocks = {
+        {
+            lines = {
+                { text = "Master of the Ikuse school of archery." },
+                { text = "She lost the sight of one eye in training." },
+                { text = "Blessed by the Astral Impact," },
+                { text = "she is now slowly losing that power." },
+                { text = " " },
+                { text = "To settle things with Yui," },
+                { text = "her childhood friend and rival," },
+                { text = "she sets out for the battlefield..." },
+            },
+            wrap = true^, rect = { 24, 99, 343, 244 }, align = "left", valign = "middle",
+        },
+    },
+    leading = 8, font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 15,
+    color = { 0, 0, 0 },
+},
+
+["assets/system/ヴァンガードプリンセス/images/0165.png"] = { base = "data/images/Instraction.png", size = { 640, 480 } },
+
 # END GENERATED
