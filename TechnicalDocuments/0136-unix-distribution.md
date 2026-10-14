@@ -3,7 +3,7 @@
 `.github/workflows/distribution.yml`（旧 windows.yml）をmatrix化し、
 Windows x64（windows-2022）、Linux x64（ubuntu-24.04）、macOS arm64（macos-15）、
 macOS x64（macos-15-intel）で同じスクリプトを実行する。エンジンはlhat-love
-v12.0.0-alpha.7（当初 alpha.2）の各プラットフォーム版を `engine-release.json` の `platforms` で固定する。
+v12.0.0-alpha.8（当初 alpha.2）の各プラットフォーム版を `engine-release.json` の `platforms` で固定する。
 
 ## 配布構成
 
