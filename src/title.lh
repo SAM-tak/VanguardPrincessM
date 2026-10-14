@@ -11,7 +11,9 @@
 # - PRACTICE MODE is the port's third item (TechnicalDocuments/0145): its
 #   caption is localized text (src/locale.lh; the original has none), drawn
 #   where #107 shows the others.
-# - All three items' labels are localized text in one face, over a background
+# - SURVIVAL / ONLINE VS / LAN VS MODE are listed but not yet made: their
+#   caption is a localized "under construction", and a press does nothing.
+# - All the items' labels are localized text in one face, over a background
 #   without the original's STORY MODE / VS MODE (data/images/modeselectbg.png
 #   in place of image 7, by the locales' entries).
 module^vp.title
@@ -31,15 +33,20 @@ let^Fighter = vp.fighter.Fighter
 
 let^CURSOR = 78
 let^ITEM_X = 291              # "position: title cursor" story (#79) / VS single (#80)
-let^ITEM_Y : t^{number^[]} = { 70, 92, 114 }
+let^ITEM_Y : t^{number^[]} = { 70, 92, 114, 136, 158, 180 }
 let^PRACTICE = 2
+let^UNMADE = 3                # this item and those below are not made yet
 # The items' labels, at the cursor's rows (the original's were at y 64 /
 # 88 from x 300).
-let^LABELS : t^{string^[]} = { "locale:mode-menu/story", "locale:mode-menu/vs", "locale:mode-menu/practice" }
+let^LABELS : t^{string^[]} = {
+    "locale:mode-menu/story", "locale:mode-menu/vs", "locale:mode-menu/practice",
+    "locale:mode-menu/survival", "locale:mode-menu/online", "locale:mode-menu/lan",
+}
 let^LABEL_X = 300
 let^LABEL_Y = 60
 let^LABEL_GAP = 22
 let^PRACTICE_CAPTION = "locale:mode-menu/practice-caption"
+let^UNMADE_CAPTION = "locale:mode-menu/unmade-caption"
 let^CAPTION = 107             # the cursor's caption object
 let^MOVE_SOUND = 8            # the system sound #107 plays for a move
 let^MODE_CURTAIN = 7         # mode demo's スクリプト4: image 11 fading to transparent
@@ -76,6 +83,7 @@ public^let^Demos = def^{
         s.extras := { systemRun(systemDir, system, CURSOR, ITEM_X, ITEM_Y[0] ?? 70) }
         for^key in^LABELS { s.labels.push^(vp.arena.texture(key)) }
         s.practiceCaption := vp.arena.texture(PRACTICE_CAPTION)
+        s.unmadeCaption := vp.arena.texture(UNMADE_CAPTION)
         let^st = s.layers
         if^st != nil^ {
             for^k, l in^st.layers {
@@ -114,10 +122,11 @@ public^let^Scene = def^{
         frames = 0,
         time = 0,                   # frames it lasts, 0: no limit
         skip = false^,              # a button ends it
-        item = 0,                   # the title menu's choice (0 story, 1 VS, 2 practice)
+        item = 0,                   # the title menu's choice (0 story, 1 VS, 2 practice, 3- not made)
         captionItem = 0,            # #107's branch: the last of story / VS the cursor was on
         labels : t^{(love.graphics.Texture|nil^)[]} = {},
         practiceCaption : love.graphics.Texture|nil^= nil^,
+        unmadeCaption : love.graphics.Texture|nil^= nil^,
         done = false^,
         exitFrames = -1,
         confirmSound : love.audio.Source|nil^= nil^,
@@ -221,15 +230,15 @@ public^let^Scene = def^{
                 self^.item := (self^.item + (if^down: 1 el^: count - 1;)) % count
                 cursor.y := ITEM_Y[self^.item] ?? 92
                 # #107 sounds a move only when the cursor reaches the other of
-                # story / VS than its branch; PRACTICE's y is neither, so moves
-                # onto it, and back to the branch's own item, sound here.
-                if^self^.item = PRACTICE or^self^.item = self^.captionItem {
+                # story / VS than its branch; the port's items' y is neither, so
+                # moves onto them, and back to the branch's own item, sound here.
+                if^self^.item >= PRACTICE or^self^.item = self^.captionItem {
                     cursor.sound(MOVE_SOUND)
                 else^:
                     self^.captionItem := self^.item
                 }
             }
-            if^pressed != 0 {
+            if^pressed != 0 and^self^.item < UNMADE {
                 let^cue = vp.arena.sound($"assets/demos/{self^.name}/sounds/0002.wav", false^)
                 self^.confirmSound := cue
                 if^cue != nil^ { cue.stop() cue.play() }
@@ -274,15 +283,16 @@ public^let^Scene = def^{
                 love.graphics.draw(label, LABEL_X + dx, LABEL_Y + LABEL_GAP * index^ + dy)
             }
         }
-        # On PRACTICE MODE, #107 (which knows only story and VS) gives way to
-        # the practice caption, drawn where it shows its own.
-        let^practice = self^.item = PRACTICE
-        let^caption = self^.practiceCaption
+        # On the port's items, #107 (which knows only story and VS) gives way
+        # to their caption, drawn where it shows its own.
+        let^practice = self^.item >= PRACTICE
+        let^captionKey = if^self^.item = PRACTICE: PRACTICE_CAPTION el^: UNMADE_CAPTION;
+        let^caption = if^self^.item = PRACTICE: self^.practiceCaption el^: self^.unmadeCaption;
         let^show = p^i:vp.round.Item{
             let^f = i.f
             if^practice and^f != nil^ and^f.skillNo = CAPTION {
                 if^caption != nil^ and^f.alive {
-                    let^dx, dy = vp.locale.offset(PRACTICE_CAPTION)
+                    let^dx, dy = vp.locale.offset(captionKey)
                     love.graphics.setColor(1, 1, 1, 1)
                     love.graphics.draw(caption, f.x + f.ix + dx, f.y + f.iy + dy)
                 }
