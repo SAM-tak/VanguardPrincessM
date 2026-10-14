@@ -7,7 +7,7 @@
 - HARD: 上級者向け、CPU難易度が非常に高い、2ラウンド先取、全11試合。
 - 下端: CPU難易度を選ぶ。Left/Rightで選択、Aで決定。
 
-訳文はGameDocuments/OverlayText.md。tools/locale/overlays.pyのdifficulty()がカード3枚と操作説明の計4ブロックを生成する。build_en_text.pyを再実行してdata/locale/en/images.ltonに反映。base=trueで背景と既存の英語見出しを残し、eraseで日本語を白く塗る。Montserrat Bold 11px・黒・行間2px。
+訳文はGameDocuments/OverlayText.md。data/locale/en/images.ltonに既存のbase / erase / blocks形式でカード3枚と操作説明の計4ブロックを直接設定する。項目は自動生成範囲の外に置き、build_en_text.pyを再実行しても保持する。専用の生成処理は追加しない。base=trueで背景と既存の英語見出しを残し、eraseで日本語を白く塗る。Montserrat Bold 11px・黒・行間2px。
 
 カードの白地は画像内座標で(44,256,146,113)、(254,256,140,113)、(461,256,140,113)。下端は(90,431,474,24)。元画像と日本語ロケールは変更しない。左上の透明ピクセルもそのまま。
 

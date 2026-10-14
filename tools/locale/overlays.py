@@ -11,8 +11,6 @@ item). The original image stays (base = true^); its Japanese is painted out
   English set in black, wrapped, at the largest size that fits.
 - The pause screen's instructions (system 0165): too dense to paint over, so
   an English picture made for it (PAUSE_ENGLISH) is shown instead.
-- Difficulty selection: white rectangles cover the three descriptions and
-  instruction footer; the English titles and card frames stay in the base.
 """
 import re
 from PIL import Image, ImageFont
@@ -21,7 +19,6 @@ BOLD = 'data/montserrat/Montserrat-Bold.ttf'
 PAUSE = 'assets/system/ヴァンガードプリンセス/images/0165.png'
 
 PAUSE_ENGLISH = 'data/images/Instraction.png'
-DIFFICULTY = 'assets/characters/だみー/images/0000.png'
 
 
 def sections(root, doc):
@@ -154,31 +151,6 @@ def pause(root):
     return f'["{PAUSE}"] = {{ base = "{PAUSE_ENGLISH}", size = {{ 640, 480 }} }},\n'
 
 
-def difficulty(body):
-    """Three card descriptions and the instruction footer, in image coordinates."""
-    paragraphs = '\n'.join(body).split('\n\n')
-    if len(paragraphs) != 4:
-        raise ValueError('Difficulty text needs three cards and one instruction paragraph')
-    boxes = [(44, 256, 146, 113), (254, 256, 140, 113),
-             (461, 256, 140, 113), (90, 431, 474, 24)]
-    erases = []
-    blocks = []
-    for paragraph, (x, y, w, h) in zip(paragraphs, boxes):
-        erases.append(f'        {{ {x}, {y}, {w}, {h}, color = {{ 1, 1, 1, 1 }} }},\n')
-        blocks.append('        {\n'
-                      f'            lines = {{\n{lines_lton(paragraph.splitlines(), "                ")}            }},\n'
-                      f'            rect = {{ {x + 6}, {y + 4}, {w - 12}, {h - 8} }},\n'
-                      f'            align = "{"center" if y > 400 else "left"}", valign = "middle",\n'
-                      '        },\n')
-    return (f'["{DIFFICULTY}"] = {{\n'
-            '    base = true^, size = { 640, 480 },\n'
-            f'    erase = {{\n{"".join(erases)}    }},\n'
-            f'    blocks = {{\n{"".join(blocks)}    }},\n'
-            f'    font = "{BOLD}", fontSize = 11, leading = 2,\n'
-            '    color = { 0, 0, 0 },\n'
-            '},\n')
-
-
 def overlay_entries(root):
     items = sections(root, 'GameDocuments/OverlayText.md')
     out = []
@@ -187,7 +159,5 @@ def overlay_entries(root):
             out.append(system_message(root, path, body))
         elif section.startswith('ストーリー冒頭') and path:
             out.append(intro(root, path, body))
-        elif section.startswith('難易度選択') and path == DIFFICULTY:
-            out.append(difficulty(body))
     out.append(pause(root))
     return out

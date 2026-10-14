@@ -5435,60 +5435,6 @@
 # Text over the original pictures (GameDocuments/OverlayText.md): system
 # messages, story intro pictures and the pause screen (tools/locale/overlays.py).
 
-["assets/characters/だみー/images/0000.png"] = {
-    base = true^, size = { 640, 480 },
-    erase = {
-        { 44, 256, 146, 113, color = { 1, 1, 1, 1 } },
-        { 254, 256, 140, 113, color = { 1, 1, 1, 1 } },
-        { 461, 256, 140, 113, color = { 1, 1, 1, 1 } },
-        { 90, 431, 474, 24, color = { 1, 1, 1, 1 } },
-    },
-    blocks = {
-        {
-            lines = {
-                { text = "For beginners." },
-                { text = "Low CPU difficulty." },
-                { text = "Win 2 rounds" },
-                { text = "to win each match." },
-                { text = "(7 matches total)" },
-            },
-            rect = { 50, 260, 134, 105 },
-            align = "left", valign = "middle",
-        },
-        {
-            lines = {
-                { text = "For intermediate players." },
-                { text = "High CPU difficulty." },
-                { text = "Win 2 rounds" },
-                { text = "to win each match." },
-                { text = "(7 matches total)" },
-            },
-            rect = { 260, 260, 128, 105 },
-            align = "left", valign = "middle",
-        },
-        {
-            lines = {
-                { text = "For advanced players." },
-                { text = "Very high CPU difficulty." },
-                { text = "Win 2 rounds" },
-                { text = "to win each match." },
-                { text = "(11 matches total)" },
-            },
-            rect = { 467, 260, 128, 105 },
-            align = "left", valign = "middle",
-        },
-        {
-            lines = {
-                { text = "Choose the CPU difficulty.   Left/Right: Select   A: Confirm" },
-            },
-            rect = { 96, 435, 462, 16 },
-            align = "center", valign = "middle",
-        },
-    },
-    font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 11, leading = 2,
-    color = { 0, 0, 0 },
-},
-
 ["assets/shared/images/bd12816f476555880380eeccf6ddb55d2ccb8189.png"] = {
     base = true^, size = { 205, 37 },
     erase = { { 0, 20, 205, 17, color = { 0, 0, 0, 0 } } },
@@ -5851,3 +5797,58 @@
 ["assets/system/ヴァンガードプリンセス/images/0165.png"] = { base = "data/images/Instraction.png", size = { 640, 480 } },
 
 # END GENERATED
+
+# Difficulty descriptions: existing base / erase / blocks overlay settings.
+["assets/characters/だみー/images/0000.png"] = {
+    base = true^, size = { 640, 480 },
+    erase = {
+        { 44, 256, 146, 113, color = { 1, 1, 1, 1 } },
+        { 254, 256, 140, 113, color = { 1, 1, 1, 1 } },
+        { 461, 256, 140, 113, color = { 1, 1, 1, 1 } },
+        { 90, 431, 474, 24, color = { 1, 1, 1, 1 } },
+    },
+    blocks = {
+        {
+            lines = {
+                { text = "For beginners." },
+                { text = "Low CPU difficulty." },
+                { text = "Win 2 rounds" },
+                { text = "to win each match." },
+                { text = "(7 matches total)" },
+            },
+            rect = { 50, 260, 134, 105 },
+            align = "left", valign = "middle",
+        },
+        {
+            lines = {
+                { text = "For intermediate players." },
+                { text = "High CPU difficulty." },
+                { text = "Win 2 rounds" },
+                { text = "to win each match." },
+                { text = "(7 matches total)" },
+            },
+            rect = { 260, 260, 128, 105 },
+            align = "left", valign = "middle",
+        },
+        {
+            lines = {
+                { text = "For advanced players." },
+                { text = "Very high CPU difficulty." },
+                { text = "Win 2 rounds" },
+                { text = "to win each match." },
+                { text = "(11 matches total)" },
+            },
+            rect = { 467, 260, 128, 105 },
+            align = "left", valign = "middle",
+        },
+        {
+            lines = {
+                { text = "Choose the CPU difficulty.   Left/Right: Select   A: Confirm" },
+            },
+            rect = { 96, 435, 462, 16 },
+            align = "center", valign = "middle",
+        },
+    },
+    font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 11, leading = 2,
+    color = { 0, 0, 0 },
+},
