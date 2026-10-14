@@ -1,8 +1,8 @@
 # The character select screen, as FM2K's engine runs it (TechnicalDocuments/
 # 0015). The demo "キャラセレ" draws the screen from system variables; the
 # engine moves the cursors on the grid, puts the character under a cursor up
-# as its portrait object (the character's #25, which also picks the support
-# with left / right) and confirms on a button, whose number is the colour.
+# as its portrait object. The port selects character and palette first,
+# then support; A/C/E/F confirm; B/D cancel the main choice before support is locked.
 #
 # Story shows only 1P. In VS each player controls their own selection.
 module^vp.select
@@ -15,6 +15,8 @@ require^"script.lh"
 require^"stage.lh"
 require^"hud.lh"
 require^"round.lh"
+require^"arena.lh"
+require^"resource.lh"
 
 let^Fighter = vp.fighter.Fighter
 
@@ -31,6 +33,14 @@ let^PORTRAIT_1P_X = 87        # p1CursorPosX / Y: where the portrait object stan
 let^PORTRAIT_2P_X = 553
 let^PORTRAIT_Y = 55
 let^PORTRAIT = 25             # a character's built-in "select screen face"
+let^SUPPORT_ORDER = { 104, 102, 101, 103 } # Kanae, Sierra, Eko, Juliet, left to right
+let^ROULETTE_ORDER = { 101, 102, 103, 104, 105 }
+public^let^PALETTE_COUNT = 6
+# Resolve matching main colours for 2P, independent of confirmation order.
+public^let^opponentColour = f^name1:string^, colour1:number^, name2:string^, colour2:number^-> number^{
+    return^if^name1 = name2 and^colour1 = colour2: (colour2 + 1) % PALETTE_COUNT el^: colour2;
+}
+let^ROULETTE_INTERVAL = 8
 let^AFTER_BOTH = 100          # frames from both confirmed to the battle
 
 # The characters on the grid, top to bottom (the system file's list, under
@@ -44,6 +54,15 @@ public^let^Side = def^{
         portrait : Fighter|nil^= nil^,
         confirmed = false^,
         colour = 0,
+        phase = "main",
+        support = 101,
+        supportSlot = 2,             # -1 / 4 are the two outside roulette slots
+        roulette = false^,
+        rouletteFrame = 0,
+        rouletteIndex = 0,
+        supportChanged = false^,
+        controlParked = false^,
+        horizontal = 0,
     },
 
     # Which side's system variable 141 (set when a side confirms) the portraits
@@ -59,6 +78,7 @@ public^let^Select = def^{
         system : vp.script.Script|nil^= nil^,
         systemDir = "",
         demo : vp.stage.Stage|nil^= nil^,
+        demoScript : vp.script.Script|nil^= nil^,
         sides : t^{Side[]} = {},
         wait = 0,                   # frames since both confirmed
         done = false^,
@@ -91,12 +111,20 @@ public^let^Select = def^{
         p.onScreen := true^
         p.facing := if^k = 0: 1 el^: -1;
         p.depth := 100
+        p.palette := side.colour
+        side.support := 101
+        side.supportSlot := 2
+        side.roulette := false^
+        side.rouletteFrame := 0
+        side.rouletteIndex := 0
+        side.supportChanged := false^
+        side.controlParked := false^
         p.begin(PORTRAIT)
         side.portrait := p
         side.cursor := self^.systemRun(if^k = 0: CURSOR_1P el^: CURSOR_2P;, GRID_X, slotY(side.row))
     },
     # Initialize the face, then enter its existing support-choice branch.
-    restoreSupport = p^self^, k:number^, support:number^{
+    showSupport = p^self^, k:number^, support:number^{
         let^side = self^.sides[k]
         if^side is^nil^ or^support < 101 or^support > 105 { return^ }
         let^sd : Side = side
@@ -104,9 +132,10 @@ public^let^Select = def^{
         if^face is^nil^ { return^ }
         let^p : Fighter = face
         sd.confirmFlag(p)
+        p.record(5, 0)
         p.step()
-        # Hidden Hilda returns to the default Eko selection.
-        if^support = 101 or^support = 105 { return^ }
+        sd.support := support
+        sd.supportChanged := true^
         let^name = CHARACTERS[sd.row] ?? "ゆい"
         let^sk = (portraitOf(name)).byId[p.skillNo]
         if^sk is^nil^ { return^ }
@@ -115,6 +144,89 @@ public^let^Select = def^{
                 p.waitTimer := 0
                 p.start(p.skillNo, at)
                 p.step()
+                # The 1x1 root is a script controller. Keep its original COM /
+                # roulette branches parked; objects continue to animate.
+                sd.controlParked := true^
+                # Roulette has its own outside marker; do not play the normal
+                # arrow's movement sound each time the candidate changes.
+                let^arrow = p.slots[0]
+                if^sd.roulette and^arrow != nil^ { arrow.alive := false^ p.slots[0] := nil^ }
+                p.setv(142 + k, support)
+                self^.syncSupportDemo(k, support)
+                return^
+            }
+        }
+    },
+    # Refresh the existing portrait/name/icon layers at the chosen value so
+    # an eight-frame roulette change is visible before confirmation samples it.
+    syncSupportDemo = p^self^, k:number^, support:number^{
+        let^st = self^.demo
+        if^st is^nil^ { return^ }
+        let^script = self^.demoScript
+        if^script is^nil^ { return^ }
+        for^l in^st.layers {
+            let^matches = if^k = 0: l.skillNo = 5 or^l.skillNo = 26 or^l.skillNo = 30 el^: l.skillNo = 7 or^l.skillNo = 25 or^l.skillNo = 29;
+            if^!matches { continue^ }
+            let^sk = script.byId[l.skillNo]
+            if^sk is^nil^ { continue^ }
+            for^b in^sk.blocks {
+                if^b.op = "V" and^b.n[0] = 142 + k and^b.n[1] = 0 and^b.n[4] = 1 and^b.n[5] = support and^(b.n[6] ?? -1) >= 0 {
+                    l.alive := true^
+                    l.waitTimer := 0
+                    l.start(b.n[6] ?? 0, b.n[7] ?? 0)
+                    l.step()
+                    break^
+                }
+            }
+        }
+    },
+    restoreSupport = p^self^, k:number^, support:number^{
+        let^sd = self^.sides[k]
+        if^sd is^nil^ { return^ }
+        sd.supportSlot := -1
+        sd.roulette := support = 105
+        sd.rouletteFrame := 0
+        for^value in^SUPPORT_ORDER { if^value = support { sd.supportSlot := index^ } }
+        for^value in^ROULETTE_ORDER { if^value = support { sd.rouletteIndex := index^ } }
+        self^.showSupport(k, support)
+    },
+    colourAvailable = f^self^, k:number^, colour:number^-> bool^{
+        let^sd = self^.sides[k]
+        let^other = self^.sides[1 - k]
+        return^sd is^nil^ or^other is^nil^ or^other.phase = "main" or^sd.row != other.row or^colour != other.colour
+    },
+    availableColour = f^self^, k:number^, colour:number^, direction:number^-> number^{
+        return^if^self^.colourAvailable(k, colour): colour el^: (colour + direction + PALETTE_COUNT) % PALETTE_COUNT;
+    },
+    moveSupport = p^self^, k:number^, direction:number^{
+        let^sd = self^.sides[k]
+        if^sd is^nil^ { return^ }
+        let^next = if^sd.roulette: (if^direction < 0: 3 el^: 0;) el^: (sd.supportSlot + direction).clamp(-1, 4);
+        if^next = sd.supportSlot { return^ }
+        sd.supportSlot := next
+        sd.roulette := sd.supportSlot < 0 or^sd.supportSlot > 3
+        sd.rouletteFrame := 0
+        if^sd.roulette {
+            sd.rouletteIndex := 0
+            self^.showSupport(k, ROULETTE_ORDER[0])
+        else^:
+            self^.showSupport(k, SUPPORT_ORDER[sd.supportSlot] ?? 101)
+        }
+    },
+    # Enter the portrait's original confirmation branch immediately, including
+    # effects/voice, while preserving the support currently shown by roulette.
+    finishSupport = p^self^, k:number^{
+        let^sd = self^.sides[k]
+        if^sd is^nil^ { return^ }
+        let^p = sd.portrait
+        if^p is^nil^ { return^ }
+        let^sk = (portraitOf(CHARACTERS[sd.row] ?? "ゆい")).byId[p.skillNo]
+        if^sk is^nil^ { return^ }
+        for^b in^sk.blocks {
+            if^b.op = "V" and^b.n[0] = (if^k = 0: 141 el^: 134;) and^b.n[1] = 0 and^(b.n[6] ?? -1) >= 0 {
+                sd.controlParked := false^
+                p.waitTimer := 0
+                p.start(b.n[6] ?? 0, b.n[7] ?? 0)
                 return^
             }
         }
@@ -125,13 +237,10 @@ public^let^Select = def^{
         let^last = self^.sides[if^self^.story: 0 el^: 1;]
         return^first != nil^ and^first.confirmed and^last != nil^ and^last.confirmed
     },
-    # One frame. dir: FM2K's direction code (5 = none, 8 up, 2 down, 4 / 6 left
-    # / right), pressed: the buttons pressed this frame (A = 1 ... F = 32).
+    # Both stages consume button edges; the main confirming press never
+    # confirms support or hands input to another player in the same frame.
     step = p^self^, up:bool^, down:bool^, dir:number^, pressed:number^, up2:bool^, down2:bool^, dir2:number^, pressed2:number^{
         self^.demo?.step()
-
-        # Solo: 2P's side takes 1P's input from the frame after 1P confirms
-        # (the confirming press must not confirm 2P's side too).
         let^solo = self^.solo and^!self^.story
         let^handOver = solo and^!self^.handedOver and^(self^.sides[0]?.confirmed ?? false^)
         let^second = solo and^self^.handedOver
@@ -141,48 +250,155 @@ public^let^Select = def^{
             let^u = !idle and^(if^own: up el^: up2;)
             let^d = !idle and^(if^own: down el^: down2;)
             let^b = if^idle: 0 el^own: pressed el^: pressed2;
-            let^maybe = self^.sides[k]
-            if^maybe != nil^ and^!maybe.confirmed {
-                let^side : Side = maybe
-                if^u or^d {
-                    side.row := (side.row + (if^d: 1 el^: -1;) + ROWS) % ROWS
-                    self^.showPortrait(k)
-                elseif^b != 0:
-                    side.confirmed := true^
-                    side.colour := firstButton(b)
-                    let^p = side.portrait
-                    if^p != nil^ {
-                        let^portrait : Fighter = p
-                        # Existing portrait objects copied the initial palette;
-                        # future objects inherit the confirmed palette from p.
-                        portrait.palette := side.colour
-                        for^o in^portrait.objects { o.palette := side.colour }
+            let^buttonB = (b / 2).floor() % 2 = 1
+            let^buttonD = (b / 8).floor() % 2 = 1
+            let^cancel = buttonB or^buttonD
+            let^confirm = b - (if^buttonB: 2 el^: 0;) - (if^buttonD: 8 el^: 0;)
+            let^direction = if^idle: 5 el^own: dir el^: dir2;
+            let^horizontal = (direction - 1) % 3 - 1
+            let^side = self^.sides[k]
+            if^side != nil^ {
+                let^move = horizontal != 0 and^horizontal != side.horizontal
+                side.horizontal := horizontal
+                if^!side.confirmed {
+                    if^side.phase = "support" and^cancel {
+                        self^.returnToMain(k)
+                    elseif^side.phase = "main":
+                        if^u or^d {
+                            side.row := (side.row + (if^d: 1 el^: -1;) + ROWS) % ROWS
+                            side.colour := self^.availableColour(k, side.colour, 1)
+                            self^.showPortrait(k)
+                        elseif^move:
+                            side.colour := (side.colour + horizontal + PALETTE_COUNT) % PALETTE_COUNT
+                            side.colour := self^.availableColour(k, side.colour, horizontal)
+                        elseif^confirm != 0:
+                            side.colour := self^.availableColour(k, side.colour, 1)
+                            side.phase := "support"
+                            side.rouletteFrame := 0
+                            side.supportChanged := true^
+                            side.cursor?.sound(7)
+                        }
+                    else^:
+                        if^move {
+                            self^.moveSupport(k, horizontal)
+                        elseif^confirm != 0:
+                            side.confirmed := true^
+                            side.phase := "ready"
+                            self^.finishSupport(k)
+                            side.cursor := self^.systemRun(if^k = 0: CONFIRMED_1P el^: CONFIRMED_2P;, GRID_X, slotY(side.row))
+                        }
                     }
-                    side.cursor := self^.systemRun(if^k = 0: CONFIRMED_1P el^: CONFIRMED_2P;, GRID_X, slotY(side.row))
                 }
             }
         }
-
-        for^i, sd in^self^.sides {
+        for^k, sd in^self^.sides {
+            if^sd.phase = "main" { sd.colour := self^.availableColour(k, sd.colour, 1) }
+            if^sd.phase = "support" and^sd.roulette and^!sd.supportChanged {
+                sd.rouletteFrame += 1
+                if^sd.rouletteFrame >= ROULETTE_INTERVAL {
+                    sd.rouletteFrame := 0
+                    sd.rouletteIndex := (sd.rouletteIndex + 1) % ROULETTE_ORDER.length^
+                    self^.showSupport(k, ROULETTE_ORDER[sd.rouletteIndex] ?? 101)
+                }
+            }
+            sd.supportChanged := false^
             let^p = sd.portrait
             if^p != nil^ {
                 sd.confirmFlag(p)
-                p.record(if^sd.confirmed: 5 el^i = 0 or^second: dir el^solo: 5 el^: dir2;, 0)
-                p.step()
+                # Support is selected explicitly; neutral input keeps the old
+                # portrait COM branches from consuming palette directions.
+                p.record(5, 0)
+                if^!sd.controlParked { p.step() }
                 p.stepObjects()
+                p.palette := sd.colour
+                for^o in^p.objects { o.palette := sd.colour }
             }
             let^c = sd.cursor
-            if^c != nil^ {
-                c.step()
-                c.stepObjects()
-            }
+            if^c != nil^ { c.step() c.stepObjects() }
         }
-
         if^handOver { self^.handedOver := true^ }
         if^self^.bothChosen() {
             self^.wait += 1
             if^self^.wait > AFTER_BOTH { self^.done := true^ }
         }
+    },
+    phase = f^self^, k:number^-> string^{ return^self^.sides[k]?.phase ?? "" },
+    paletteVisible = f^self^, k:number^-> bool^{ return^self^.phase(k) = "main" },
+    returnToMain = p^self^, k:number^{
+        let^sd = self^.sides[k]
+        if^sd is^nil^ or^sd.phase != "support" { return^ }
+        sd.phase := "main"
+        # Keep the direction latch: a held support direction must not turn
+        # into a fresh palette move when B returns to character selection.
+        self^.wait := 0
+        self^.done := false^
+    },
+    # ESC follows the same cancellation limit. A locked side consumes back;
+    # it must not drop the whole select scene and undo a completed choice.
+    back = p^self^-> bool^{
+        let^k = if^self^.solo and^self^.handedOver: 1 el^: 0;
+        let^sd = self^.sides[k]
+        if^sd is^nil^ { return^false^ }
+        if^sd.phase = "support" { self^.returnToMain(k) return^true^ }
+        for^side in^self^.sides { if^side.confirmed { return^true^ } }
+        return^false^
+    },
+    # Side brightness is presentation only, never a script COLOR mutation.
+    mainLight = f^self^, k:number^-> number^{ return^if^self^.phase(k) = "support": 0.35 el^: 1; },
+    supportLight = f^self^, k:number^-> number^{ return^if^self^.phase(k) = "main": 0.35 el^: 1; },
+    drawDemo = p^self^, st:vp.stage.Stage, from:number^, to:number^{
+        for^k, l in^st.layers {
+            if^k < from or^k >= to { continue^ }
+            # The original instructions describe simultaneous support/colour
+            # confirmation. Replace both backing/front layers in all locales.
+            if^l.skillNo = 19 or^l.skillNo = 20 { continue^ }
+            # Hidden Hilda has no slot in the four-icon row.
+            if^l.skillNo = 30 and^self^.sides[0]?.support = 105 { continue^ }
+            if^l.skillNo = 29 and^self^.sides[1]?.support = 105 { continue^ }
+            var^light = 1
+            if^l.skillNo = 5 or^l.skillNo = 26 or^l.skillNo = 30 { light := self^.supportLight(0) }
+            if^l.skillNo = 7 or^l.skillNo = 25 or^l.skillNo = 29 { light := self^.supportLight(1) }
+            vp.sprite.setBrightness(light)
+            st.draw(0, 0, k, k + 1)
+            vp.sprite.setBrightness(1)
+        }
+    },
+    drawControls = p^self^{
+        let^colours = vp.resource.data("data/select-palettes.lton")
+        for^k from^0 to^(if^self^.story: 0 el^: 1;) {
+            let^sd = self^.sides[k]
+            if^sd is^nil^ { continue^ }
+            let^name = CHARACTERS[sd.row] ?? "ゆい"
+            let^rows : any^= if^colours != nil^: colours[name] el^: nil^;
+            let^x = 16 + 328 * k
+            let^paletteX = 80 + 350 * k
+            if^self^.paletteVisible(k) {
+                for^n from^0 to^PALETTE_COUNT - 1 {
+                    let^c : any^= if^rows fits^t^{any^[]}: rows[n] el^: nil^;
+                    let^r = if^c fits^t^{number^[]}: c[0] ?? 0.5 el^: 0.5;
+                    let^g = if^c fits^t^{number^[]}: c[1] ?? 0.5 el^: 0.5;
+                    let^b = if^c fits^t^{number^[]}: c[2] ?? 0.5 el^: 0.5;
+                    love.graphics.setColor(if^n = sd.colour: 1 el^: 0.25;, if^n = sd.colour: 1 el^: 0.25;, if^n = sd.colour: 1 el^: 0.25;, 1)
+                    love.graphics.rectangle(love.graphics.DrawMode.fill, paletteX + n * 21 - 2, 361, 20, 20)
+                    let^light = if^self^.colourAvailable(k, n): 1 el^: 0.25;
+                    love.graphics.setColor(r * light, g * light, b * light, 1)
+                    love.graphics.rectangle(love.graphics.DrawMode.fill, paletteX + n * 21, 363, 16, 16)
+                }
+            }
+            if^sd.phase = "support" and^sd.roulette {
+                let^marker = vp.arena.texture("locale:select/random-marker")
+                let^outsideX = if^k = 0: (if^sd.supportSlot < 0: 0 el^: 256;) el^: (if^sd.supportSlot < 0: 346 el^: 614;);
+                love.graphics.setColor(1, 1, 1, 1)
+                if^marker != nil^ { love.graphics.draw(marker, outsideX, 395) }
+            }
+            let^labelKey = if^sd.phase = "support" and^sd.roulette: "roulette" el^: sd.phase;
+            let^label = vp.arena.texture($"locale:select/{labelKey}")
+            let^hint = vp.arena.texture($"locale:select/{sd.phase}-hint")
+            love.graphics.setColor(1, 1, 1, 1)
+            if^label != nil^ { love.graphics.draw(label, x, 442) }
+            if^hint != nil^ { love.graphics.draw(hint, x, 462) }
+        }
+        love.graphics.setColor(1, 1, 1, 1)
     },
     # The choices once done.
     chosen = p^self^, k:number^-> string^, number^{
@@ -198,13 +414,14 @@ public^let^Select = def^{
         let^st = self^.demo
         if^st is^nil^{ return^}
         vp.fighter.setView(0, 0)
-        st.draw(0, 0, 0, st.players)
+        self^.drawDemo(st, 0, st.players)
         var^list : t^{vp.round.Item[]} = {}
-        let^add = p^f:Fighter, system:bool^{
+        let^add = p^f:Fighter, system:bool^, light:number^{
             let^i = vp.round.Item.new()
             i.depth := f.depth
             i.f := f
             i.system := system
+            i.brightness := light
             list.push^(i)
         }
         # Solo: 2P's cursor stays hidden until 1P confirms (it still runs, for
@@ -213,29 +430,34 @@ public^let^Select = def^{
         for^k, sd in^self^.sides {
             let^p = sd.portrait
             if^p? {
-                add(p, false^)
-                for^o in^p.objects { add(o, false^) }
+                add(p, false^, self^.mainLight(k))
+                for^o in^p.objects {
+                    if^o.depth != 127 or^(sd.phase = "support" and^!sd.roulette) {
+                        add(o, false^, if^o.depth = 127: 1 el^: self^.mainLight(k);)
+                    }
+                }
             }
             let^c = sd.cursor
             if^c? and^!(k = 1 and^hidden2) {
-                add(c, true^)
-                for^o in^c.objects { add(o, true^) }
+                add(c, true^, 1)
+                for^o in^c.objects { add(o, true^, 1) }
             }
         }
         # Objects the screen'self^ layers spawn (the curtain the converter'self^ patch
         # moved to depth 127, TechnicalDocuments/0019): after the others, so over
         # those of the same depth.
         for^l in^st.layers {
-            for^o in^l.objects { add(o, true^) }
+            for^o in^l.objects { add(o, true^, 1) }
         }
         vp.round.byDepth(list)
         for^i in^list {
             if^i.depth <= 100 { i.draw() }
         }
-        st.draw(0, 0, st.players, st.layers.length^)
+        self^.drawDemo(st, st.players, st.layers.length^)
         for^i in^list {
             if^i.depth > 100 { i.draw() }
         }
+        self^.drawControls()
     },
 }
 
@@ -274,6 +496,7 @@ public^let^load = p^systemDir:string^, story:bool^-> Select{
     s.story := story
     s.system := vp.script.load($"{systemDir}/script.lton")
     s.demo := vp.stage.load("assets/demos/キャラセレ")
+    s.demoScript := vp.script.load("assets/demos/キャラセレ/script.lton")
     let^demo = s.demo
     if^demo != nil^ {
         for^layer in^demo.layers {
@@ -291,14 +514,4 @@ public^let^load = p^systemDir:string^, story:bool^-> Select{
     s.showPortrait(0)
     if^!story { s.showPortrait(1) }
     return^s
-}
-
-# The first button of a pressed set (A = 0 ... F = 5): the colour.
-let^firstButton = f^pressed:number^-> number^{
-    var^rest = pressed
-    for^k from^0 to^5 {
-        if^rest % 2 = 1 { return^k }
-        rest := (rest / 2).floor()
-    }
-    return^0
 }

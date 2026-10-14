@@ -16,6 +16,7 @@ import^love.audio
 require^"fighter.lh"
 require^"script.lh"
 require^"hud.lh"
+require^"sprite.lh"
 
 let^Fighter = vp.fighter.Fighter
 
@@ -386,13 +387,16 @@ public^let^Item = def^{
         depth = 0,
         f : Fighter|nil^= nil^,
         system = false^,            # a system image (top-left), else a character's
+        brightness = 1,
         world = false^,             # at a place in the world (hit counts), not the view
     },
 
     draw = p^self^{
         let^f = self^.f
         if^f is^nil^ { return^}
+        vp.sprite.setBrightness(self^.brightness)
         if^self^.system { vp.hud.drawWhole(f) else^: f.draw() }
+        vp.sprite.setBrightness(1)
     },
 }
 

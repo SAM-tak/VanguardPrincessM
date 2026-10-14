@@ -1,0 +1,17 @@
+# Flow tests complete both select stages. The dedicated select-stages test
+# sends individual inputs and verifies that the two confirmations stay separate.
+module^vp.selectinput
+import^love.keyboard
+require^"../main.lh"
+public^let^press = p^key:love.keyboard.Key{
+    let^Key = love.keyboard.Key
+    let^first = key = Key.z or^key = Key.c or^key = Key.s or^key = Key.d or^key = Key.return
+    let^second = key = Key.l or^key = Key.quote or^key = Key.p or^key = Key.leftbracket
+    let^before = vp.main.status()
+    let^phase = if^second: before.selectPhase2 el^before.practice and^before.selectPhase1 = "ready": before.selectPhase2 el^: before.selectPhase1;
+    vp.main.keypressed(key, love.keyboard.Scancode.unknown, false^)
+    if^before.phase = "select" and^!before.loading and^(first or^second) and^phase = "main" {
+        vp.main.update(0.02)
+        vp.main.keypressed(key, love.keyboard.Scancode.unknown, false^)
+    }
+}

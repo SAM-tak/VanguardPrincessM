@@ -230,3 +230,9 @@
 - [0149-background-corner-holes.md](0149-background-corner-holes.md) — キャラセレ・難易度背景の左上の透明ピクセルが点の原因。原作展開画像と一致。処置なし。
 
 - [0150-difficulty-english.md](0150-difficulty-english.md) — 難易度選択の3枚の説明と操作説明を、英語ロケールで白地の英文に置換。
+
+- [0151-select-instruction-images.md](0151-select-instruction-images.md) — キャラセレ画像4・5は操作説明の背面・前面として両方を重ねて表示。
+
+- [0152-two-stage-select.md](0152-two-stage-select.md) — 左右で6色のパレットを選択し、メイン決定後にサポートを選ぶ。段階による明暗・背景なしの色枠・日英の新操作説明。
+
+- [0153-support-roulette.md](0153-support-roulette.md) — サポートの表示順に沿う移動、欄外のヒルダ入りルーレット、B/Dキャンセルとメイン決定音。

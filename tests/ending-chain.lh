@@ -3,6 +3,7 @@ import^love.keyboard
 import^love.event
 import^love.timer
 require^"../main.lh"
+require^"../tests/select-input.lh"
 require^"../src/story.lh"
 require^"../src/arena.lh"
 
@@ -15,7 +16,7 @@ var^began = 0
 var^heldLoad = false^
 var^escaped = false^
 var^sinceEscape = 0
-let^press = p^{ vp.main.keypressed(love.keyboard.Key.z, love.keyboard.Scancode.unknown, false^) }
+let^press = p^{ vp.selectinput.press(love.keyboard.Key.z) }
 let^demo = f^name:string^-> vp.story.Event { { kind = "demo", name = name, stage = "", level = 0, rounds = 0, seconds = 0 } }
 public^let^load = p^{ began := love.timer.getTime() vp.main.load() }
 public^let^update = p^dt:number^{

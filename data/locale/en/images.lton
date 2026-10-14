@@ -5852,3 +5852,47 @@
     font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 11, leading = 2,
     color = { 0, 0, 0 },
 },
+
+# Two-stage character / support selection (src/select.lh).
+["locale:select/main"] = {
+    text = "CHARACTER / COLOR", size = { 170, 16 }, rect = { 0, 0, 170, 16 },
+    align = "left", valign = "middle", font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 11,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+["locale:select/main-hint"] = {
+    text = "Up/Down: Character   Left/Right: Color   A: OK", size = { 308, 16 }, rect = { 0, 0, 308, 16 },
+    align = "left", valign = "middle", font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 10,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+["locale:select/support"] = {
+    text = "SUPPORT", size = { 170, 16 }, rect = { 0, 0, 170, 16 },
+    align = "left", valign = "middle", font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 11,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+["locale:select/support-hint"] = {
+    text = "Left/Right: Support   A: OK   B/D: Back", size = { 308, 16 }, rect = { 0, 0, 308, 16 },
+    align = "left", valign = "middle", font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 10,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+["locale:select/ready"] = {
+    text = "READY", size = { 170, 16 }, rect = { 0, 0, 170, 16 },
+    align = "left", valign = "middle", font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 11,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+["locale:select/ready-hint"] = {
+    text = "Selection complete", size = { 308, 16 }, rect = { 0, 0, 308, 16 },
+    align = "left", valign = "middle", font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 10,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+
+["locale:select/roulette"] = {
+    text = "ROULETTE", size = { 170, 20 }, rect = { 0, 0, 170, 20 },
+    align = "left", valign = "middle", font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 12, weight = 1.7,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+
+["locale:select/random-marker"] = {
+    text = "?", size = { 24, 24 }, rect = { 0, 0, 24, 24 },
+    align = "left", valign = "middle", font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 20, weight = 1.7,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},

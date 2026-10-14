@@ -5,6 +5,7 @@ import^love.keyboard
 import^love.event
 import^love.timer
 require^"../main.lh"
+require^"../tests/select-input.lh"
 require^"../src/arena.lh"
 require^"../src/resource.lh"
 
@@ -15,7 +16,7 @@ var^wait = 0
 var^began = 0
 
 let^press = p^key:love.keyboard.Key {
-    vp.main.keypressed(key, love.keyboard.Scancode.unknown, false^)
+    vp.selectinput.press(key)
 }
 
 public^let^load = p^{

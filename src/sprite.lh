@@ -15,6 +15,7 @@ let^spriteCode = "extern Image palette;
 extern number row;
 extern number indexed;
 extern vec3 tint;
+extern number brightness;
 vec4 effect(vec4 color, Image tex, vec2 tc, vec2 sc) {
     vec4 c = Texel(tex, tc);
     if (indexed > 0.5) {
@@ -22,9 +23,13 @@ vec4 effect(vec4 color, Image tex, vec2 tc, vec2 sc) {
         c = Texel(palette, vec2((index + 0.5) / 256.0, (row + 0.5) / 8.0));
     }
     c.rgb = clamp(c.rgb + tint, 0.0, 1.0);
+    c.rgb *= brightness;
     return c * color;
 }
 "
+
+var^brightness = 1
+public^let^setBrightness = p^value:number^{ brightness := value }
 
 var^shader : love.graphics.Shader|nil^= nil^
 # draw copies the Quad's vertices and UVs, so all partial draws can share one.
@@ -191,6 +196,7 @@ public^let^Sheet = def^{
             s.send("row", row)
             s.send("indexed", if^useIndex: 1 el^: 0;)
             s.send("tint", { tr, tg, tb })
+            s.send("brightness", brightness)
             love.graphics.setShader(s)
         }
     },

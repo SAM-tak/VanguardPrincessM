@@ -43,3 +43,47 @@
     font = "data/NotoSansMonoCJKjp-Regular.otf", fontSize = 14,
     color = { 0, 0, 0.03 },
 },
+
+# Two-stage character / support selection (src/select.lh).
+["locale:select/main"] = {
+    text = "キャラクター／カラー", size = { 170, 20 }, rect = { 0, 0, 170, 20 },
+    align = "left", valign = "middle", font = "data/NotoSansMonoCJKjp-Regular.otf", fontSize = 12, weight = 1.7,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+["locale:select/main-hint"] = {
+    text = "↑↓ キャラ　←→ カラー　A: 決定", size = { 308, 18 }, rect = { 0, 0, 308, 18 },
+    align = "left", valign = "middle", font = "data/NotoSansMonoCJKjp-Regular.otf", fontSize = 11, weight = 1.7,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+["locale:select/support"] = {
+    text = "サポート選択", size = { 170, 20 }, rect = { 0, 0, 170, 20 },
+    align = "left", valign = "middle", font = "data/NotoSansMonoCJKjp-Regular.otf", fontSize = 12, weight = 1.7,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+["locale:select/support-hint"] = {
+    text = "←→ サポート　A: 決定　B/D: 戻る", size = { 308, 18 }, rect = { 0, 0, 308, 18 },
+    align = "left", valign = "middle", font = "data/NotoSansMonoCJKjp-Regular.otf", fontSize = 11, weight = 1.7,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+["locale:select/ready"] = {
+    text = "決定済み", size = { 170, 20 }, rect = { 0, 0, 170, 20 },
+    align = "left", valign = "middle", font = "data/NotoSansMonoCJKjp-Regular.otf", fontSize = 12, weight = 1.7,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+["locale:select/ready-hint"] = {
+    text = "キャラ・サポート決定済み", size = { 308, 18 }, rect = { 0, 0, 308, 18 },
+    align = "left", valign = "middle", font = "data/NotoSansMonoCJKjp-Regular.otf", fontSize = 11, weight = 1.7,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+
+["locale:select/roulette"] = {
+    text = "サポート・ルーレット", size = { 170, 20 }, rect = { 0, 0, 170, 20 },
+    align = "left", valign = "middle", font = "data/NotoSansMonoCJKjp-Regular.otf", fontSize = 12, weight = 1.7,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},
+
+["locale:select/random-marker"] = {
+    text = "?", size = { 24, 24 }, rect = { 0, 0, 24, 24 },
+    align = "left", valign = "middle", font = "data/NotoSansMonoCJKjp-Regular.otf", fontSize = 20, weight = 1.7,
+    color = { 1, 1, 1 }, outline = { color = { 0, 0, 0 }, width = 1 },
+},

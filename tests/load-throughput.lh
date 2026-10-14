@@ -3,6 +3,7 @@ import^love.keyboard
 import^love.event
 import^love.timer
 require^"../main.lh"
+require^"../tests/select-input.lh"
 require^"../src/arena.lh"
 
 # Real time from confirming the VS opponent until the match's stage and
@@ -11,7 +12,7 @@ var^phase = 0
 var^began = 0
 var^start = 0
 var^frames = 0
-let^press = p^key:love.keyboard.Key{ vp.main.keypressed(key, love.keyboard.Scancode.unknown, false^) }
+let^press = p^key:love.keyboard.Key{ vp.selectinput.press(key) }
 public^let^load = p^{ began := love.timer.getTime() vp.main.load() }
 public^let^update = p^dt:number^{
     vp.main.update(0.02)

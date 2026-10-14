@@ -1,0 +1,217 @@
+module^vp.selectstagetest
+import^love.event
+import^love.timer
+require^"../src/preload.lh"
+require^"../src/resource.lh"
+require^"../src/select.lh"
+require^"../src/fighter.lh"
+let^SYSTEM = "assets/system/ヴァンガードプリンセス"
+let^loadout = vp.preload.Load.new("select-stages")
+var^began = 0
+var^complete = false^
+let^tick = p^s:vp.select.Select, dir:number^, buttons:number^{ s.step(false^, false^, dir, buttons, false^, false^, 5, 0) }
+let^assert = p^ok:bool^, message:string^{ if^!ok { panic^message } }
+public^let^load = p^{
+    began := love.timer.getTime()
+    loadout.add(SYSTEM, false^)
+    loadout.add("assets/demos/キャラセレ", false^)
+    loadout.batch.request("data/select-palettes.lton", "lton", false^)
+    for^name in^vp.select.CHARACTERS { loadout.add($"assets/characters/{name}", true^) }
+}
+public^let^update = p^dt:number^{
+    vp.resource.pump(0.01)
+    if^!complete and^loadout.ready() {
+        complete := true^
+        loadout.batch.arena.attach()
+        for^row from^0 to^9 {
+            let^name = vp.select.CHARACTERS[row]
+            for^colour from^0 to^5 {
+                assert(vp.select.opponentColour(name,colour,name,colour) = (colour + 1) % 6, "matching colour did not cycle through six palettes")
+                assert(vp.select.opponentColour(name,colour,name,(colour + 1) % 6) = (colour + 1) % 6, "nonmatching colour changed")
+                assert(vp.select.opponentColour(name,colour,"ヒルダ",colour) = colour, "different character colour changed")
+            }
+            let^s = vp.select.load(SYSTEM, true^)
+            let^sd = s.sides[0]
+            if^sd is^nil^ { panic^"missing side" }
+            sd.row := row
+            s.showPortrait(0)
+            for^n from^0 to^40 { tick(s,5,0) }
+            assert(s.phase(0) = "main" and^s.mainLight(0) = 1 and^s.supportLight(0) < 1, "initial selection lighting")
+            tick(s,5,2) tick(s,5,8)
+            assert(s.phase(0) = "main" and^s.paletteVisible(0), "B/D confirmed a main character")
+            for^colour from^1 to^5 {
+                tick(s,6,0)
+                tick(s,6,0)
+                assert(sd.colour = colour, "held right advanced palette twice")
+                tick(s,5,0)
+                assert(sd.support = 101, "palette movement changed support")
+            }
+            tick(s,6,0) tick(s,5,0)
+            assert(sd.colour = 0, "palette did not wrap")
+            tick(s,4,0) tick(s,5,0)
+            assert(sd.colour = 5, "palette did not wrap left")
+            tick(s,5,32)
+            assert(s.phase(0) = "support" and^!s.bothChosen(), "main button skipped support selection")
+            assert(s.mainLight(0) < 1 and^s.supportLight(0) = 1 and^!s.paletteVisible(0), "support selection lighting/palette visibility")
+            assert(sd.cursor?.sounds[7]?.isPlaying() ?? false^, "main confirmation sound did not play")
+            let^lockedRow = sd.row
+            s.step(true^,false^,8,0,false^,false^,5,0)
+            assert(sd.row = lockedRow, "support mode moved main character")
+            assert(s.back() and^s.phase(0) = "main" and^sd.colour = 5, "back did not preserve palette")
+            tick(s,5,4)
+            tick(s,6,3)
+            assert(s.phase(0) = "main" and^!sd.confirmed and^sd.row = lockedRow and^sd.colour = 5 and^s.paletteVisible(0), "B did not undo main choice or lost palette")
+            tick(s,6,0)
+            assert(sd.colour = 5, "held support direction changed palette after B")
+            tick(s,5,16)
+            tick(s,6,9)
+            assert(s.phase(0) = "main" and^sd.colour = 5, "D did not cancel main choice")
+            tick(s,5,4)
+            # Visual order: Kanae(104), Sierra(102), Eko(101), Juliet(103).
+            tick(s,6,0) tick(s,5,0)
+            assert(sd.support = 103 and^!sd.roulette, "right from Eko did not select Juliet")
+            tick(s,4,0) tick(s,5,0)
+            assert(sd.support = 101, "left from Juliet did not select Eko")
+            tick(s,4,0) tick(s,5,0)
+            assert(sd.support = 102, "left from Eko did not select Sierra")
+            tick(s,4,0) tick(s,5,0)
+            assert(sd.support = 104 and^!sd.roulette, "left from Sierra did not select Kanae")
+            tick(s,4,0)
+            assert(sd.roulette and^sd.supportSlot = -1 and^sd.support = 101, "left edge did not enter roulette")
+            for^support from^102 to^105 {
+                for^frame from^0 to^7 { tick(s,5,0) }
+                assert(sd.support = support, "roulette order or eight-frame timing")
+                let^p = sd.portrait
+                assert(p != nil^ and^p.v(142) = support, "roulette display differs from selected support")
+                let^demo = s.demo
+                if^demo != nil^ { for^layer in^demo.layers {
+                    if^layer.skillNo = 5 { assert(layer.image = (if^support = 105: 28 el^: support - 91;), "roulette portrait lags behind selection") }
+                } }
+            }
+            # Cancel leaves Hilda provisional; re-entering resumes roulette.
+            tick(s,5,8)
+            assert(s.phase(0) = "main" and^!sd.confirmed and^sd.support = 105, "D failed during roulette")
+            tick(s,5,1)
+            assert(sd.roulette and^sd.support = 105, "roulette choice was lost on re-entry")
+            for^frame from^0 to^6 { tick(s,5,0) }
+            tick(s,5,16)
+            assert(s.bothChosen() and^s.phase(0) = "ready", "support button did not finish")
+            assert(sd.colour = 5 and^s.mainLight(0) = 1 and^s.supportLight(0) = 1, "ready palette or lighting")
+            assert(!s.paletteVisible(0), "ready palette is visible")
+            tick(s,4,10)
+            assert(s.phase(0) = "ready" and^sd.support = 105 and^sd.colour = 5, "B undid a confirmed support")
+            assert(s.back() and^s.phase(0) = "ready" and^s.bothChosen(), "ESC undid a confirmed support")
+            for^n from^0 to^110 { tick(s,5,0) }
+            let^p = sd.portrait
+            assert(p != nil^ and^p.v(142) = 105 and^p.palette = 5, "confirmed support or palette changed during wait")
+            if^p != nil^ { for^o in^p.objects { assert(o.palette = 5, "portrait object palette mismatch") } }
+            assert(s.done, "story selection never completed")
+            let^right = vp.select.load(SYSTEM, true^)
+            let^rs = right.sides[0]
+            if^rs is^nil^ { panic^"missing right roulette side" }
+            rs.row := row
+            right.showPortrait(0)
+            for^frame from^0 to^40 { tick(right,5,0) }
+            tick(right,5,1)
+            tick(right,6,0) tick(right,5,0)
+            assert(rs.support = 103 and^!rs.roulette, "normal row exposed Hilda")
+            tick(right,6,0)
+            assert(rs.roulette and^rs.supportSlot = 4, "right edge did not enter roulette")
+            for^frame from^0 to^31 { tick(right,5,0) }
+            assert(rs.support = 105, "right roulette omitted Hilda")
+            tick(right,4,0)
+            assert(!rs.roulette and^rs.support = 103, "left from right roulette did not return to Juliet")
+            tick(right,5,0) tick(right,6,0)
+            assert(rs.roulette, "right roulette reentry setup")
+            tick(right,5,0) tick(right,6,0)
+            assert(!rs.roulette and^rs.support = 104 and^rs.supportSlot = 0, "right from right roulette did not return to Kanae")
+            tick(right,5,0) tick(right,4,0)
+            assert(rs.roulette, "left roulette outward exit setup")
+            tick(right,5,0) tick(right,4,0)
+            assert(!rs.roulette and^rs.support = 103 and^rs.supportSlot = 3, "left from left roulette did not return to Juliet")
+            right.restoreSupport(0,104)
+            tick(right,5,0) tick(right,4,0)
+            assert(rs.roulette, "left roulette setup")
+            tick(right,5,0) tick(right,6,0)
+            assert(!rs.roulette and^rs.support = 104, "right from left roulette did not return to Kanae")
+            let^pair = vp.select.load(SYSTEM,false^)
+            let^ps = pair.sides[1]
+            if^ps is^nil^ { panic^"missing 2P roulette side" }
+            ps.row := row
+            pair.showPortrait(1)
+            for^frame from^0 to^40 { pair.step(false^,false^,5,0,false^,false^,5,0) }
+            pair.step(false^,false^,5,0,false^,false^,5,1)
+            assert(ps.cursor?.sounds[7]?.isPlaying() ?? false^, "2P main confirmation sound")
+            pair.step(false^,false^,5,0,false^,false^,6,0)
+            pair.step(false^,false^,5,0,false^,false^,5,0)
+            pair.step(false^,false^,5,0,false^,false^,6,0)
+            for^frame from^0 to^31 { pair.step(false^,false^,5,0,false^,false^,5,0) }
+            assert(ps.roulette and^ps.support = 105 and^ps.portrait?.v(143) = 105, "2P owner roulette omitted Hilda")
+            pair.step(false^,false^,5,0,false^,false^,5,8)
+            assert(ps.phase = "main" and^pair.phase(0) = "main", "2P D cancellation affected 1P")
+            pair.step(false^,false^,5,0,false^,false^,5,1)
+            pair.step(false^,false^,5,0,false^,false^,5,16)
+            for^frame from^0 to^15 { pair.step(false^,false^,5,0,false^,false^,5,0) }
+            assert(ps.phase = "ready" and^ps.portrait?.v(143) = 105, "2P owner did not lock Hilda")
+        }
+        for^owner from^0 to^1 {
+            for^colour from^0 to^5 {
+                let^locked = vp.select.load(SYSTEM, false^)
+                let^first = locked.sides[owner]
+                let^later = locked.sides[1 - owner]
+                if^first is^nil^ or^later is^nil^ { panic^"missing palette ownership sides" }
+                first.colour := colour
+                later.colour := colour
+                locked.step(false^,false^,5,if^owner = 0: 1 el^: 0;,false^,false^,5,if^owner = 1: 1 el^: 0;)
+                assert(first.phase = "support" and^first.colour = colour, "first confirmer lost colour ownership")
+                assert(later.colour = (colour + 1) % 6 and^!locked.colourAvailable(1 - owner,colour), "later side retained occupied colour")
+                locked.step(false^,false^,if^owner = 1: 4 el^: 5;,0,false^,false^,if^owner = 0: 4 el^: 5;,0)
+                assert(later.colour = (colour + 5) % 6, "left did not skip occupied colour")
+                locked.step(false^,false^,5,0,false^,false^,5,0)
+                locked.step(false^,false^,if^owner = 1: 6 el^: 5;,0,false^,false^,if^owner = 0: 6 el^: 5;,0)
+                assert(later.colour = (colour + 1) % 6, "right did not skip occupied colour")
+                locked.step(false^,false^,5,if^owner = 0: 2 el^: 0;,false^,false^,5,if^owner = 1: 8 el^: 0;)
+                assert(first.phase = "main" and^locked.colourAvailable(1 - owner,colour), "cancel did not release occupied colour")
+            }
+        }
+        let^vs = vp.select.load(SYSTEM, false^)
+        tick(vs,5,1)
+        assert(vs.phase(0) = "support" and^vs.phase(1) = "main", "VS sides not independent")
+        tick(vs,5,1)
+        assert(!vs.bothChosen(), "VS finished before second side")
+        vs.step(false^,false^,5,0,false^,false^,5,32)
+        assert(vs.phase(1) = "support" and^vs.sides[1]?.colour = 1, "2P palette or stage")
+        vs.step(false^,false^,5,2,false^,false^,5,2)
+        assert(vs.phase(0) = "ready" and^vs.phase(1) = "main" and^vs.sides[1]?.colour = 1, "VS B cancellation affected the locked side or palette")
+        vs.step(false^,false^,5,0,false^,false^,5,2)
+        assert(vs.phase(1) = "main", "2P B confirmed main")
+        vs.step(false^,false^,5,0,false^,false^,5,1)
+        vs.step(false^,false^,5,0,false^,false^,6,0)
+        assert(vs.sides[1]?.support = 103, "2P right from Eko did not select Juliet")
+        vs.step(false^,false^,5,0,false^,false^,5,0)
+        vs.step(false^,false^,5,0,false^,false^,6,0)
+        for^frame from^0 to^31 { vs.step(false^,false^,5,0,false^,false^,5,0) }
+        assert(vs.sides[1]?.support = 105 and^vs.phase(0) = "ready", "2P roulette or locked 1P changed")
+        vs.step(false^,false^,5,0,false^,false^,5,1)
+        for^frame from^0 to^15 { vs.step(false^,false^,5,0,false^,false^,5,0) }
+        assert(vs.sides[1]?.portrait?.v(143) = 105, "2P confirmed Hilda did not stay selected")
+        assert(vs.bothChosen(), "VS did not finish")
+        let^solo = vp.select.load(SYSTEM, false^)
+        solo.solo := true^
+        tick(solo,5,1)
+        assert(!solo.handedOver and^solo.phase(1) = "main", "practice handed input over before support")
+        tick(solo,5,1)
+        assert(!solo.handedOver and^solo.phase(1) = "main", "same press confirmed opponent")
+        tick(solo,5,0)
+        assert(solo.handedOver, "practice did not hand over input")
+        tick(solo,5,1) tick(solo,5,2)
+        assert(solo.phase(0) = "ready" and^solo.phase(1) = "main" and^solo.handedOver, "practice B undid the completed first side")
+        tick(solo,5,1) tick(solo,5,1)
+        assert(solo.bothChosen(), "practice 1P did not confirm both sides")
+        print("PASS: all ten characters, six palettes, visual support order, both outside roulettes with Hilda, confirmation sound, separate confirmations, B/D cancel before support lock, locked choices, palette visibility, lighting, VS independence and practice handover")
+        love.event.quit()
+    }
+    if^love.timer.getTime() - began > 60 { panic^"select stages timeout" }
+}
+public^let^draw = p^{}
+public^let^quit = p^-> bool^{ vp.resource.stop() return^false^ }

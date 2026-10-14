@@ -3,8 +3,8 @@
 # VS supports two human players. The skills run from the converted FM2K
 # data (assets/…/script.lton through src/script.lh, TechnicalDocuments/0012).
 #
-#   select         up / down a character, left / right its support, a button
-#                  confirms (its colour); each player chooses independently
+#   select         up / down a character, left / right its palette; a button
+#                  locks it, then left / right chooses support, A/C/E/F confirms
 #   arrows         move / jump / crouch (and command motions)
 #   z x c a s d    buttons A B C D E F
 #   u h j k        2P up / left / down / right
@@ -90,9 +90,11 @@ var^downPressed = false^
 var^leftPressed = false^
 var^rightPressed = false^
 var^pressed2 = 0
+var^leftPressed2 = false^
+var^rightPressed2 = false^
 var^upPressed2 = false^
 var^downPressed2 = false^
-let^clear2 = p^{ pressed2 := 0 upPressed2 := false^ downPressed2 := false^ }
+let^clear2 = p^{ pressed2 := 0 upPressed2 := false^ downPressed2 := false^ leftPressed2 := false^ rightPressed2 := false^ }
 var^storyMode = true^
 # PRACTICE MODE (the menu's third item): VS's select and match, in practice
 # from the start (system variable 140 = 500), the clock off, and ESC / Select
@@ -479,6 +481,8 @@ let^toSelect = p^{
     let^row2 = characterCode(foe) / 100 - 1
     let^support1 = me.v(142)
     let^support2 = me.v(143)
+    let^colour1 = me.palette
+    let^colour2 = foe.palette
     let^bossDown = won and^foe.dir = "assets/characters/ヒルダ"
     releaseBattle()
     if^st != nil^ {
@@ -495,6 +499,7 @@ let^toSelect = p^{
     if^!storyMode {
         for^k, side in^s.sides {
             side.row := if^k = 0: row1 el^: row2;
+            side.colour := if^k = 0: colour1 el^: colour2;
             s.showPortrait(k)
             s.restoreSupport(k, if^k = 0: support1 el^: support2;)
         }
@@ -513,7 +518,7 @@ let^beginPresentation = p^name1:string^, colour1:number^, name2:string^, colour2
     flow.preparing := true^
     flow.externalPresentation := true^
     flow.portrait(name1, colour1, 0)
-    flow.portrait(name2, if^name1 = name2 and^colour1 = colour2: (colour2 + 1) % 8 el^: colour2;, 1)
+    flow.portrait(name2, vp.select.opponentColour(name1, colour1, name2, colour2), 1)
     for^side from^0 to^1 {
         let^name = if^side = 0: name1 el^: name2;
         var^code = 1100
@@ -563,7 +568,7 @@ let^startBattle = p^s:vp.select.Select {
     (vp.select.scriptFor(name1, me.v(142))).install(me)
     (vp.select.scriptFor(name2, me.v(143))).install(foe)
     me.palette := colour1
-    foe.palette := if^name1 = name2 and^colour1 = colour2: (colour2 + 1) % 8 el^: colour2;
+    foe.palette := vp.select.opponentColour(name1, colour1, name2, colour2)
     me.enemy := foe
     foe.enemy := me
     me.externalIntroPortrait := true^
@@ -651,7 +656,7 @@ let^startStoryBattle = p^st:vp.story.State, e:vp.story.Event {
     (vp.select.scriptFor(st.name, me.v(142))).install(me)
     (vp.select.scriptFor(e.name, me.v(143))).install(foe)
     me.palette := st.colour
-    foe.palette := if^st.name = e.name: (st.colour + 1) % 8 el^: 0;
+    foe.palette := vp.select.opponentColour(st.name, st.colour, e.name, if^st.name = e.name: st.colour el^: 0;)
     me.enemy := foe
     foe.enemy := me
     brain := vp.cpu.Brain.new(e.name, e.level)
@@ -694,6 +699,13 @@ let^prepare = p^kind:string^{
     elseif^kind = "title":
         l.add($"assets/demos/{demos.title}", false^)
     elseif^kind = "select":
+        l.batch.request("data/select-palettes.lton", "lton", false^)
+        for^phase in^{"main", "support", "ready"} {
+            l.batch.request($"locale:select/{phase}", "image", false^)
+            l.batch.request($"locale:select/{phase}-hint", "image", false^)
+        }
+        l.batch.request("locale:select/roulette", "image", false^)
+        l.batch.request("locale:select/random-marker", "image", false^)
         l.add("assets/demos/キャラセレ", false^)
         for^name in^vp.select.CHARACTERS {
             l.add($"assets/characters/{name}", true^)
@@ -848,6 +860,7 @@ let^goBack = p^{
     if^!initialized { love.event.quit() return^ }
     let^sc = scene
     if^sc != nil^ and^sc.customOpening { love.event.quit() return^ }
+    if^selecting != nil^ and^selecting.back() { return^ }
     let^st = campaign
     if^st != nil^ and^selecting is^nil^ {
         if^st.phase = "battle" or^st.phase = "gameover" or^st.phase = "return-title" { return^ }
@@ -977,6 +990,7 @@ public^let^status = f^{
     }
     return^{
         duplicatePortraits = duplicatePortraits, introPortraits = flow.portraits.length^, introMusicPlaying = matchIntro and^flow.music != nil^ and^flow.music.isPlaying(),
+        selectPhase1 = selecting?.phase(0) ?? "", selectPhase2 = selecting?.phase(1) ?? "",
         phase = if^matchIntro: "match-intro" el^selecting != nil^: "select" el^st != nil^: st.phase el^scene != nil^: "title" el^: "battle";,
         backgroundOnly = flow.backgroundOnly(), presentationFrames = flow.presentationFrames, introCatchup = introCatchup,
         waitingFrames = flow.waitingFrames,
@@ -1022,11 +1036,13 @@ let^tick = p^{
     }
     let^s = selecting
     if^s != nil^ {
-        let^dx = if^vp.input.isDown(Key.right): 1 el^vp.input.isDown(Key.left): -1 el^: 0;
+        let^dx = if^rightPressed or^vp.input.isDown(Key.right): 1 el^leftPressed or^vp.input.isDown(Key.left): -1 el^: 0;
         let^dy = if^vp.input.isDown(Key.up): 1 el^vp.input.isDown(Key.down): -1 el^: 0;
-        let^dx2 = if^vp.input.isDown(Key.k): 1 el^vp.input.isDown(Key.h): -1 el^: 0;
+        let^dx2 = if^rightPressed2 or^vp.input.isDown(Key.k): 1 el^leftPressed2 or^vp.input.isDown(Key.h): -1 el^: 0;
         let^dy2 = if^vp.input.isDown(Key.u): 1 el^vp.input.isDown(Key.j): -1 el^: 0;
         s.step(upPressed, downPressed, 5 + dx + 3 * dy, pressed, upPressed2, downPressed2, 5 + dx2 + 3 * dy2, pressed2)
+        leftPressed := false^
+        rightPressed := false^
         clear2()
         upPressed := false^
         downPressed := false^
@@ -1523,6 +1539,8 @@ public^let^keypressed = p^key:love.keyboard.Key, scancode:love.keyboard.Scancode
         if^key = Key.a { pressed := addButton(pressed, 8) }
         if^key = Key.s { pressed := addButton(pressed, 16) }
         if^key = Key.d { pressed := addButton(pressed, 32) }
+        if^key = Key.h { leftPressed2 := true^ }
+        if^key = Key.k { rightPressed2 := true^ }
         if^key = Key.u { upPressed2 := true^ }
         if^key = Key.j { downPressed2 := true^ }
         if^key = Key.l { pressed2 := addButton(pressed2, 1) }
