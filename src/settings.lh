@@ -15,13 +15,18 @@ var^loaded = false^
 
 let^load = p^{
     if^loaded { return^}
-    loaded := true^
-    let^text = love.filesystem.read(FILE) catch^nil^
+    let^text = try^love.filesystem.read(FILE)
     if^text fits^string^ {
         let^raw = std.json.decode(text) catch^nil^
-        if^raw fits^t^{[string^]:any^} { data := raw
-        else^: print($"Settings not read: {FILE} is not a JSON object") }
+        if^raw fits^t^{[string^]:any^} {
+            loaded := true^
+            data := raw
+            return^
+        }
     }
+    print($"Settings not read: {FILE} is not a valid setting JSON file")
+catch^:
+    print($"Cannot read {FILE}")
 }
 
 # Read the file again on next use (vp.locale.reload).
@@ -32,8 +37,7 @@ public^let^reload = p^{
 
 let^save = p^{
     let^text = try^std.json.encode(data)
-    let^written = love.filesystem.write(FILE, text) catch^"failed"
-    if^written fits^string^ { print($"Settings not written: {FILE}") }
+    try^love.filesystem.write(FILE, text)
 catch^:
     print($"Settings not written: {it^.message}")
 }
