@@ -11,7 +11,7 @@ let^SYSTEM = "assets/system/ヴァンガードプリンセス"
 public^let^load = p^{
     # The player's settings are put back afterwards.
     let^previous = love.filesystem.read("settings.json") catch^nil^
-    let^_ = love.filesystem.write("settings.json", "{\"lang\": \"en\"}")
+    let^_^ = love.filesystem.write("settings.json", "{\"lang\": \"en\"}") catch^false^
     let^check = p^-> string^{
         if^vp.locale.locale() != "en" { return^"settings.json's lang was not read" }
         let^yui = vp.locale.render($"{SYSTEM}/images/0241.png")
@@ -31,8 +31,8 @@ public^let^load = p^{
         return^""
     }
     let^problem = check()
-    if^previous fits^string^ { let^_ = love.filesystem.write("settings.json", previous)
-    else^: let^_ = love.filesystem.remove("settings.json") }
+    if^previous fits^string^ { let^_^ = love.filesystem.write("settings.json", previous) catch^false^
+    else^: let^_^ = love.filesystem.remove("settings.json") }
     if^problem != "" { panic^problem }
     print("PASS: English name images are RGBA canvases of their entry's size and offset; others unchanged")
     love.event.quit()

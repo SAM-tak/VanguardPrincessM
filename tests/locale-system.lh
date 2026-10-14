@@ -9,10 +9,10 @@ require^"../src/locale.lh"
 # back afterwards.
 public^let^load = p^{
     let^previous = love.filesystem.read("settings.json") catch^nil^
-    let^_ = love.filesystem.write("settings.json", "{\"fullscreen\": false}")
+    let^_^ = love.filesystem.write("settings.json", "{\"fullscreen\": false}") catch^false^
     let^chosen = vp.locale.locale()
-    if^previous fits^string^ { let^_ = love.filesystem.write("settings.json", previous)
-    else^: let^_ = love.filesystem.remove("settings.json") }
+    if^previous fits^string^ { let^_^ = love.filesystem.write("settings.json", previous) catch^false^
+    else^: let^_^ = love.filesystem.remove("settings.json") }
 
     let^preferred = love.system.getPreferredLocales()
     var^expected = "en"

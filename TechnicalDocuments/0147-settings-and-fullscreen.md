@@ -13,6 +13,13 @@
 
 キーコンフィグ等も今後ここに足す。書き戻す時は、この版が知らないキーもそのまま残す。
 
+- **作成**: 最初の読み込み（起動時の `load` の `vp.settings.fullscreen()`）でファイルが無ければ、
+  既定値 `{"fullscreen": false}` で作る（プレイヤーが編集できるように）。`lang` は書かない（OS 追従のため）。
+  当初は Alt+Enter で初めて作られていた。読めない・JSON として不正なファイルは警告を1回出し、書き換えずに残す
+  （以前は読めないと毎回読み直して警告を繰り返していた）
+- **整形**: 書き出しは `std.json.pretty(data, 4)`（lhat に追加、メンバー1つに1行・4スペースインデント）。
+  プレイヤーが編集しやすいように。`std.json.encode` は1行で書く
+
 - **JSON にした理由**: `std.lton.parse` / `load` はテキストを L^ のフロントエンドで f^ 本体としてコンパイルして読む。
   配布用のエンジン（vmonly-shipping）はフロントエンドを持たず、事前にコンパイルした LTON しか読めない。
   ゲームの `data/*.lton` は `package-game.ps1` が事前にコンパイルするので読めるが、プレイヤーが書く設定ファイルは読めない。
@@ -39,5 +46,6 @@
 
 - `tests/locale-image.lh`: `settings.json` を一時的に `{"lang": "en"}` にして読む（元の内容は戻す）
 - `tests/locale-system.lh`（`-Test locale-system`）: `lang` の無い `settings.json` で、OS の優先言語から選ぶことを確認（この環境は `ja_JP, en_US` → `ja`）
+- `tests/settings-create.lh`（`-Test settings-create`）: ファイルが無ければ既定値（`lang` 無し）でインデントして作られ、不正な JSON は書き換えられないことを確認（元の内容は戻す）
 - 1600x900 のウィンドウでタイトルを撮影し、左右に黒帯・中央に縮小表示を確認
 - 実際の Alt+Enter の切り替えは自動テストで押せない（Alt の押下状態を作れない）ため手動確認

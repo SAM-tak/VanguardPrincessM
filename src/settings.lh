@@ -13,13 +13,30 @@ let^FILE = "settings.json"
 var^data : t^{[string^]:any^} = {}
 var^loaded = false^
 
+let^save = p^{
+    let^text = try^std.json.pretty(data, 4)
+    try^love.filesystem.write(FILE, text)
+catch^:
+    print($"Settings not written: {it^.message}")
+}
+
+# Without the file, the defaults are written as a new one, so the player has
+# one to edit. "lang" is left out: unset, the locale follows the OS's language.
+let^DEFAULTS : t^{[string^]:any^} = { fullscreen = false^ }
+
+# Read once; a file that cannot be read is reported once and left as it is.
 let^load = p^{
     if^loaded { return^}
+    loaded := true^
+    if^love.filesystem.getInfo(FILE) is^nil^ {
+        for^k, v in^DEFAULTS { data[k] := v }
+        save()
+        return^
+    }
     let^text = try^love.filesystem.read(FILE)
     if^text fits^string^ {
         let^raw = std.json.decode(text) catch^nil^
         if^raw fits^t^{[string^]:any^} {
-            loaded := true^
             data := raw
             return^
         }
@@ -33,13 +50,6 @@ catch^:
 public^let^reload = p^{
     data := {}
     loaded := false^
-}
-
-let^save = p^{
-    let^text = try^std.json.encode(data)
-    try^love.filesystem.write(FILE, text)
-catch^:
-    print($"Settings not written: {it^.message}")
 }
 
 # The locale's name, "" when none is set.

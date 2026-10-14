@@ -20,15 +20,15 @@ let^tidy = p^{
     let^locale = love.filesystem.remove("data/locale")
     let^data = love.filesystem.remove("data")
     let^old = state.previous
-    if^old fits^string^ { let^_ = love.filesystem.write("settings.json", old)
-    else^: let^_ = love.filesystem.remove("settings.json") }
+    if^old fits^string^ { let^_^ = love.filesystem.write("settings.json", old) catch^false^
+    else^: let^_^ = love.filesystem.remove("settings.json") }
 }
 let^fail = p^why:string^{ tidy() panic^why }
 
 public^let^load = p^{
     if^state.phase = 0 {
         state.previous := love.filesystem.read("settings.json") catch^nil^
-        let^_ = love.filesystem.write("settings.json", "{\"lang\": \"en\"}")
+        let^_^ = love.filesystem.write("settings.json", "{\"lang\": \"en\"}") catch^false^
     }
     vp.main.load()
 }

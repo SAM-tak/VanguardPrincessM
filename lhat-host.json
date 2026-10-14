@@ -1016,6 +1016,7 @@
     {"kind": "func", "module": "std.lton", "name": "stringify", "signature": "f^t^{} -> string^|std.lton.LtonError|std.error.OutOfMemory;"},
     {"kind": "func", "module": "std.lton", "name": "save", "signature": "p^string^,t^{} -> nil^|std.lton.LtonError|std.error.OutOfMemory;"},
     {"kind": "func", "module": "std.json", "name": "encode", "signature": "f^t^{} -> string^|std.json.JsonError|std.error.OutOfMemory;"},
+    {"kind": "func", "module": "std.json", "name": "pretty", "signature": "f^t^{}, number^ -> string^|std.json.JsonError|std.error.OutOfMemory;"},
     {"kind": "func", "module": "std.json", "name": "decode", "signature": "f^string^ -> t^{}|std.json.JsonError|std.error.OutOfMemory;"},
     {"kind": "func", "module": "std.math", "name": "sin", "signature": "f^number^ -> number^;"},
     {"kind": "func", "module": "std.math", "name": "cos", "signature": "f^number^ -> number^;"},

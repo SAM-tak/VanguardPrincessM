@@ -1,0 +1,42 @@
+module^vp.settingscreatetest
+import^love.event
+import^love.filesystem
+import^std.json
+require^"../src/settings.lh"
+
+# Without settings.json the first read writes the defaults as a new file
+# (no "lang", so the locale keeps following the OS), indented to be edited;
+# a file that is not valid JSON is left as it is. The player's settings are
+# put back afterwards.
+let^check = p^-> string^{
+    let^_^ = love.filesystem.remove("settings.json")
+    vp.settings.reload()
+    if^vp.settings.fullscreen() { return^"fullscreen is on by default" }
+    let^written = love.filesystem.read("settings.json") catch^nil^
+    if^!(written fits^string^) { return^"no settings.json was written" }
+    let^raw = std.json.decode(written) catch^nil^
+    if^!(raw fits^t^{[string^]:any^}) { return^$"not a JSON object: {written}" }
+    if^raw["fullscreen"] != false^ { return^$"no default fullscreen: {written}" }
+    if^raw["lang"] != nil^ { return^$"lang was written: {written}" }
+    if^written.find("\n    \"fullscreen\"") is^nil^ { return^$"not indented: {written}" }
+
+    let^broken = "{ not json"
+    let^_^ = love.filesystem.write("settings.json", broken) catch^false^
+    vp.settings.reload()
+    let^_^ = vp.settings.lang()
+    let^_^ = vp.settings.fullscreen()
+    let^after = love.filesystem.read("settings.json") catch^nil^
+    if^after != broken { return^$"an invalid file was rewritten: {after}" }
+    return^""
+}
+
+public^let^load = p^{
+    let^previous = love.filesystem.read("settings.json") catch^nil^
+    let^failure = check()
+    if^previous fits^string^ { let^_^ = love.filesystem.write("settings.json", previous) catch^false^
+    else^: let^_^ = love.filesystem.remove("settings.json") }
+    if^failure != "" { panic^failure }
+    print("PASS: a missing settings.json is created with the defaults; an invalid one is kept")
+    love.event.quit()
+}
+public^let^draw = p^{}
