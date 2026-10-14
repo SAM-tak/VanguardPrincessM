@@ -1,0 +1,151 @@
+# WATCH REPLAY's list, opened over the mode menu (src/title.lh) without a
+# change of screen: the files in the save directory's replays/, newest name
+# first. A plain stand-in like the practice menu (src/practicemenu.lh): up /
+# down choose, A / C / E / F play the chosen one (src/replay.lh), B / D or
+# ESC close it.
+module^vp.replaylist
+
+import^love.graphics
+import^love.filesystem
+require^"locale.lh"
+
+public^let^DIR = "replays"
+let^ROWS = 10                   # the lines shown at once; the rest scroll
+
+let^Words = t^{ title:string^, empty:string^, hint:string^, marker:string^, font:string^ }
+let^JA : Words = {
+    title = "リプレイ", empty = "リプレイがありません",
+    hint = "↑↓ 選択　A 再生　B / D・ESC 閉じる", marker = "▶",
+    font = "data/NotoSansMonoCJKjp-Regular.otf",
+}
+let^EN : Words = {
+    title = "REPLAYS", empty = "No replays",
+    hint = "Up/Down: choose   A: play   B / D, ESC: close", marker = ">",
+    font = "data/montserrat/Montserrat-Bold.ttf",
+}
+
+var^shown = false^
+var^item = 0
+var^top = 0                     # the first line shown
+var^files : t^{string^[]} = {}
+var^choice = ""                # a file chosen to play, until main.lh takes it
+var^fonts : t^{[string^]:love.graphics.Font|nil^} = {}
+
+# The replay files, newest name first (insertion sort: a short list).
+let^list = f^-> t^{string^[]} {
+    var^out : t^{string^[]} = {}
+    for^name in^love.filesystem.getDirectoryItems(DIR) {
+        let^info = love.filesystem.getInfo($"{DIR}/{name}")
+        if^info != nil^ and^info.type = love.filesystem.FileType.file { out.push^(name) }
+    }
+    for^i from^1 to^out.length^ - 1 {
+        let^x = out[i] ?? ""
+        var^j = i - 1
+        repeat^while^j >= 0 {
+            let^y = out[j] ?? ""
+            if^y >= x { break^}
+            out[j + 1] := y
+            j -= 1
+        }
+        out[j + 1] := x
+    }
+    return^out
+}
+
+public^let^isOpen = f^-> bool^{ shown }
+# What the list shows and which line is chosen (for tests).
+public^let^entries = f^-> t^{string^[]} { files }
+public^let^chosen = f^-> number^{ item }
+# Reads the directory anew each time; makes it, so the player can find it.
+public^let^open = p^{
+    let^_^ = love.filesystem.createDirectory(DIR)
+    files := list()
+    shown := true^
+    item := 0
+    top := 0
+}
+public^let^close = p^{ shown := false^ }
+# The file chosen to play this frame, or "" (taken once).
+public^let^takeChoice = p^-> string^{
+    let^c = choice
+    choice := ""
+    return^c
+}
+
+# One frame while open. up / down: pressed this frame; pressed: buttons
+# (A = 1 ... F = 32): B or D closes, another plays the chosen file.
+public^let^step = p^up:bool^, down:bool^, pressed:number^{
+    let^count = files.length^
+    if^count > 0 and^(up or^down) {
+        item := (item + (if^down: 1 el^: count - 1;)) % count
+        if^item < top { top := item }
+        if^item >= top + ROWS { top := item - ROWS + 1 }
+    }
+    if^(pressed / 2).floor() % 2 = 1 or^(pressed / 8).floor() % 2 = 1 {
+        close()
+    elseif^pressed != 0 and^count > 0:
+        choice := files[item] ?? ""
+    }
+}
+
+let^fontFor = p^file:string^, size:number^-> love.graphics.Font {
+    let^known = fonts[$"{file}:{size}"]
+    if^known? { return^known }
+    var^font = love.graphics.newFont(size)
+    let^f = love.graphics.newFont(file, size) catch^nil^
+    if^f fits^love.graphics.Font { font := f }
+    fonts[$"{file}:{size}"] := font
+    return^font
+}
+
+# Drawn in the game window's pixels, like the practice menu.
+let^WINDOW_W = 1280
+let^WINDOW_H = 960
+public^let^draw = p^{
+    if^!shown { return^}
+    let^words = if^vp.locale.locale() = "en": EN el^: JA;
+    let^w = WINDOW_W
+    let^h = WINDOW_H
+    let^u = h / 480                 # one view pixel
+    let^previous = love.graphics.getFont()
+    love.graphics.push()
+    love.graphics.setColor(0, 0, 0, 0.55)
+    love.graphics.rectangle(love.graphics.DrawMode.fill, 0, 0, w, h)
+    let^bw = 400 * u
+    let^bh = (78 + 20 * ROWS) * u
+    let^bx = (w - bw) / 2
+    let^by = (h - bh) / 2
+    love.graphics.setColor(0.08, 0.06, 0.18, 0.92)
+    love.graphics.rectangle(love.graphics.DrawMode.fill, bx, by, bw, bh)
+    love.graphics.setColor(0.55, 0.5, 0.9, 1)
+    love.graphics.rectangle(love.graphics.DrawMode.line, bx, by, bw, bh)
+    let^big = fontFor(words.font, (14 * u).floor())
+    let^small = fontFor(words.font, (10 * u).floor())
+    love.graphics.setFont(big)
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.print(words.title, bx + 16 * u, by + 12 * u)
+    if^files.length^ = 0 {
+        love.graphics.setColor(0.8, 0.8, 0.85, 1)
+        love.graphics.print(words.empty, bx + 34 * u, by + 44 * u)
+    }
+    for^row from^0 to^ROWS - 1 {
+        let^n = top + row
+        let^name = files[n]
+        if^name != nil^ {
+            let^y = by + (44 + 20 * row) * u
+            if^n = item {
+                love.graphics.setColor(1, 0.85, 0.3, 1)
+                love.graphics.print(words.marker, bx + 16 * u, y)
+            else^:
+                love.graphics.setColor(0.8, 0.8, 0.85, 1)
+            }
+            love.graphics.print(name, bx + 34 * u, y)
+        }
+    }
+    love.graphics.setFont(small)
+    love.graphics.setColor(0.7, 0.7, 0.8, 1)
+    love.graphics.print(words.hint, bx + 16 * u, by + bh - 20 * u)
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setFont(previous)
+    love.graphics.pop()
+}

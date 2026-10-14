@@ -1,0 +1,18 @@
+# The simulation's own random numbers: the scripts' Rnd, the CPU's rolls and
+# the screen shake. A replay (src/replay.lh) reproduces a match from its
+# inputs alone, so what the simulation draws must not be shared with draws
+# made while drawing (an afterimage's flicker) or in menus; each match seeds
+# it afresh and records the seed.
+module^vp.rng
+
+import^love.math
+
+var^generator = love.math.newRandomGenerator(love.math.random(0, 2147483647))
+
+public^let^seed = p^n:number^{ generator.setSeed(n) }
+# A fresh seed for a match, from the unshared generator.
+public^let^fresh = p^-> number^{ return^love.math.random(0, 2147483647) }
+# An integer in [low, high].
+public^let^int = p^low:number^, high:number^-> number^{ return^generator.random(low, high) }
+# A real in [0, 1).
+public^let^unit = p^-> number^{ return^generator.random() }

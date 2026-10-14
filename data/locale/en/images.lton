@@ -638,6 +638,14 @@
     font = "data/montserrat/Montserrat-Regular.ttf", fontSize = 16,
     color = { 0.08, 0.07, 0.07 }, outline = { color = { 1, 0.88, 0.72 }, width = 1 },
 },
+# WATCH REPLAY (src/replaylist.lh).
+["locale:mode-menu/replay"] = {
+    text = "WATCH  REPLAY",
+    size = { 260, 26 }, rect = { 2, 3, 250, 20 }, align = "left", valign = "middle",
+    stretch = 1.4, skew = 0.25,
+    font = "data/montserrat/Montserrat-Regular.ttf", fontSize = 16,
+    color = { 0.08, 0.07, 0.07 }, outline = { color = { 1, 0.88, 0.72 }, width = 1 },
+},
 # PRACTICE MODE's caption (TechnicalDocuments/0145).
 ["locale:mode-menu/practice-caption"] = {
     text = "Practice your moves freely.",
@@ -649,6 +657,14 @@
 # The caption of the items not made yet.
 ["locale:mode-menu/unmade-caption"] = {
     text = "Under Construction",
+    size = { 300, 18 }, rect = { 0, 2, 300, 14 }, align = "left", valign = "middle",
+    offset = { 0, -2 },
+    font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 12,
+    color = { 0, 0, 0.03 },
+},
+# WATCH REPLAY's caption (src/replaylist.lh).
+["locale:mode-menu/replay-caption"] = {
+    text = "Watch saved replays.",
     size = { 300, 18 }, rect = { 0, 2, 300, 14 }, align = "left", valign = "middle",
     offset = { 0, -2 },
     font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 12,

@@ -236,3 +236,6 @@
 - [0152-two-stage-select.md](0152-two-stage-select.md) — 左右で6色のパレットを選択し、メイン決定後にサポートを選ぶ。段階による明暗・背景なしの色枠・日英の新操作説明。
 
 - [0153-support-roulette.md](0153-support-roulette.md) — サポートの表示順に沿う移動、欄外のヒルダ入りルーレット、B/Dキャンセルとメイン決定音。
+
+- [0154-replay-list.md](0154-replay-list.md) — モードメニューに SURVIVAL / ONLINE VS / LAN VS（準備中）と WATCH REPLAY。WATCH REPLAY は画面遷移せず replays/ の一覧を開き、B/D・ESC で閉じる。
+- [0155-replay.md](0155-replay.md) — VS の入力（方向ビット・ボタン・CPU フラグ）を std.binary で replays/ に記録し、WATCH REPLAY から入力だけで再生。シミュレーション専用乱数とシード、試合開始フレームの固定、CPU フレームは CPU を再実行。F3/F4 で VS の CPU 切替。

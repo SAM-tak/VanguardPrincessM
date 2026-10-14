@@ -13,6 +13,8 @@
 #   where #107 shows the others.
 # - SURVIVAL / ONLINE VS / LAN VS MODE are listed but not yet made: their
 #   caption is a localized "under construction", and a press does nothing.
+# - WATCH REPLAY opens the list of saved replays over the menu, without a
+#   change of screen (src/replaylist.lh); the menu waits while it is open.
 # - All the items' labels are localized text in one face, over a background
 #   without the original's STORY MODE / VS MODE (data/images/modeselectbg.png
 #   in place of image 7, by the locales' entries).
@@ -28,25 +30,33 @@ require^"round.lh"
 require^"arena.lh"
 require^"resource.lh"
 require^"locale.lh"
+require^"replaylist.lh"
 
 let^Fighter = vp.fighter.Fighter
 
 let^CURSOR = 78
 let^ITEM_X = 291              # "position: title cursor" story (#79) / VS single (#80)
-let^ITEM_Y : t^{number^[]} = { 70, 92, 114, 136, 158, 180 }
+let^ITEM_Y : t^{number^[]} = { 70, 92, 114, 136, 158, 180, 202 }
 let^PRACTICE = 2
-let^UNMADE = 3                # this item and those below are not made yet
+let^UNMADE = 3                # this item to LAN VS (5) is not made yet
+let^REPLAY = 6
 # The items' labels, at the cursor's rows (the original's were at y 64 /
 # 88 from x 300).
 let^LABELS : t^{string^[]} = {
     "locale:mode-menu/story", "locale:mode-menu/vs", "locale:mode-menu/practice",
     "locale:mode-menu/survival", "locale:mode-menu/online", "locale:mode-menu/lan",
+    "locale:mode-menu/replay",
 }
 let^LABEL_X = 300
 let^LABEL_Y = 60
 let^LABEL_GAP = 22
-let^PRACTICE_CAPTION = "locale:mode-menu/practice-caption"
+# The port's items' captions, by item ("": #107's own).
 let^UNMADE_CAPTION = "locale:mode-menu/unmade-caption"
+let^CAPTIONS : t^{string^[]} = {
+    "", "", "locale:mode-menu/practice-caption",
+    UNMADE_CAPTION, UNMADE_CAPTION, UNMADE_CAPTION,
+    "locale:mode-menu/replay-caption",
+}
 let^CAPTION = 107             # the cursor's caption object
 let^MOVE_SOUND = 8            # the system sound #107 plays for a move
 let^MODE_CURTAIN = 7         # mode demo's スクリプト4: image 11 fading to transparent
@@ -82,8 +92,10 @@ public^let^Demos = def^{
         s.item := 0
         s.extras := { systemRun(systemDir, system, CURSOR, ITEM_X, ITEM_Y[0] ?? 70) }
         for^key in^LABELS { s.labels.push^(vp.arena.texture(key)) }
-        s.practiceCaption := vp.arena.texture(PRACTICE_CAPTION)
-        s.unmadeCaption := vp.arena.texture(UNMADE_CAPTION)
+        for^key in^CAPTIONS {
+            if^key != "" { s.captions[key] := vp.arena.texture(key) }
+        }
+        vp.replaylist.close()
         let^st = s.layers
         if^st != nil^ {
             for^k, l in^st.layers {
@@ -122,11 +134,10 @@ public^let^Scene = def^{
         frames = 0,
         time = 0,                   # frames it lasts, 0: no limit
         skip = false^,              # a button ends it
-        item = 0,                   # the title menu's choice (0 story, 1 VS, 2 practice, 3- not made)
+        item = 0,                   # the title menu's choice (0 story, 1 VS, 2 practice, 3-5 not made, 6 replays)
         captionItem = 0,            # #107's branch: the last of story / VS the cursor was on
         labels : t^{(love.graphics.Texture|nil^)[]} = {},
-        practiceCaption : love.graphics.Texture|nil^= nil^,
-        unmadeCaption : love.graphics.Texture|nil^= nil^,
+        captions : t^{[string^]:love.graphics.Texture|nil^} = {},
         done = false^,
         exitFrames = -1,
         confirmSound : love.audio.Source|nil^= nil^,
@@ -224,7 +235,9 @@ public^let^Scene = def^{
         if^st != nil^ { st.step() }
         self^.frames += 1
         let^cursor = self^.extras[0]
-        if^cursor? {
+        if^cursor? and^vp.replaylist.isOpen() {
+            vp.replaylist.step(up, down, pressed)
+        elseif^cursor?:
             if^up or^down {
                 let^count = ITEM_Y.length^
                 self^.item := (self^.item + (if^down: 1 el^: count - 1;)) % count
@@ -238,7 +251,10 @@ public^let^Scene = def^{
                     self^.captionItem := self^.item
                 }
             }
-            if^pressed != 0 and^self^.item < UNMADE {
+            if^pressed != 0 and^self^.item = REPLAY {
+                cursor.sound(MOVE_SOUND)
+                vp.replaylist.open()
+            elseif^pressed != 0 and^self^.item < UNMADE:
                 let^cue = vp.arena.sound($"assets/demos/{self^.name}/sounds/0002.wav", false^)
                 self^.confirmSound := cue
                 if^cue != nil^ { cue.stop() cue.play() }
@@ -286,8 +302,8 @@ public^let^Scene = def^{
         # On the port's items, #107 (which knows only story and VS) gives way
         # to their caption, drawn where it shows its own.
         let^practice = self^.item >= PRACTICE
-        let^captionKey = if^self^.item = PRACTICE: PRACTICE_CAPTION el^: UNMADE_CAPTION;
-        let^caption = if^self^.item = PRACTICE: self^.practiceCaption el^: self^.unmadeCaption;
+        let^captionKey = CAPTIONS[self^.item] ?? ""
+        let^caption = self^.captions[captionKey]
         let^show = p^i:vp.round.Item{
             let^f = i.f
             if^practice and^f != nil^ and^f.skillNo = CAPTION {

@@ -22,13 +22,13 @@ module^vp.fighter
 
 import^love.graphics
 import^love.audio
-import^love.math
 import^std.math
 
 require^"arena.lh"
 require^"sprite.lh"
 require^"shake.lh"
 require^"afterimage.lh"
+require^"rng.lh"
 
 public^let^Box = def^{
     self^{ x = 0, y = 0, w = 0, h = 0, power = 0, body = false^, vulnerable = true^, rate = 100, flags = "", connected = false^ },
@@ -1081,7 +1081,7 @@ public^let^Fighter = def^{
     },
     # Rnd: native rand15 % (maximum + 1), strictly above the threshold.
     chance = p^self^, total:number^, above:number^-> bool^{
-        return^love.math.random(0, 32767) % (unsignedWord(total) + 1) > unsignedWord(above)
+        return^vp.rng.int(0, 32767) % (unsignedWord(total) + 1) > unsignedWord(above)
     },
     # The character a skill belongs to (an object's gauges are its owner's).
     charOf = f^self^-> Fighter { self^.owner ?? self^ },

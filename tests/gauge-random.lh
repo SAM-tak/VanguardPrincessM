@@ -1,6 +1,6 @@
 module^vp.gaugerandomtest
 import^love.event
-import^love.math
+require^"../src/rng.lh"
 require^"../src/fighter.lh"
 require^"../src/script.lh"
 require^"../src/scriptdata.lh"
@@ -9,10 +9,10 @@ public^let^load = p^{
  let^f = vp.fighter.Fighter.new("",0,0)
  for^maximum in^{0,1,10,32767,65535} {
   for^threshold in^{0,1,9,10,32767,65535} {
-   love.math.setRandomSeed(1234)
+   vp.rng.seed(1234)
    let^expected : t^{bool^[]} = {}
-   for^i from^1 to^100 { expected.push^(love.math.random(0,32767) % (maximum+1) > threshold) }
-   love.math.setRandomSeed(1234)
+   for^i from^1 to^100 { expected.push^(vp.rng.int(0,32767) % (maximum+1) > threshold) }
+   vp.rng.seed(1234)
    for^want in^expected { if^f.chance(maximum,threshold) != want { panic^"Rnd range or strict comparison" } }
   }
  }

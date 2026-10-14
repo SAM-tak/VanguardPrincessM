@@ -1,0 +1,85 @@
+# A VS match (both sides the CPU's: F3 / F4, 5-second rounds) is recorded to
+# replays/; WATCH REPLAY then plays it from its inputs and must end as the
+# match did (frames, wins and lives). The test's replay is removed afterwards.
+module^vp.replayroundtrip
+import^love.keyboard
+import^love.event
+import^love.filesystem
+import^love.timer
+require^"../main.lh"
+require^"../tests/select-input.lh"
+require^"../src/arena.lh"
+require^"../src/replaylist.lh"
+
+var^phase = 0
+var^wait = 0
+var^began = 0
+var^saved = ""
+var^downs = 0                # down presses still to make, one a frame
+let^Key = love.keyboard.Key
+let^press = p^key:love.keyboard.Key{ vp.selectinput.press(key) }
+let^fail = p^why:string^{
+    if^saved != "" { let^_^ = love.filesystem.remove($"replays/{saved}") }
+    panic^why
+}
+
+public^let^load = p^{
+    began := love.timer.getTime()
+    vp.main.setVSSeconds(5)
+    vp.main.load()
+}
+public^let^update = p^dt:number^{
+    # Matches run several frames a frame; menus one.
+    let^s0 = vp.main.status()
+    let^fast = s0.phase = "battle" or^s0.phase = "match-intro"
+    for^i from^1 to^(if^fast: 8 el^: 1;) { vp.main.update(0.02) }
+    if^downs > 0 { press(Key.down) downs -= 1 }
+    let^s = vp.main.status()
+    let^where = vp.arena.names()
+    if^phase = 0 and^where = "system / opening" { press(Key.z) phase := 1
+    elseif^phase = 1: press(Key.z) phase := 2
+    elseif^phase = 2 and^where = "system / title":
+        wait += 1
+        if^wait = 20 { press(Key.down) }
+        if^wait = 30 { press(Key.z) phase := 3 wait := 0 }
+    elseif^phase = 3 and^s.phase = "select" and^!s.loading:
+        press(Key.f3)
+        press(Key.f4)
+        press(Key.z)
+        phase := 4
+    elseif^phase = 4:
+        press(Key.l) phase := 5
+    elseif^phase = 5 and^s.phase = "battle":
+        if^!s.recording { fail("VS did not record") }
+        if^!s.cpuFirst or^!s.cpuSecond { fail("F3 / F4 did not hand both sides to the CPU") }
+        phase := 6
+    elseif^phase = 6 and^s.phase = "select":
+        saved := s.lastReplay
+        if^saved = "" or^love.filesystem.getInfo($"replays/{saved}") is^nil^ { fail("no replay was saved") }
+        print($"recorded {saved}: wins {s.wins}-{s.losses}")
+        press(Key.escape)
+        phase := 7
+        wait := 0
+    elseif^phase = 7 and^where = "system / title":
+        wait += 1
+        if^wait = 20 { press(Key.up) }          # STORY wraps round to WATCH REPLAY
+        if^wait = 30 { press(Key.z) }
+        if^wait = 40 {
+            var^at = -1
+            for^name in^vp.replaylist.entries() { if^name = saved { at := index^ } }
+            if^at < 0 { fail($"{saved} is not listed") }
+            downs := at
+        }
+        if^wait = 50 { press(Key.z) phase := 8 }
+    elseif^phase = 8 and^s.replaying and^s.phase = "battle":
+        phase := 9
+    elseif^phase = 9 and^!s.replaying and^where = "system / title":
+        let^_^ = love.filesystem.remove($"replays/{saved}")
+        if^!s.replayMatched { panic^"the replay did not end as the match did" }
+        print("PASS: a VS match between CPUs is recorded and replays from its inputs to the same end")
+        love.event.quit()
+    }
+    if^love.timer.getTime() - began > 300 { fail($"replay round trip timeout at phase {phase}") }
+}
+public^let^draw = p^{ vp.main.draw() }
+public^let^quit = p^-> bool^{ return^vp.main.quit() }

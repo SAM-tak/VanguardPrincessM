@@ -1,0 +1,35 @@
+# A replay's every field and every side's directions, buttons and CPU flag
+# survive saving and reading back (src/replay.lh). The file is removed.
+module^vp.replayformattest
+import^love.event
+import^love.filesystem
+require^"../src/replay.lh"
+
+public^let^load = p^{
+    let^tape = vp.replay.Tape.new()
+    tape.seed := 2147483647
+    tape.char1 := 9 tape.char2 := 3
+    tape.colour1 := 5 tape.colour2 := 1
+    tape.support1 := 105 tape.support2 := 101
+    tape.stage := 6 tape.seconds := 60 tape.toWin := 2
+    tape.wins1 := 1 tape.wins2 := 2 tape.life1 := -12 tape.life2 := 1000
+    for^i from^0 to^999 {
+        tape.push(vp.replay.pack(i % 16, (i * 7) % 64, i % 3 = 0), vp.replay.pack((i * 5) % 16, (i * 11) % 64, i % 5 = 0))
+    }
+    let^name = vp.replay.save(tape, "テスト", "test")
+    if^name = "" { panic^"not saved" }
+    let^back = vp.replay.load(name)
+    let^_^ = love.filesystem.remove($"{vp.replay.DIR}/{name}")
+    if^back is^nil^ { panic^"not read back" }
+    let^same = back.seed = tape.seed and^back.char1 = 9 and^back.char2 = 3 and^back.colour1 = 5 and^back.colour2 = 1 and^
+        back.support1 = 105 and^back.support2 = 101 and^back.stage = 6 and^back.seconds = 60 and^back.toWin = 2 and^
+        back.wins1 = 1 and^back.wins2 = 2 and^back.life1 = -12 and^back.life2 = 1000
+    if^!same { panic^"a header field changed" }
+    if^back.frames() != 1000 { panic^$"{back.frames()} frames read back" }
+    for^one in^tape.side1 {
+        if^back.side1[index^] != one or^back.side2[index^] != tape.side2[index^] { panic^$"frame {index^} changed" }
+    }
+    print($"PASS: a replay's header and 1000 frames read back as written ({name})")
+    love.event.quit()
+}
+public^let^draw = p^{}

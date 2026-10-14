@@ -1,0 +1,162 @@
+# VS MODE's replays: every simulation frame's input of both sides, packed by
+# std.binary into the save directory's replays/ (TechnicalDocuments/0155).
+# Playing one feeds the same inputs to the same match, which then plays out
+# the same: the setup and the simulation's random seed (src/rng.lh) are in
+# the header, the rest is the inputs.
+#
+# A side's frame: its directions held (up 1, down 2, left 4, right 8: both
+# of a pair may be held, and the game reads them separately), its buttons
+# held (A = 1 ... F = 32), and whether the CPU drove it (F3 / F4 in VS).
+# The CPU writes whole commands into the input history rather than a frame's
+# input, so a CPU frame is replayed by running the CPU again; it draws from
+# the same seeded generator, so it decides the same.
+module^vp.replay
+
+import^love.filesystem
+import^std.binary
+
+public^let^DIR = "replays"
+public^let^EXTENSION = ".replay"
+let^MAGIC = 1347571798          # "VPRP" read as a little-endian uint32
+let^VERSION = 1
+
+let^Header = t^{
+    magic : number^, version : number^, seed : number^,
+    char1 : number^, char2 : number^, colour1 : number^, colour2 : number^,
+    support1 : number^, support2 : number^, stage : number^, seconds : number^, toWin : number^,
+    frames : number^, wins1 : number^, wins2 : number^, life1 : number^, life2 : number^,
+}
+let^Frame = t^{
+    dirs1 : number^, buttons1 : number^, cpu1 : bool^,
+    dirs2 : number^, buttons2 : number^, cpu2 : bool^,
+}
+let^b = std.binary
+let^HEADER = b.format(Header, {
+    { "magic", b.uint(32) }, { "version", b.uint(16) }, { "seed", b.uint(32) },
+    { "char1", b.uint(8) }, { "char2", b.uint(8) }, { "colour1", b.uint(8) }, { "colour2", b.uint(8) },
+    { "support1", b.uint(16) }, { "support2", b.uint(16) }, { "stage", b.uint(8) },
+    { "seconds", b.uint(16) }, { "toWin", b.uint(8) },
+    { "frames", b.uint(32) }, { "wins1", b.uint(8) }, { "wins2", b.uint(8) },
+    { "life1", b.int(32) }, { "life2", b.int(32) },
+})
+let^FRAME = b.format(Frame, {
+    { "dirs1", b.uint(4) }, { "buttons1", b.uint(6) }, { "cpu1", b.bool() },
+    { "dirs2", b.uint(4) }, { "buttons2", b.uint(6) }, { "cpu2", b.bool() },
+})
+
+# One side's frame as a number: dirs + 16 * buttons + 1024 * cpu.
+public^let^pack = f^dirs:number^, buttons:number^, cpu:bool^-> number^{
+    return^dirs + 16 * buttons + (if^cpu: 1024 el^: 0;)
+}
+public^let^dirsOf = f^side:number^-> number^{ side % 16 }
+public^let^buttonsOf = f^side:number^-> number^{ (side / 16).floor() % 64 }
+public^let^cpuOf = f^side:number^-> bool^{ (side / 1024).floor() % 2 = 1 }
+
+# A match being recorded, or one read back.
+public^let^Tape = def^{
+    self^{
+        seed = 0,
+        char1 = 0, char2 = 0, colour1 = 0, colour2 = 0,
+        support1 = 0, support2 = 0, stage = 0, seconds = 0, toWin = 2,
+        wins1 = 0, wins2 = 0, life1 = 0, life2 = 0,
+        side1 : t^{number^[]} = {},
+        side2 : t^{number^[]} = {},
+    },
+    push = p^self^, one:number^, two:number^{
+        self^.side1.push^(one)
+        self^.side2.push^(two)
+    },
+    frames = f^self^-> number^{ self^.side1.length^ },
+    encode = p^self^-> string^{
+        var^parts : t^{string^[]} = {
+            HEADER.encode({
+                magic = MAGIC, version = VERSION, seed = self^.seed,
+                char1 = self^.char1, char2 = self^.char2, colour1 = self^.colour1, colour2 = self^.colour2,
+                support1 = self^.support1, support2 = self^.support2, stage = self^.stage,
+                seconds = self^.seconds, toWin = self^.toWin,
+                frames = self^.frames(), wins1 = self^.wins1, wins2 = self^.wins2,
+                life1 = self^.life1, life2 = self^.life2,
+            }),
+        }
+        for^one in^self^.side1 {
+            let^two = self^.side2[index^] ?? 0
+            parts.push^(FRAME.encode({
+                dirs1 = dirsOf(one), buttons1 = buttonsOf(one), cpu1 = cpuOf(one),
+                dirs2 = dirsOf(two), buttons2 = buttonsOf(two), cpu2 = cpuOf(two),
+            }))
+        }
+        return^parts.join^("")
+    },
+}
+
+# Days since 1970-01-01 to a civil date (H. Hinnant's days_from_civil, reversed).
+let^civil = f^days:number^-> number^, number^, number^{
+    let^z = days + 719468
+    let^era = (z / 146097).floor()
+    let^doe = z - era * 146097
+    let^yoe = ((doe - (doe / 1460).floor() + (doe / 36524).floor() - (doe / 146096).floor()) / 365).floor()
+    let^doy = doe - (365 * yoe + (yoe / 4).floor() - (yoe / 100).floor())
+    let^mp = ((5 * doy + 2) / 153).floor()
+    let^d = doy - ((153 * mp + 2) / 5).floor() + 1
+    let^m = if^mp < 10: mp + 3 el^: mp - 9;
+    return^yoe + era * 400 + (if^m <= 2: 1 el^: 0;), m, d
+}
+
+# Now, as YYYYMMDD-HHMMSS in UTC. L^ and LÖVE have no clock of the calendar;
+# a file written now has the time in its modification time.
+let^stamp = p^-> string^{
+    let^probe = $"{DIR}/.now"
+    let^_^ = love.filesystem.write(probe, "") catch^false^
+    let^info = love.filesystem.getInfo(probe)
+    let^_^ = love.filesystem.remove(probe)
+    let^t = if^info != nil^: info.modtime el^: 0;
+    let^y, m, d = civil((t / 86400).floor())
+    let^s = t % 86400
+    return^$"{y:%04d}{m:%02d}{d:%02d}-{(s / 3600).floor():%02d}{(s / 60).floor() % 60:%02d}{s % 60:%02d}"
+}
+
+# Saves a finished match as <1P>vs<2P>-<date>.replay; the file's name, or ""
+# when it could not be written.
+public^let^save = p^tape:Tape, name1:string^, name2:string^-> string^{
+    let^_^ = love.filesystem.createDirectory(DIR)
+    let^base = $"{name1}vs{name2}-{stamp()}"
+    var^name = $"{base}{EXTENSION}"
+    var^n = 2
+    repeat^while^love.filesystem.getInfo($"{DIR}/{name}") != nil^ {
+        name := $"{base}-{n}{EXTENSION}"
+        n += 1
+    }
+    try^love.filesystem.write($"{DIR}/{name}", tape.encode())
+    print($"Replay saved: {DIR}/{name} ({tape.frames()} frames)")
+    return^name
+catch^:
+    print($"Replay not written: {it^.message}")
+    return^""
+}
+
+# Reads replays/<name>, or nil when it is not a whole replay of this version.
+public^let^load = p^name:string^-> Tape|nil^{
+    let^text = try^love.filesystem.read($"{DIR}/{name}")
+    let^h, start = try^HEADER.decode(text, 0)
+    if^h.magic != MAGIC or^h.version != VERSION {
+        print($"Not a replay of this version: {name}")
+        return^nil^
+    }
+    let^tape = Tape.new()
+    tape.seed := h.seed
+    tape.char1 := h.char1 tape.char2 := h.char2
+    tape.colour1 := h.colour1 tape.colour2 := h.colour2
+    tape.support1 := h.support1 tape.support2 := h.support2
+    tape.stage := h.stage tape.seconds := h.seconds tape.toWin := h.toWin
+    tape.wins1 := h.wins1 tape.wins2 := h.wins2 tape.life1 := h.life1 tape.life2 := h.life2
+    var^f : Frame = { dirs1 = 0, buttons1 = 0, cpu1 = false^, dirs2 = 0, buttons2 = 0, cpu2 = false^ }
+    var^at = start
+    for^i from^1 to^h.frames {
+        at := try^FRAME.decodeInto(text, at, f)
+        tape.push(pack(f.dirs1, f.buttons1, f.cpu1), pack(f.dirs2, f.buttons2, f.cpu2))
+    }
+    return^tape
+catch^:
+    print($"Replay not read: {name}: {it^.message}")
+    return^nil^
+}

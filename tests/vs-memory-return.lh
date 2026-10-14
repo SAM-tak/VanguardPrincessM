@@ -3,6 +3,7 @@ module^vp.vsmemoryreturn
 import^love.keyboard
 import^love.event
 import^love.timer
+import^love.filesystem
 require^"../main.lh"
 require^"../tests/select-input.lh"
 require^"../src/arena.lh"
@@ -37,6 +38,9 @@ public^let^update = p^dt:number^{
             vp.main.update(0.02)
         }
         if^vp.main.status().phase = "select" {
+            # The match's replay (TechnicalDocuments/0155) is the test's own.
+            let^saved = vp.main.status().lastReplay
+            if^saved != "" { let^_^ = love.filesystem.remove($"replays/{saved}") }
             if^vp.main.status().battleResourcesHeld { panic^"Completed VS retained fighters/stage" }
             if^vp.arena.names() != "system / select" { panic^"Completed VS retained match arena" }
             press(love.keyboard.Key.escape) phase := 7

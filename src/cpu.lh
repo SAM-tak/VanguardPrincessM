@@ -1,8 +1,8 @@
 # Native VP CPU scheduler and command-history generation (0x411270).
 module^vp.cpu
-import^love.math
 require^"fighter.lh"
 require^"resource.lh"
+require^"rng.lh"
 let^Step = t^{command:number^, amount:number^, direction:number^, active:bool^}
 let^Pattern = t^{probability:number^, near:number^, far:number^, air:bool^, enemyAir:bool^, steps:t^{Step[]}}
 public^let^Input = t^{dir:number^, skill:number^, guard:bool^, buttons:number^}
@@ -21,7 +21,7 @@ public^let^Brain = def^{
   commands : t^{t^{number^[]}[]} = {},
   selected = -1, at = -1, remaining = 0, cooldown = 0, level = 20, actions = 0,
   history : t^{number^[]} = {},
-  randomWord = p^-> number^{ return^love.math.random(0,32767) },
+  randomWord = p^-> number^{ return^vp.rng.int(0,32767) },
  },
  override^new = p^name:string^, level:number^{
   let^raw = vp.resource.data($"assets/characters/{name}/cpu.lton")

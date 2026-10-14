@@ -1,0 +1,103 @@
+module^vp.replaylisttest
+import^love.keyboard
+import^love.event
+import^love.filesystem
+import^love.timer
+require^"../main.lh"
+require^"../tests/select-input.lh"
+require^"../src/arena.lh"
+require^"../src/replaylist.lh"
+
+# WATCH REPLAY (the mode menu's last item, up from STORY MODE) opens the list
+# of replays/ over the menu, newest name first; up / down choose, A on a
+# file that is not a replay leaves the list open, B / D and ESC close it,
+# and ESC then leaves the menu as before.
+# Two files are put in replays/ for it and removed afterwards (only those).
+let^OLDER = "replays/test-20000101-0000.rep"
+let^NEWER = "replays/test-20000102-0000.rep"
+var^phase = 0
+var^wait = 0
+var^began = 0
+var^downs = 0                # down presses still to make, one a frame
+let^Key = love.keyboard.Key
+let^press = p^key:love.keyboard.Key{ vp.selectinput.press(key) }
+let^tidy = p^{
+    let^_^ = love.filesystem.remove(OLDER)
+    let^_^ = love.filesystem.remove(NEWER)
+}
+let^indexOf = f^names:t^{string^[]}, name:string^-> number^{
+    for^n in^names {
+        if^n = name { return^index^ }
+    }
+    return^-1
+}
+let^fail = p^why:string^{
+    tidy()
+    panic^why
+}
+
+public^let^load = p^{
+    began := love.timer.getTime()
+    let^_^ = love.filesystem.createDirectory("replays")
+    let^_^ = love.filesystem.write(OLDER, "older") catch^false^
+    let^_^ = love.filesystem.write(NEWER, "newer") catch^false^
+    vp.main.load()
+}
+public^let^update = p^dt:number^{
+    vp.main.update(0.02)
+    if^downs > 0 { press(Key.down) downs -= 1 }
+    let^where = vp.arena.names()
+    if^phase = 0 and^where = "system / opening" { press(Key.z) phase := 1
+    elseif^phase = 1: press(Key.z) phase := 2
+    elseif^phase = 2 and^(wait > 0 or^where = "system / title"):
+        wait += 1
+        if^wait = 20 { press(Key.up) }
+        if^wait = 30 { press(Key.z) }
+        if^wait = 40 {
+            if^!vp.replaylist.isOpen() { fail("WATCH REPLAY did not open the list") }
+            let^names = vp.replaylist.entries()
+            let^first = indexOf(names, "test-20000102-0000.rep")
+            let^second = indexOf(names, "test-20000101-0000.rep")
+            if^first < 0 or^second < 0 { fail($"the list lacks the test replays: {names.join^(", ")}") }
+            if^first > second { fail($"not newest first: {names.join^(", ")}") }
+            # Down to the older test file (other replays may be listed too).
+            downs := second
+        }
+        if^wait = 50 {
+            let^want = indexOf(vp.replaylist.entries(), "test-20000101-0000.rep")
+            if^vp.replaylist.chosen() != want { fail($"down chose line {vp.replaylist.chosen()}, not {want}") }
+            press(Key.z)
+        }
+        if^wait = 60 {
+            if^!vp.replaylist.isOpen() { fail("A on a file that is not a replay closed the list") }
+            press(Key.x)             # B
+        }
+        if^wait = 70 {
+            if^vp.replaylist.isOpen() { fail("B did not close the list") }
+            press(Key.z)
+        }
+        if^wait = 80 {
+            if^!vp.replaylist.isOpen() { fail("the list did not open again") }
+            press(Key.a)             # D
+        }
+        if^wait = 90 {
+            if^vp.replaylist.isOpen() { fail("D did not close the list") }
+            press(Key.z)
+        }
+        if^wait = 100 { press(Key.escape) }
+        if^wait = 110 {
+            if^vp.replaylist.isOpen() { fail("ESC did not close the list") }
+            if^where != "system / title" { fail($"ESC on the list left the menu: {where}") }
+            press(Key.escape)
+        }
+        if^wait = 140 {
+            if^where = "system / title" { fail("ESC no longer leaves the menu") }
+            tidy()
+            print("PASS: WATCH REPLAY lists replays/ newest first; B, D and ESC close it, then ESC leaves the menu")
+            love.event.quit()
+        }
+    }
+    if^love.timer.getTime() - began > 60 { fail($"replay list test timeout at phase {phase}") }
+}
+public^let^draw = p^{ vp.main.draw() }
+public^let^quit = p^-> bool^{ return^vp.main.quit() }

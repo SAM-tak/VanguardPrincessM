@@ -10,7 +10,8 @@
 #   u h j k        2P up / left / down / right
 #   l ; ' o p [    2P buttons A B C D E F
 #   F1             show boxes      1-8         palette
-#   F2             opponent at 1 life (the next hit KOs); F3 sound log
+#   F2             opponent at 1 life (the next hit KOs); F5 sound log
+#   F3 / F4        (VS) the CPU drives 1P / 2P, or not (development)
 #   t              (select screen) the stage: random, or one of them in turn
 #   F8             reload changed code and return to title (development)
 #   escape         back (quit on title); pause/resume during battle
@@ -43,6 +44,9 @@ require^"src/preload.lh"
 require^"src/resource.lh"
 require^"src/story.lh"
 require^"src/practicemenu.lh"
+require^"src/replaylist.lh"
+require^"src/replay.lh"
+require^"src/rng.lh"
 require^"src/cpu.lh"
 require^"src/input.lh"
 require^"src/media.lh"
@@ -110,6 +114,21 @@ var^attractNames : t^{string^[]} = {}
 var^attractSupports : t^{number^[]} = {}
 var^matchSeconds = 60
 var^paused = false^
+# Replays (TechnicalDocuments/0155): VS matches are recorded, and one chosen
+# from WATCH REPLAY is played from its inputs.
+var^recording : vp.replay.Tape|nil^= nil^
+var^playing : vp.replay.Tape|nil^= nil^
+var^replayFrame = 0            # the next of the played replay's frames
+var^leavingReplay = false^     # a played replay has ended; the mode menu is loading
+var^replayMatched = false^     # the last replay ended as it was recorded
+var^lastReplay = ""            # the last saved replay's file name
+var^matchSeed = 0              # the simulation's seed for the match being prepared
+var^cpuFirst = false^          # F3 / F4 in VS: the CPU drives 1P / 2P
+var^cpuSecond = false^
+let^CPU_LEVEL = 100
+var^vsSeconds = 60             # VS rounds' length (tests shorten it)
+let^MatchSetup = t^{ name1:string^, colour1:number^, name2:string^, colour2:number^ }
+var^setup : MatchSetup = { name1 = "ゆい", colour1 = 0, name2 = "ゆい", colour2 = 0 }
 var^reloadPending = false^
 var^collectSceneGarbage = false^
 
@@ -470,6 +489,8 @@ let^endAttract = p^animate:bool^{
 # The match arena goes; the select arena remains (TechnicalDocuments/0023).
 let^toSelect = p^{
     if^attract { endAttract(true^) return^ }
+    if^playing != nil^ { endReplay(true^) return^ }
+    saveRecording()
     love.audio.stop()              # the match's music and sounds end with it
     vp.arena.pop()
     matchArena := nil^
@@ -511,6 +532,9 @@ let^toSelect = p^{
 # shared presentation; character and support resources load underneath it.
 let^beginPresentation = p^name1:string^, colour1:number^, name2:string^, colour2:number^, stageName:string^, seconds:number^{
     matchIntro := true^
+    # Seeded here for the presentation's own draws (the stage's scripts), and
+    # again as the match starts (startBattle).
+    vp.rng.seed(matchSeed)
     love.audio.stop()
     roundFrames := if^seconds = 0: 100000000 el^: seconds * 100;
     vp.fighter.setRound(roundFrames, 1)
@@ -549,6 +573,10 @@ let^loadMatch = p^s:vp.select.Select {
     }
     matchLoading := true^
     matchStage := if^stageChoice > 0: stageChoice - 1 el^: love.math.random(0, STAGES.length^ - 1);
+    let^name1, colour1 = s.chosen(0)
+    let^name2, colour2 = s.chosen(1)
+    setup := { name1 = name1, colour1 = colour1, name2 = name2, colour2 = colour2 }
+    matchSeed := vp.rng.fresh()
     let^l = vp.preload.Load.new("match")
     l.add($"assets/stages/{STAGES[matchStage] ?? "スクール"}", false^)
     pending := l
@@ -557,11 +585,35 @@ let^loadMatch = p^s:vp.select.Select {
 
 # The chosen characters, their colours and a stage at random; the supports
 # chosen on the select screen are in system variables 142 / 143.
-let^startBattle = p^s:vp.select.Select {
+let^startBattle = p^{
     brain := nil^
-    matchSeconds := if^practiceMode: 0 el^: ROUND_SECONDS;
-    let^name1, colour1 = s.chosen(0)
-    let^name2, colour2 = s.chosen(1)
+    demoBrain := nil^
+    matchSeconds := vsRoundSeconds()
+    let^name1 = setup.name1
+    let^colour1 = setup.colour1
+    let^name2 = setup.name2
+    let^colour2 = setup.colour2
+    # The match starts from the same state however long its loading took:
+    # always at the presentation's wait for assets (completeLoad), and from
+    # the seed.
+    vp.rng.seed(matchSeed)
+    let^tape = playing
+    if^tape != nil^ {
+        flow.toWin := tape.toWin
+    elseif^!practiceMode:
+        let^rec = vp.replay.Tape.new()
+        rec.seed := matchSeed
+        rec.char1 := characterIndex(name1)
+        rec.char2 := characterIndex(name2)
+        rec.colour1 := colour1
+        rec.colour2 := colour2
+        rec.support1 := me.v(142)
+        rec.support2 := me.v(143)
+        rec.stage := matchStage
+        rec.seconds := matchSeconds
+        rec.toWin := flow.toWin
+        recording := rec
+    }
     if^!matchIntro { love.audio.stop() }
     me := Fighter.new($"assets/characters/{name1}", WORLD_W / 2 - START_X, GROUND)
     foe := Fighter.new($"assets/characters/{name2}", WORLD_W / 2 + START_X, GROUND)
@@ -578,6 +630,80 @@ let^startBattle = p^s:vp.select.Select {
     selecting := nil^
     startRound()
     introCatchup := flow.presentationFrames
+}
+
+# A VS round's length: none in practice, the replay's when playing one.
+let^vsRoundSeconds = f^-> number^{
+    let^tape = playing
+    return^if^practiceMode: 0 el^tape != nil^: tape.seconds el^: vsSeconds;
+}
+
+let^characterIndex = f^name:string^-> number^{
+    for^i, candidate in^vp.select.CHARACTERS { if^candidate = name { return^i } }
+    return^0
+}
+
+let^nameOf = f^p:Fighter-> string^{
+    let^parts = p.dir.split("/")
+    return^parts[parts.length^ - 1] ?? ""
+}
+
+# Plays replays/<name> (WATCH REPLAY): the recorded match's setup, loaded the
+# way VS loads its own, over the mode menu until its presentation starts.
+let^startReplay = p^name:string^{
+    let^tape = vp.replay.load(name)
+    if^tape is^nil^ { return^ }
+    let^name1 = vp.select.CHARACTERS[tape.char1]
+    let^name2 = vp.select.CHARACTERS[tape.char2]
+    if^name1 is^nil^ or^name2 is^nil^ { print($"Replay of unknown characters: {name}") return^ }
+    playing := tape
+    replayFrame := 0
+    replayMatched := false^
+    storyMode := false^
+    practiceMode := false^
+    setup := { name1 = name1, colour1 = tape.colour1, name2 = name2, colour2 = tape.colour2 }
+    matchSeed := tape.seed
+    matchStage := tape.stage
+    me.setv(142, tape.support1)
+    me.setv(143, tape.support2)
+    matchLoading := true^
+    let^l = vp.preload.Load.new("match")
+    l.add($"assets/stages/{STAGES[matchStage] ?? "スクール"}", false^)
+    pending := l
+    pendingKind := "match-stage"
+}
+
+# The played replay is over (or ESC stopped it): back to the mode menu.
+let^endReplay = p^finished:bool^{
+    let^tape = playing
+    if^tape != nil^ {
+        replayMatched := finished and^replayFrame = tape.frames() and^flow.wins1 = tape.wins1 and^flow.wins2 = tape.wins2 and^
+            me.life = tape.life1 and^foe.life = tape.life2
+        if^finished {
+            let^verdict = if^replayMatched: "as recorded" el^: "NOT as recorded";
+            print($"Replay ended {verdict}: frames {replayFrame} / {tape.frames()}, wins {flow.wins1}-{flow.wins2} / {tape.wins1}-{tape.wins2}, life {me.life} {foe.life} / {tape.life1} {tape.life2}")
+        }
+    }
+    playing := nil^
+    love.audio.stop()
+    if^matchArena != nil^ { vp.arena.pop() matchArena := nil^ }
+    matchLoading := false^
+    paused := false^
+    releaseBattle()
+    leavingReplay := true^
+    prepare("title")
+}
+
+# Before releaseBattle: the finished VS match's result, and the file.
+let^saveRecording = p^{
+    let^rec = recording
+    recording := nil^
+    if^rec is^nil^ { return^ }
+    rec.wins1 := flow.wins1
+    rec.wins2 := flow.wins2
+    rec.life1 := me.life
+    rec.life2 := foe.life
+    lastReplay := vp.replay.save(rec, nameOf(me), nameOf(foe))
 }
 
 let^queueAttract = p^{
@@ -748,7 +874,11 @@ let^completeLoad = p^{
     let^kind = pendingKind
     let^st = campaign
     let^s = selecting
-    if^(kind = "match" or^kind = "match-stage") and^(s is^nil^ or^!s.done) { return^ }
+    if^(kind = "match" or^kind = "match-stage") and^playing is^nil^ and^(s is^nil^ or^!s.done) { return^ }
+    # VS starts the match at the presentation's wait for assets, never before:
+    # the fighters are hidden until then, and the match then always starts
+    # from the same frame (replays, TechnicalDocuments/0155).
+    if^kind = "match" and^!flow.waitingForAssets() and^(flow.phase = "start" or^flow.phase = "call") { return^ }
     if^kind = "briefing" and^(s is^nil^ or^!s.done) { return^ }
     if^(kind = "story-demo" or^kind = "story-stage") and^st != nil^ and^st.age < 0.3 and^st.demo is^nil^ { return^ }
     pending := nil^
@@ -779,13 +909,21 @@ let^completeLoad = p^{
         l.batch.arena.attach()
         matchArena := l.batch.arena
         let^fighters = vp.preload.Load.new("match-characters")
-        if^kind = "match-stage" and^s != nil^ {
-            let^name1, colour1 = s.chosen(0)
-            let^name2, colour2 = s.chosen(1)
+        if^kind = "match-stage" and^(s != nil^ or^playing != nil^) {
+            let^name1 = setup.name1
+            let^name2 = setup.name2
+            # A replay leaves the mode menu as its presentation starts.
+            if^playing != nil^ {
+                vp.replaylist.close()
+                scene := nil^
+            }
             me.setv(140, if^practiceMode: 500 el^: 0;)
-            beginPresentation(name1, colour1, name2, colour2, STAGES[matchStage] ?? "スクール", if^practiceMode: 0 el^: ROUND_SECONDS;)
+            beginPresentation(name1, setup.colour1, name2, setup.colour2, STAGES[matchStage] ?? "スクール", vsRoundSeconds())
             fighters.character($"assets/characters/{name1}", me.v(142))
             fighters.character($"assets/characters/{name2}", me.v(143))
+            # F3 / F4 may hand either side to the CPU.
+            fighters.batch.request($"assets/characters/{name1}/cpu.lton", "lton", false^)
+            fighters.batch.request($"assets/characters/{name2}/cpu.lton", "lton", false^)
             pendingKind := "match"
         elseif^st != nil^:
             let^e = st.current()
@@ -833,11 +971,12 @@ let^completeLoad = p^{
         let^arena = matchArena
         if^arena is^nil^ { panic^"Missing prepared stage arena" }
         arena.absorb(l.batch.arena)
-        if^s != nil^ { startBattle(s) }
+        if^s != nil^ or^playing != nil^ { startBattle() }
     else^:
         vp.arena.pop()
         l.batch.arena.attach()
         if^kind = "title" {
+            leavingReplay := false^
             selecting := nil^
             collectSceneGarbage := true^
             opening := false^
@@ -921,6 +1060,9 @@ let^debugReload = p^{
     if^refused fits^love.event.Error { print(refused.message) return^ }
     reloadPending := true^
     leavePractice()
+    recording := nil^
+    playing := nil^
+    leavingReplay := false^
     let^l = pending
     if^l != nil^ { l.batch.cancel() pending := nil^ }
     vp.resource.stop()
@@ -1012,18 +1154,47 @@ public^let^status = f^{
         supportSkill = if^support != nil^: support.skillNo el^: -1;,
         wins = flow.wins1, losses = flow.wins2,
         difficulty = if^st != nil^: st.difficulty el^: -1;,
-        event = if^st != nil^: st.at el^: -1;
+        event = if^st != nil^: st.at el^: -1;,
+        recording = recording != nil^, replaying = playing != nil^, replayFrame = replayFrame,
+        replayMatched = replayMatched, lastReplay = lastReplay, cpuFirst = cpuFirst, cpuSecond = cpuSecond,
+    }
+}
+
+# VS rounds' length in seconds (tests shorten matches with it).
+public^let^setVSSeconds = p^n:number^{ vsSeconds := n }
+
+# The directions held, as a replay records them: up 1, down 2, left 4, right 8.
+let^heldDirs = p^up:love.keyboard.Key, down:love.keyboard.Key, left:love.keyboard.Key, right:love.keyboard.Key-> number^{
+    return^(if^vp.input.isDown(up): 1 el^: 0;) + (if^vp.input.isDown(down): 2 el^: 0;) +
+        (if^vp.input.isDown(left): 4 el^: 0;) + (if^vp.input.isDown(right): 8 el^: 0;)
+}
+
+# VS's CPU (F3 / F4, or the replay's record of them) takes a side over or
+# hands it back, as of this frame; a new brain starts as a round's does.
+let^syncCPU = p^one:number^, two:number^{
+    if^vp.replay.cpuOf(one) {
+        if^demoBrain is^nil^ { demoBrain := vp.cpu.Brain.new(nameOf(me), CPU_LEVEL) }
+    else^:
+        demoBrain := nil^
+    }
+    if^vp.replay.cpuOf(two) {
+        if^brain is^nil^ { brain := vp.cpu.Brain.new(nameOf(foe), CPU_LEVEL) }
+    else^:
+        brain := nil^
     }
 }
 
 # One fixed simulation tick for the current scene.
 let^tick = p^{
+    if^leavingReplay { return^ }
     let^sc = scene
     if^sc != nil^ {
         sc.step(upPressed, downPressed, pressed)
         upPressed := false^
         downPressed := false^
         pressed := 0
+        let^choice = vp.replaylist.takeChoice()
+        if^choice != "" and^pending is^nil^ { startReplay(choice) }
         if^sc.done { sceneDone() }
         return^
     }
@@ -1057,8 +1228,27 @@ let^tick = p^{
     # Refresh facing before converting physical directions and consuming
     # buffered commands, including the first frame after landing recovery.
     if^flow.fighting() { me.faceOpponent() foe.faceOpponent() }
-    let^right = vp.input.isDown(Key.right)
-    let^left = vp.input.isDown(Key.left)
+    # The sides' input this frame: the played replay's, or the keys' and pads'
+    # (and F3 / F4's CPU in VS), recorded when VS records.
+    let^tape = playing
+    var^one = 0
+    var^two = 0
+    if^tape != nil^ {
+        one := tape.side1[replayFrame] ?? 0
+        two := tape.side2[replayFrame] ?? 0
+        replayFrame += 1
+    else^:
+        let^vs = recording != nil^
+        one := vp.replay.pack(heldDirs(Key.up, Key.down, Key.left, Key.right), vp.input.heldButtons(0), vs and^cpuFirst)
+        two := vp.replay.pack(heldDirs(Key.u, Key.j, Key.h, Key.k), vp.input.heldButtons(1), vs and^cpuSecond)
+    }
+    let^rec = recording
+    if^rec != nil^ { rec.push(one, two) }
+    if^tape != nil^ or^rec != nil^ { syncCPU(one, two) }
+    let^dirs1 = vp.replay.dirsOf(one)
+    let^dirs2 = vp.replay.dirsOf(two)
+    let^right = (dirs1 / 8).floor() % 2 = 1
+    let^left = (dirs1 / 4).floor() % 2 = 1
     let^forward = if^me.facing > 0: right el^: left;
     let^back = if^me.facing > 0: left el^: right;
     # Only while they fight does input count.
@@ -1071,7 +1261,7 @@ let^tick = p^{
         control(me, live and^d >= 7, live and^d <= 3, live and^d % 3 = 0, live and^d % 3 = 1, firstInput.buttons, firstCPU)
 
     else^:
-        control(me, live and^vp.input.isDown(Key.up), live and^vp.input.isDown(Key.down), live and^forward, live and^back, if^live: vp.input.heldButtons(0) el^: 0;, nil^)
+        control(me, live and^dirs1 % 2 = 1, live and^(dirs1 / 2).floor() % 2 = 1, live and^forward, live and^back, if^live: vp.replay.buttonsOf(one) el^: 0;, nil^)
     }
     # Discard menu direction presses during battle so they cannot reach select.
     upPressed := false^
@@ -1081,15 +1271,17 @@ let^tick = p^{
     pressed := 0
     let^cpu = brain
     var^cpuInput : vp.cpu.Input = {dir = 5, skill = 0, guard = false^, buttons = 0}
-    let^forward2 = if^foe.facing > 0: vp.input.isDown(Key.k) el^: vp.input.isDown(Key.h);
-    let^back2 = if^foe.facing > 0: vp.input.isDown(Key.h) el^: vp.input.isDown(Key.k);
+    let^right2 = (dirs2 / 8).floor() % 2 = 1
+    let^left2 = (dirs2 / 4).floor() % 2 = 1
+    let^forward2 = if^foe.facing > 0: right2 el^: left2;
+    let^back2 = if^foe.facing > 0: left2 el^: right2;
     if^cpu != nil^ and^live { cpuInput := cpu.step(foe, me) }
     if^cpu != nil^ {
         let^d = cpuInput.dir
         control(foe, live and^d >= 7, live and^d <= 3, live and^d % 3 = 0, live and^d % 3 = 1, cpuInput.buttons, cpu)
 
     else^:
-        control(foe, live and^vp.input.isDown(Key.u), live and^(vp.input.isDown(Key.j) or^dummyGuard = 3), live and^forward2, live and^back2, if^live: vp.input.heldButtons(1) el^: 0;, nil^)
+        control(foe, live and^dirs2 % 2 = 1, live and^((dirs2 / 2).floor() % 2 = 1 or^dummyGuard = 3), live and^forward2, live and^back2, if^live: vp.replay.buttonsOf(two) el^: 0;, nil^)
     }
     clear2()
 
@@ -1449,6 +1641,7 @@ public^let^draw = p^{
 let^drawGame = p^{
     drawScene()
     if^paused { vp.practicemenu.draw(dummyGuard, showBoxes) }
+    if^scene != nil^ { vp.replaylist.draw() }
     # What the pending load is reading (source runs only, like other debug text).
     if^pending != nil^ {
         let^paths, waiting = vp.resource.progress()
@@ -1519,13 +1712,25 @@ public^let^keypressed = p^key:love.keyboard.Key, scancode:love.keyboard.Scancode
             return^
         }
     }
+    # ESC stops a played replay; Start still pauses it.
+    if^key = Key.escape and^playing != nil^ and^inBattle() {
+        if^!isrepeat and^!paused { endReplay(false^) }
+        return^
+    }
     if^(key = Key.escape or^key = Key.return) and^inBattle() {
         if^!isrepeat { togglePause() }
         return^
     }
     if^paused { return^ }
     if^key = Key.escape {
-        if^!isrepeat { goBack() }
+        # ESC closes the mode menu's replay list rather than leaving the menu.
+        if^!isrepeat {
+            if^scene != nil^ and^vp.replaylist.isOpen() {
+                vp.replaylist.close()
+            else^:
+                goBack()
+            }
+        }
         return^
     }
     if^!isrepeat and^key = Key.up { upPressed := true^ }
@@ -1555,9 +1760,22 @@ public^let^keypressed = p^key:love.keyboard.Key, scancode:love.keyboard.Scancode
     if^key = Key.g { dummyGuard := (dummyGuard + 1) % vp.practicemenu.GUARDS }
     if^key = Key.f2 { foe.life := 1 }
     if^key = Key.t and^selecting != nil^ { stageChoice := (stageChoice + 1) % (STAGES.length^ + 1) }        # the next hit is a KO (for trying the round flow)
-    if^key = Key.f3 {
+    if^key = Key.f5 {
         soundLog := !soundLog
         vp.fighter.setSoundLog(soundLog)
+    }
+    # VS only (development): the CPU drives 1P / 2P, from the next frame.
+    if^!isrepeat and^!storyMode and^!practiceMode and^campaign is^nil^ and^playing is^nil^ {
+        if^key = Key.f3 {
+            cpuFirst := !cpuFirst
+            let^who = if^cpuFirst: "CPU" el^: "player";
+            print($"1P: {who}")
+        }
+        if^key = Key.f4 {
+            cpuSecond := !cpuSecond
+            let^who = if^cpuSecond: "CPU" el^: "player";
+            print($"2P: {who}")
+        }
     }
     for^v in^PALETTE_KEYS {
         if^key = v { me.palette := index^ }
