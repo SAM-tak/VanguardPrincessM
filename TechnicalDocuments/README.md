@@ -226,3 +226,7 @@
 - [0147-settings-and-fullscreen.md](0147-settings-and-fullscreen.md) — 設定ファイル settings.json（"lang"・"fullscreen"、lang が無ければ OS の優先言語、JSON なのは配布版エンジンがLTONテキストを読めないため。lhat-love に std.json を登録）と、Alt+Enter のデスクトップフルスクリーン（1280x960 を拡縮・中央寄せ・黒帯）。
 
 - [0148-event-reload.md](0148-event-reload.md) — F8 を love.event.reload に変更。検査拒否時は続行、受理後は資源を整理して main から再実行。
+
+- [0149-background-corner-holes.md](0149-background-corner-holes.md) — キャラセレ・難易度背景の左上の透明ピクセルが点の原因。原作展開画像と一致。処置なし。
+
+- [0150-difficulty-english.md](0150-difficulty-english.md) — 難易度選択の3枚の説明と操作説明を、英語ロケールで白地の英文に置換。

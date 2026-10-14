@@ -1,4 +1,4 @@
-# 画像に重ねる英文（システムメッセージ・ストーリー冒頭・ポーズのインスト）
+# 画像に重ねる英文（システムメッセージ・ストーリー冒頭・難易度選択・ポーズのインスト）
 
 元の画像を残し、日本語の部分だけを単色の矩形で消して英文を重ねる対象（翻訳用）。
 各項目の直下の text コードブロックが英訳（現在は Claude の下案。改行は訳文に合わせて調整してよい）。
@@ -6,7 +6,39 @@
 - システムメッセージ: 上段の英語（CALCIUM BREAK など）は残し、下線の下の日本語を消して英文を置く
 - ストーリー冒頭の一枚絵: 名前の飾り文字とローマ字は残し、本文を白の矩形で消して英文を置く
 - ポーズのインスト: 英語版の画像 `data/images/Instraction.png` に差し替える（下の訳は参考）
+- 難易度選択: 3枚の説明文と下端の操作説明を白の矩形で消して英文を置く
 - 日本語テキスト段落末の引用は翻訳者向け注釈
+
+## 難易度選択（説明文・操作説明）
+
+assets\characters\だみー\images\0000.png
+
+EASY: 初心者向け。CPUレベルが低く、2ラウンド先取、全7試合。
+NORMAL: 中級者向け。CPUレベルが高く、2ラウンド先取、全7試合。
+HARD: 上級者向け。CPUレベルが非常に高く、2ラウンド先取、全11試合。
+操作説明: CPUの難易度を設定してください。←→で選択、Aボタンで決定します。
+
+```text
+For beginners.
+Low CPU difficulty.
+Win 2 rounds
+to win each match.
+(7 matches total)
+
+For intermediate players.
+High CPU difficulty.
+Win 2 rounds
+to win each match.
+(7 matches total)
+
+For advanced players.
+Very high CPU difficulty.
+Win 2 rounds
+to win each match.
+(11 matches total)
+
+Choose the CPU difficulty.   Left/Right: Select   A: Confirm
+```
 
 ## システムメッセージ（対戦中、下半分）
 
