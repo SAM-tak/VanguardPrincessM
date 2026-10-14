@@ -2,7 +2,9 @@
 # change of screen: the files in the save directory's replays/, newest name
 # first. A plain stand-in like the practice menu (src/practicemenu.lh): up /
 # down choose, A / C / E / F play the chosen one (src/replay.lh), B / D or
-# ESC close it.
+# ESC close it. A line shows the file's characters (in the locale's names)
+# and its date; a file not named as VS names it is shown as it is. The lines
+# use a face with Japanese whatever the locale, as a name may be in any.
 module^vp.replaylist
 
 import^love.graphics
@@ -11,6 +13,7 @@ require^"locale.lh"
 
 public^let^DIR = "replays"
 let^ROWS = 10                   # the lines shown at once; the rest scroll
+let^LINE_FONT = "data/NotoSansMonoCJKjp-Regular.otf"
 
 let^Words = t^{ title:string^, empty:string^, hint:string^, marker:string^, font:string^ }
 let^JA : Words = {
@@ -88,6 +91,19 @@ public^let^step = p^up:bool^, down:bool^, pressed:number^{
     }
 }
 
+# <1P>-vs-<2P>-<YYYYMMDD>-<HHMMSS>[-n].replay (the characters' ids, src/replay.lh)
+# as "1P vs 2P  YYYY-MM-DD HH:MM:SS".
+public^let^label = p^name:string^-> string^{
+    let^parts = name.split("-")
+    let^first = vp.locale.characterOfId(parts[0] ?? "")
+    let^second = vp.locale.characterOfId(parts[2] ?? "")
+    let^day = parts[3] ?? ""
+    let^time = parts[4] ?? ""
+    if^first is^nil^ or^second is^nil^ or^parts[1] != "vs" or^day.size != 8 or^time.size < 6 { return^name }
+    let^when = $"{day.sub(0, 3)}-{day.sub(4, 5)}-{day.sub(6, 7)} {time.sub(0, 1)}:{time.sub(2, 3)}:{time.sub(4, 5)}"
+    return^$"{vp.locale.characterName(first)} vs {vp.locale.characterName(second)}  {when}"
+}
+
 let^fontFor = p^file:string^, size:number^-> love.graphics.Font {
     let^known = fonts[$"{file}:{size}"]
     if^known? { return^known }
@@ -121,6 +137,7 @@ public^let^draw = p^{
     love.graphics.rectangle(love.graphics.DrawMode.line, bx, by, bw, bh)
     let^big = fontFor(words.font, (14 * u).floor())
     let^small = fontFor(words.font, (10 * u).floor())
+    let^lineFont = fontFor(LINE_FONT, (13 * u).floor())
     love.graphics.setFont(big)
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.print(words.title, bx + 16 * u, by + 12 * u)
@@ -139,7 +156,9 @@ public^let^draw = p^{
             else^:
                 love.graphics.setColor(0.8, 0.8, 0.85, 1)
             }
-            love.graphics.print(name, bx + 34 * u, y)
+            love.graphics.setFont(lineFont)
+            love.graphics.print(label(name), bx + 34 * u, y)
+            love.graphics.setFont(big)
         }
     }
     love.graphics.setFont(small)

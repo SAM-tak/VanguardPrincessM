@@ -20,6 +20,10 @@
 - 上下で選択（10行を超えたらスクロール）、A / C / E / F で選んだリプレイを再生（[0155](0155-replay.md)。読めないファイルなら一覧のまま）、B / D または ESC で閉じる。
   開いている間はメニューのカーソルを動かさない。ESC は一覧を閉じるだけで、閉じた後の ESC は従来どおりメニューを離れる
 - 0件なら「リプレイがありません」／「No replays」
+- 1行の表示: VS のファイル名（`<1P id>-vs-<2P id>-<日付>-<時刻>.replay`、[0155](0155-replay.md)）は「キャラ名 vs キャラ名  YYYY-MM-DD HH:MM:SS」（UTC）。
+  キャラ名はロケールに合わせる（`vp.locale.characterName`。英語は翻訳文書のローマ字 Yui / Haruka / Lilith / Luna / Kurumi / Saki / Kaede / Natalia / Eri / Ayane / Hilda）。
+  id から名前へは `vp.locale.characterOfId`。それ以外の名前（id でないもの、当初のかな名のファイル）はそのまま表示。
+  行はロケールに関わらず NotoSansMonoCJKjp で描く（英語の欧文フォントでは日本語の名前が出ないため）
 
 ## 検証
 

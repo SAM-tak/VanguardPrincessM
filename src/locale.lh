@@ -400,3 +400,25 @@ public^let^render = p^path:string^-> love.graphics.Texture|nil^{
     out.setFilter(love.graphics.FilterMode.nearest, love.graphics.FilterMode.nearest)
     return^out
 }
+
+# The characters' names in text the port writes itself (the replay list): the
+# folder name in the original locale, else the romanization the English
+# translation uses (GameDocuments/*.md). Its lower case is the character's id
+# in file names (a replay's), which stay ASCII.
+let^NAMES_EN : t^{[string^]:string^|nil^} = {
+    ["ゆい"] = "Yui", ["はるか"] = "Haruka", ["リリス"] = "Lilith", ["ルナ"] = "Luna", ["くるみ"] = "Kurumi",
+    ["サキ"] = "Saki", ["かえで"] = "Kaede", ["ナタリア"] = "Natalia", ["えり"] = "Eri", ["あやね"] = "Ayane",
+    ["ヒルダ"] = "Hilda",
+}
+public^let^characterName = p^name:string^-> string^{
+    if^locale() = ORIGINAL { return^name }
+    return^NAMES_EN[name] ?? name
+}
+public^let^characterId = p^name:string^-> string^{ return^(NAMES_EN[name] ?? name).tolower() }
+# The folder name an id stands for, or nil.
+public^let^characterOfId = p^id:string^-> string^|nil^{
+    for^name, roman in^NAMES_EN {
+        if^roman != nil^ and^roman.tolower() = id { return^name }
+    }
+    return^nil^
+}

@@ -7,6 +7,7 @@ require^"../main.lh"
 require^"../tests/select-input.lh"
 require^"../src/arena.lh"
 require^"../src/replaylist.lh"
+require^"../src/locale.lh"
 
 # WATCH REPLAY (the mode menu's last item, up from STORY MODE) opens the list
 # of replays/ over the menu, newest name first; up / down choose, A on a
@@ -38,6 +39,11 @@ let^fail = p^why:string^{
 
 public^let^load = p^{
     began := love.timer.getTime()
+    # A line names the characters in the locale's names, and the date.
+    let^shown = vp.replaylist.label("yui-vs-haruka-20261014-201642.replay")
+    let^want = if^vp.locale.locale() = "ja": "ゆい vs はるか  2026-10-14 20:16:42" el^: "Yui vs Haruka  2026-10-14 20:16:42";
+    if^shown != want { panic^$"a replay's line reads \"{shown}\", not \"{want}\"" }
+    if^vp.replaylist.label("test-20000101-0000.rep") != "test-20000101-0000.rep" { panic^"a file not named as VS is not shown as it is" }
     let^_^ = love.filesystem.createDirectory("replays")
     let^_^ = love.filesystem.write(OLDER, "older") catch^false^
     let^_^ = love.filesystem.write(NEWER, "newer") catch^false^

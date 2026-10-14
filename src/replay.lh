@@ -14,6 +14,7 @@ module^vp.replay
 
 import^love.filesystem
 import^std.binary
+require^"locale.lh"
 
 public^let^DIR = "replays"
 public^let^EXTENSION = ".replay"
@@ -115,11 +116,13 @@ let^stamp = p^-> string^{
     return^$"{y:%04d}{m:%02d}{d:%02d}-{(s / 3600).floor():%02d}{(s / 60).floor() % 60:%02d}{s % 60:%02d}"
 }
 
-# Saves a finished match as <1P>vs<2P>-<date>.replay; the file's name, or ""
-# when it could not be written.
+# Saves a finished match as <1P>-vs-<2P>-<date>.replay, the characters by
+# their ASCII ids (yui-vs-haruka-...): a name in kana breaks where a file is
+# passed on (an archive in another code page, macOS's decomposed kana). The
+# file's name, or "" when it could not be written.
 public^let^save = p^tape:Tape, name1:string^, name2:string^-> string^{
     let^_^ = love.filesystem.createDirectory(DIR)
-    let^base = $"{name1}vs{name2}-{stamp()}"
+    let^base = $"{vp.locale.characterId(name1)}-vs-{vp.locale.characterId(name2)}-{stamp()}"
     var^name = $"{base}{EXTENSION}"
     var^n = 2
     repeat^while^love.filesystem.getInfo($"{DIR}/{name}") != nil^ {

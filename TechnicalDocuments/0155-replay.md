@@ -5,7 +5,9 @@ VS MODE の試合を自動で記録し、WATCH REPLAY（[0154](0154-replay-list.
 
 ## ファイル
 
-- セーブディレクトリの `replays/<1P>vs<2P>-<YYYYMMDD-HHMMSS>.replay`（`src/replay.lh`）。キャラ名は `assets/characters/` のフォルダ名（ゆい など）。
+- セーブディレクトリの `replays/<1P>-vs-<2P>-<YYYYMMDD-HHMMSS>.replay`（`src/replay.lh`）。キャラは ASCII の id（`yui-vs-haruka-…`。
+  英語名の小文字、`vp.locale.characterId`）。当初はフォルダ名（ゆい など）だったが、かなのファイル名は受け渡しで壊れうる
+  （別コードページの zip、macOS の濁点の分解）ので英字にした。表示はロケールの名前（[0154](0154-replay-list.md)）。
   同名があれば `-2`, `-3` … を付ける
 - **日時は UTC**。L^ にも LÖVE にも暦の時刻を得る API が無い（`love.timer` は単調時計、std に time が無い）。
   `replays/.now` を書いてその更新時刻（`getInfo().modtime`、Unix 時刻）を読み、暦日に変換している。
@@ -26,7 +28,7 @@ VS MODE の試合を自動で記録し、WATCH REPLAY（[0154](0154-replay-list.
 
 入力だけで再現するために以下を揃えた。
 
-- **シミュレーション専用の乱数**（`src/rng.lh`）: スクリプトの `Rnd`（`fighter.chance`）、CPU の思考、画面揺れのモード4 はこちらを使う。
+- **シミュレーション専用の乱数**（`src/rng.lh`。後に xorshift32 の L^ 実装に変更、[0156](0156-snapshot-rewind.md)）: スクリプトの `Rnd`（`fighter.chance`）、CPU の思考、画面揺れのモード4 はこちらを使う。
   以前はすべて `love.math.random` を共有していて、描画時に呼ばれる残像のちらつき（`afterimage.weight`）が fps に応じて乱数を消費していた。
   残像は見た目だけなのでグローバルのまま。メニュー側（ステージ抽選など）もグローバルのまま
 - **シード**: 試合ごとに新しいシードを作り（`loadMatch`）、VS 演出の開始（`beginPresentation`、ステージのスクリプトのため）と試合開始（`startBattle`）でシードし直す。シードはヘッダに保存

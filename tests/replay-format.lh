@@ -16,8 +16,9 @@ public^let^load = p^{
     for^i from^0 to^999 {
         tape.push(vp.replay.pack(i % 16, (i * 7) % 64, i % 3 = 0), vp.replay.pack((i * 5) % 16, (i * 11) % 64, i % 5 = 0))
     }
-    let^name = vp.replay.save(tape, "テスト", "test")
+    let^name = vp.replay.save(tape, "ナタリア", "かえで")
     if^name = "" { panic^"not saved" }
+    if^name.find("natalia-vs-kaede-") != 0 { panic^$"the file is not named by the characters' ids: {name}" }
     let^back = vp.replay.load(name)
     let^_^ = love.filesystem.remove($"{vp.replay.DIR}/{name}")
     if^back is^nil^ { panic^"not read back" }
