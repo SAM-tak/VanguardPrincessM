@@ -12,7 +12,14 @@ if ($Test -eq 'f8-main-reload') {
     $game = [IO.File]::ReadAllText((Join-Path $root 'main.lh'))
     foreach ($callback in @('load', 'update', 'draw')) {
         $game = $game.Replace("public^let^$callback =", "let^game_$callback =")
+        $source = $source.Replace("vp.main.$callback(", "game_$callback(")
     }
+    # Keep the source a valid standalone module for language-server analysis;
+    # only the executable harness is merged into vp.main for this test.
+    $source = $source -replace '(?m)^module\^vp\.f8mainreloadtest\r?\n', ''
+    $source = $source -replace '(?m)^import\^love\.(event|keyboard|timer)\r?\n', ''
+    $source = $source -replace '(?m)^require\^"\.\./(main\.lh|src/(arena|resource)\.lh)"\r?\n', ''
+    $source = $source.Replace('vp.main.status(', 'status(').Replace('vp.main.keypressed(', 'keypressed(')
     $source = $game + "`n" + $source
 }
 [IO.File]::WriteAllText($entry, $source.Replace('require^"../', 'require^"'))

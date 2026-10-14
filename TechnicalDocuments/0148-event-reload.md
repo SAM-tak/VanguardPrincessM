@@ -25,3 +25,5 @@ F8がキーイベントとしてupdate前に届くと、resource.stop()の後、
 従来のテスト入口はvp.mainをrequireするため、mainの状態が残っており、この実際のmain再実行経路を検証できていなかった。f8-main-reloadはrunnerが本物のmain.lhを入口のbodyとして使い、load/update/drawをテストで包む。F8直後に同じフレームでupdateを再度呼び、2回のリロードと各回の非同期systemロード完了を確認する。修正前に報告と同じpanicを再現し、修正後はPASS（exit=0）。
 
 修正後の検証: main.lhのコンパイル成功（22 units）、f8-main-reload / async-flow / practice-mode / locale-reloadすべてPASS（exit=0）。
+
+2026-10-15: f8-main-reload.lhも通常のmodule・import・requireとvp.mainへの参照を持たせ、言語サーバーが単体で解析できるようにした。runnerは連結時だけmodule/importと重複requireを外し、load/update/drawをgame_*、status/keypressedをmain内の参照に置換する。実行は引き続きrunner経由とし、mainがリロードの根となる検証を維持する。
