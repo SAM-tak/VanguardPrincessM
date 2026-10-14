@@ -1,0 +1,111 @@
+# A played replay's controls (TechnicalDocuments/0156): right held runs it
+# several frames a frame, left goes back to a snapshot (one every second),
+# and the replay still ends as the match did. The match is replay-roundtrip's.
+module^vp.replaycontrols
+import^love.keyboard
+import^love.event
+import^love.filesystem
+import^love.timer
+require^"../main.lh"
+require^"../tests/select-input.lh"
+require^"../src/arena.lh"
+require^"../src/replaylist.lh"
+require^"../src/input.lh"
+
+var^phase = 0
+var^wait = 0
+var^began = 0
+var^saved = ""
+var^downs = 0                # down presses still to make, one a frame
+var^step = 0                 # the controls' check: 0 waiting, 1 fast forward, 2 rewind, 3 done
+var^mark = 0
+var^frames = 0
+let^Key = love.keyboard.Key
+let^press = p^key:love.keyboard.Key{ vp.selectinput.press(key) }
+let^fail = p^why:string^{
+    if^saved != "" { let^_^ = love.filesystem.remove($"replays/{saved}") }
+    panic^why
+}
+
+public^let^load = p^{
+    began := love.timer.getTime()
+    vp.main.setVSSeconds(5)
+    vp.main.load()
+}
+public^let^update = p^dt:number^{
+    # Matches run several frames a frame; menus one.
+    let^s0 = vp.main.status()
+    let^fast = (s0.phase = "battle" or^s0.phase = "match-intro") and^!(phase = 9 and^step > 0 and^step < 3)
+    for^i from^1 to^(if^fast: 8 el^: 1;) { vp.main.update(0.02) }
+    if^downs > 0 { press(Key.down) downs -= 1 }
+    let^s = vp.main.status()
+    let^where = vp.arena.names()
+    if^phase = 0 and^where = "system / opening" { press(Key.z) phase := 1
+    elseif^phase = 1: press(Key.z) phase := 2
+    elseif^phase = 2 and^where = "system / title":
+        wait += 1
+        if^wait = 20 { press(Key.down) }
+        if^wait = 30 { press(Key.z) phase := 3 wait := 0 }
+    elseif^phase = 3 and^s.phase = "select" and^!s.loading:
+        press(Key.f3)
+        press(Key.f4)
+        press(Key.z)
+        phase := 4
+    elseif^phase = 4:
+        press(Key.l) phase := 5
+    elseif^phase = 5 and^s.phase = "battle":
+        if^!s.recording { fail("VS did not record") }
+        if^!s.cpuFirst or^!s.cpuSecond { fail("F3 / F4 did not hand both sides to the CPU") }
+        phase := 6
+    elseif^phase = 6 and^s.phase = "select":
+        saved := s.lastReplay
+        if^saved = "" or^love.filesystem.getInfo($"replays/{saved}") is^nil^ { fail("no replay was saved") }
+        print($"recorded {saved}: wins {s.wins}-{s.losses}")
+        press(Key.escape)
+        phase := 7
+        wait := 0
+    elseif^phase = 7 and^where = "system / title":
+        wait += 1
+        if^wait = 20 { press(Key.up) }          # STORY wraps round to WATCH REPLAY
+        if^wait = 30 { press(Key.z) }
+        if^wait = 40 {
+            var^at = -1
+            for^name in^vp.replaylist.entries() { if^name = saved { at := index^ } }
+            if^at < 0 { fail($"{saved} is not listed") }
+            downs := at
+        }
+        if^wait = 50 { press(Key.z) phase := 8 }
+    elseif^phase = 8 and^s.replaying and^s.phase = "battle":
+        phase := 9
+    elseif^phase = 9 and^s.replaying and^step = 0 and^s.replayFrame >= 600:
+        step := 1 mark := s.replayFrame frames := 0
+    elseif^phase = 9 and^s.replaying and^step = 1:
+        # 20 frames with right held: 2 simulation frames a frame, times 4.
+        frames += 1
+        vp.input.tap(Key.right)
+        if^frames = 20 {
+            let^moved = s.replayFrame - mark
+            print($"fast forward: {moved} frames in 20")
+            if^moved < 120 { fail($"right held ran {moved} frames in 20, not fast forward") }
+            step := 2 mark := s.replayFrame frames := 0
+            vp.input.tap(Key.left)
+        }
+    elseif^phase = 9 and^s.replaying and^step = 2:
+        frames += 1
+        if^frames = 1 {
+            print($"rewound from {mark} to {s.replayFrame} ({s.replaySnapshots} snapshots)")
+            # The frame the rewind happened in runs on (right may still read held).
+            if^s.replayFrame >= mark or^s.replayFrame % 100 > 8 { fail($"left went from {mark} to {s.replayFrame}, not back to a snapshot") }
+            step := 3
+        }
+    elseif^phase = 9 and^!s.replaying and^where = "system / title":
+        let^_^ = love.filesystem.remove($"replays/{saved}")
+        if^step != 3 { panic^$"the controls were not tried (step {step})" }
+        if^!s.replayMatched { panic^"after fast forward and rewind the replay did not end as the match did" }
+        print("PASS: right fast-forwards a replay, left rewinds it to a snapshot, and it still ends as recorded")
+        love.event.quit()
+    }
+    if^love.timer.getTime() - began > 300 { fail($"replay controls timeout at phase {phase}") }
+}
+public^let^draw = p^{ vp.main.draw() }
+public^let^quit = p^-> bool^{ return^vp.main.quit() }

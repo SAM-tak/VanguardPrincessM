@@ -64,3 +64,17 @@ let^mix = f^a:number^, b:number^, w:number^-> number^{
     let^v = a * (1 - w) + b * w
     return^if^v < 0: v.ceil() el^: v.floor();
 }
+
+# An independent copy of a trail (a snapshot keeps one, and gives one back).
+public^let^copy = p^from:Trail-> Trail {
+    let^t = Trail.new()
+    t.count := from.count t.interval := from.interval t.timer := from.timer t.cursor := from.cursor
+    t.option := from.option t.fading := from.fading
+    t.r := from.r t.g := from.g t.b := from.b t.a := from.a t.frame := from.frame
+    for^pose in^from.poses {
+        let^c = Pose.new()
+        c.image := pose.image c.x := pose.x c.y := pose.y c.sx := pose.sx c.sy := pose.sy
+        t.poses.push^(c)
+    }
+    return^t
+}

@@ -28,6 +28,12 @@ public^let^Brain = def^{
   if^!(raw fits^t^{patterns:t^{Pattern[]}, commands:t^{t^{number^[]}[]}}) { panic^$"Missing native CPU data: {name}" }
   self^{patterns = raw.patterns, commands = raw.commands, level = level.clamp(0,100)}
  },
+ # Copies its state into `to` (a snapshot's store, or back).
+ copyStateTo = p^self^, to:Brain{
+  to.selected := self^.selected to.at := self^.at to.remaining := self^.remaining
+  to.cooldown := self^.cooldown to.level := self^.level to.actions := self^.actions
+  to.history := self^.history.clone^()
+ },
  reset = p^self^{ self^.selected := -1 self^.at := -1 self^.remaining := 0 self^.cooldown := 0 self^.history := {} },
  # Native rand() is a 15-bit value, followed by integer remainder.
  random = p^self^, range:number^-> number^{ return^self^.randomWord() % range },

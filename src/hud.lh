@@ -50,6 +50,23 @@ public^let^Hud = def^{
         timerActive = false^,
     },
 
+    # Copies what changes as the match runs into `to` (a snapshot's store, or
+    # back). The Fighters it refers to are snapshotted on their own.
+    copyStateTo = p^self^, to:Hud{
+        to.layers := self^.layers.clone^()
+        to.life1 := self^.life1
+        to.life2 := self^.life2
+        to.special1 := self^.special1
+        to.special2 := self^.special2
+        to.stock1 := self^.stock1
+        to.stock2 := self^.stock2
+        to.shown1 := self^.shown1
+        to.shown2 := self^.shown2
+        to.tens := self^.tens
+        to.ones := self^.ones
+        to.shownSeconds := self^.shownSeconds
+        to.timerActive := self^.timerActive
+    },
     # A round starts the HUD's skills over (layout 5, the big "60", times itself
     # by the round: 699 frames in round 1, 349 after).
     restart = p^self^{

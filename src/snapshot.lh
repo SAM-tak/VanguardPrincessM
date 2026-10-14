@@ -1,0 +1,122 @@
+# A match's state at one frame, and putting it back (TechnicalDocuments/0156):
+# a replay's rewind now, rollback later.
+#
+# Restoring writes the saved state back into the same objects, not into
+# copies: a coroutine's frame goes back only into the coroutine it was saved
+# from (L^ 02 15.16, save() / load()). So a snapshot keeps every Fighter it
+# found and its running skill coroutine, with a store of each one's state;
+# what was made after the snapshot is simply no longer reached, and what
+# went away after it comes back.
+module^vp.snapshot
+
+require^"fighter.lh"
+require^"round.lh"
+require^"hud.lh"
+require^"stage.lh"
+require^"shake.lh"
+require^"rng.lh"
+
+let^Fighter = vp.fighter.Fighter
+
+let^saveSkill = p^co:vp.fighter.Skill|nil^-> costate^|nil^{
+    if^co fits^c^{p^-> nil^} { return^co.save() }
+    if^co fits^c^{p^-> nil^ -> -} { return^co.save() }
+    return^nil^
+}
+let^loadSkill = p^co:vp.fighter.Skill|nil^, state:costate^|nil^{
+    if^state is^nil^ { return^ }
+    let^s : costate^ = state
+    if^co fits^c^{p^-> nil^} { co.load(s) return^ }
+    if^co fits^c^{p^-> nil^ -> -} { co.load(s) }
+}
+
+public^let^Snapshot = def^{
+    self^{
+        fighters : t^{Fighter[]} = {},           # the live ones, as found
+        stores : t^{Fighter[]} = {},             # their state then
+        skills : t^{(costate^|nil^)[]} = {},     # their skill's frame then
+        abstract^round : vp.round.Round,
+        abstract^roundStore : vp.round.Round,
+        abstract^hud : vp.hud.Hud,
+        abstract^hudStore : vp.hud.Hud,
+        abstract^stage : vp.stage.Stage,
+        stageLayers : t^{Fighter[]} = {},
+        stagePlayers = 0,
+        shake : t^{number^[]} = {},
+        random = 0,
+        systemVars : t^{[number^]:number^|nil^} = {},
+    },
+    override^new = p^round:vp.round.Round, hud:vp.hud.Hud, stage:vp.stage.Stage{
+        self^{
+            round = round, roundStore = vp.round.Round.new(),
+            hud = hud, hudStore = vp.hud.Hud.new(),
+            stage = stage,
+        }
+    },
+
+    # Adds f, and every Fighter reachable from it, once.
+    reach = p^self^, f:Fighter|nil^{
+        if^f is^nil^ { return^ }
+        let^one : Fighter = f
+        if^self^.fighters.contains^(one) { return^ }
+        self^.fighters.push^(one)
+        for^o in^one.objects { self^.reach(o) }
+        for^slot, o in^one.slots { self^.reach(o) }
+        self^.reach(one.parent)
+        self^.reach(one.owner)
+        self^.reach(one.enemy)
+        self^.reach(one.hitEventTarget)
+    },
+}
+
+let^axisState = f^a:vp.shake.Axis-> t^{number^[]} { { a.mode, a.amplitude, a.duration, a.age, a.offset } }
+let^setAxis = p^a:vp.shake.Axis, s:t^{number^[]}{
+    a.mode := s[0] ?? 0 a.amplitude := s[1] ?? 0 a.duration := s[2] ?? 0 a.age := s[3] ?? 0 a.offset := s[4] ?? 0
+}
+
+# The state of the match the given fighters, round, HUD and stage make up.
+public^let^take = p^fighters:t^{Fighter[]}, round:vp.round.Round, hud:vp.hud.Hud, stage:vp.stage.Stage-> Snapshot {
+    let^s = Snapshot.new(round, hud, stage)
+    for^f in^fighters { s.reach(f) }
+    for^l in^round.layers { s.reach(l) }
+    for^l in^round.portraits { s.reach(l) }
+    for^l in^round.marks { s.reach(l) }
+    for^l in^round.combos { s.reach(l) }
+    for^l in^hud.layers { s.reach(l) }
+    for^l in^{ hud.life1, hud.life2, hud.special1, hud.special2, hud.stock1, hud.stock2, hud.tens, hud.ones } { s.reach(l) }
+    for^l in^stage.layers { s.reach(l) }
+    for^f in^s.fighters {
+        let^store = Fighter.new(f.dir, 0, 0)
+        f.copyStateTo(store)
+        s.stores.push^(store)
+        s.skills.push^(saveSkill(f.skill))
+    }
+    round.copyStateTo(s.roundStore)
+    hud.copyStateTo(s.hudStore)
+    s.stageLayers := stage.layers.clone^()
+    s.stagePlayers := stage.players
+    s.shake := axisState(vp.shake.horizontal) .. axisState(vp.shake.vertical)
+    s.random := vp.rng.get()
+    s.systemVars := vp.fighter.systemVarsCopy()
+    return^s
+}
+
+# Puts the match back as the snapshot found it. The snapshot stays as it was,
+# so it can be put back again.
+public^let^restore = p^s:Snapshot{
+    for^f in^s.fighters {
+        let^store = s.stores[index^]
+        if^store != nil^ {
+            store.copyStateTo(f)
+            loadSkill(f.skill, s.skills[index^])
+        }
+    }
+    s.roundStore.copyStateTo(s.round)
+    s.hudStore.copyStateTo(s.hud)
+    s.stage.layers := s.stageLayers.clone^()
+    s.stage.players := s.stagePlayers
+    setAxis(vp.shake.horizontal, s.shake.slice^(0, 4))
+    setAxis(vp.shake.vertical, s.shake.slice^(5, 9))
+    vp.rng.set(s.random)
+    vp.fighter.setSystemVars(s.systemVars)
+}

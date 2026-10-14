@@ -37,6 +37,25 @@ public^let^Box = def^{
     },
 }
 
+# Hurt / attack boxes copied one by one: a box's flags change in place
+# (connected, vulnerable).
+let^copyBoxes = p^boxes:t^{[number^]:Box|nil^}-> t^{[number^]:Box|nil^}{
+    var^out : t^{[number^]:Box|nil^} = {}
+    for^slot, b in^boxes {
+        if^b != nil^ {
+            let^c = Box.new(b.x, b.y, b.w, b.h)
+            c.power := b.power
+            c.body := b.body
+            c.vulnerable := b.vulnerable
+            c.rate := b.rate
+            c.flags := b.flags
+            c.connected := b.connected
+            out[slot] := c
+        }
+    }
+    return^out
+}
+
 # One entry of the character's command table: the input steps (FM2K direction
 # codes and button bitmasks, a = 1 ... f = 32), the frames they must fall
 # within, and the skill for each state (0: none). A step's mode: 0 a press,
@@ -175,6 +194,124 @@ public^let^Fighter = def^{
     },
 
     airborne = f^self^{ self^.y < self^.ground },
+
+    # Copies what changes as the match runs into `to`, which keeps it (a
+    # snapshot, src/snapshot.lh) or gets it back. The skill coroutine itself
+    # is shared; its frame is saved apart (save() / load()). What a skill's
+    # package gives (images, sounds, skills, commands, reactions) is not copied.
+    # Mutable tables are copied, so neither side changes the other's.
+    copyStateTo = p^self^, to:Fighter{
+        to.palette := self^.palette
+        to.x := self^.x
+        to.y := self^.y
+        to.ground := self^.ground
+        to.vx := self^.vx
+        to.vy := self^.vy
+        to.ax := self^.ax
+        to.ay := self^.ay
+        to.facing := self^.facing
+        to.image := self^.image
+        to.ix := self^.ix
+        to.iy := self^.iy
+        to.turnX := self^.turnX
+        to.turnY := self^.turnY
+        to.fixed := self^.fixed
+        let^trail = self^.trail
+        to.trail := if^trail != nil^: vp.afterimage.copy(trail) el^: nil^;
+        to.blend := self^.blend
+        to.alpha := self^.alpha
+        to.tintR := self^.tintR
+        to.tintG := self^.tintG
+        to.tintB := self^.tintB
+        to.scrollX := self^.scrollX
+        to.scrollY := self^.scrollY
+        to.loopX := self^.loopX
+        to.loopY := self^.loopY
+        to.level := self^.level
+        to.hurts := copyBoxes(self^.hurts)
+        to.hits := copyBoxes(self^.hits)
+        to.externalIntroPortrait := self^.externalIntroPortrait
+        to.vars := self^.vars.clone^()
+        to.onSkill := self^.onSkill.clone^()
+        to.onBlock := self^.onBlock.clone^()
+        to.skillName := self^.skillName
+        to.skillNo := self^.skillNo
+        to.skill := self^.skill
+        to.jumpSkill := self^.jumpSkill
+        to.jumpBlock := self^.jumpBlock
+        to.eventPending := self^.eventPending
+        to.callReturn := self^.callReturn
+        to.callReturnBlock := self^.callReturnBlock
+        to.repeatReturn := self^.repeatReturn
+        to.repeatReturnBlock := self^.repeatReturnBlock
+        to.repeatTarget := self^.repeatTarget
+        to.repeatBlock := self^.repeatBlock
+        to.repeatLeft := self^.repeatLeft
+        to.inDirs := self^.inDirs.clone^()
+        to.inPress := self^.inPress.clone^()
+        to.inHeld := self^.inHeld.clone^()
+        to.inputFrame := self^.inputFrame
+        to.consumedThrough := self^.consumedThrough
+        to.cpuHistorySpan := self^.cpuHistorySpan
+        to.lastButtonPress := self^.lastButtonPress.clone^()
+        to.closeRange := self^.closeRange
+        to.cancelWhen := self^.cancelWhen
+        to.cancelFrom := self^.cancelFrom
+        to.cancelTo := self^.cancelTo
+        to.cancelSkill := self^.cancelSkill
+        to.hitConfirmed := self^.hitConfirmed
+        to.cancelArmed := self^.cancelArmed
+        to.cancelByHit := self^.cancelByHit
+        to.onHit := self^.onHit.clone^()
+        to.onGuard := self^.onGuard.clone^()
+        to.life := self^.life
+        to.lifeMax := self^.lifeMax
+        to.guardDamageRate := self^.guardDamageRate
+        to.lowLifeThreshold := self^.lowLifeThreshold
+        to.lowLifeRate := self^.lowLifeRate
+        to.comboRate := self^.comboRate
+        to.damageHits := self^.damageHits
+        to.special := self^.special
+        to.specialPer := self^.specialPer
+        to.stockMax := self^.stockMax
+        to.enemy := self^.enemy
+        to.guarding := self^.guarding
+        to.blocking := self^.blocking
+        to.receiving := self^.receiving
+        to.guardCrouched := self^.guardCrouched
+        to.attackConnected := self^.attackConnected
+        to.frameAttack := self^.frameAttack
+        to.frameThrow := self^.frameThrow
+        to.frameReceived := self^.frameReceived
+        to.hitEventTarget := self^.hitEventTarget
+        to.combo := self^.combo
+        to.comboMarker := self^.comboMarker
+        to.stop := self^.stop
+        to.cornerPush := self^.cornerPush
+        to.recoilReturns := self^.recoilReturns
+        to.owner := self^.owner
+        to.objects := self^.objects.clone^()
+        to.slots := self^.slots.clone^()
+        to.guardEither := self^.guardEither
+        to.baseDepth := self^.baseDepth
+        to.depth := self^.depth
+        to.parent := self^.parent
+        to.follow := self^.follow
+        to.shadowOf := self^.shadowOf
+        to.system := self^.system
+        to.onScreen := self^.onScreen
+        to.lastOwnerX := self^.lastOwnerX
+        to.lastOwnerY := self^.lastOwnerY
+        to.spins := self^.spins
+        to.waitTimer := self^.waitTimer
+        to.minX := self^.minX
+        to.maxX := self^.maxX
+        to.minXAir := self^.minXAir
+        to.maxXAir := self^.maxXAir
+        to.wallMinX := self^.wallMinX
+        to.wallMaxX := self^.wallMaxX
+        to.alive := self^.alive
+    },
 
     # FM2K keeps wall recoil in the player's pending displacement, not its M
     # velocity. Only a living main fighter in a hit/guard reaction returns it.
@@ -1603,6 +1740,10 @@ public^let^setRound = p^frames:number^, number:number^{
     roundFrames := frames
     roundNumber := number
 }
+
+# The system variables, for a snapshot (src/snapshot.lh); a copy each way.
+public^let^systemVarsCopy = p^-> t^{[number^]:number^|nil^} { return^systemVars.clone^() }
+public^let^setSystemVars = p^vars:t^{[number^]:number^|nil^}{ systemVars := vars.clone^() }
 
 # ---------------------------------------------------------------------------
 # Image, boxes, motion, sound

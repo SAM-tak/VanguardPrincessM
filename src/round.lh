@@ -110,6 +110,32 @@ public^let^Round = def^{
         combos : t^{Fighter[]} = {},    # hit counts, in world coordinates
     },
 
+    # Copies what changes as the match runs into `to` (a snapshot's store, or
+    # back). The Fighters in its lists are snapshotted on their own.
+    copyStateTo = p^self^, to:Round{
+        to.phase := self^.phase
+        to.music := self^.music
+        to.presentationFrames := self^.presentationFrames
+        to.waitingFrames := self^.waitingFrames
+        to.portraitLoops := self^.portraitLoops.clone^()
+        to.externalPresentation := self^.externalPresentation
+        to.battleRevealed := self^.battleRevealed
+        to.preparing := self^.preparing
+        to.resultFrames := self^.resultFrames
+        to.left := self^.left
+        to.number := self^.number
+        to.toWin := self^.toWin
+        to.wins1 := self^.wins1
+        to.wins2 := self^.wins2
+        to.winner := self^.winner
+        to.awarded := self^.awarded
+        to.lossWithMark := self^.lossWithMark
+        to.perfect := self^.perfect
+        to.layers := self^.layers.clone^()
+        to.portraits := self^.portraits.clone^()
+        to.marks := self^.marks.clone^()
+        to.combos := self^.combos.clone^()
+    },
     portrait = p^self^, name:string^, colour:number^, side:number^{
         let^dir = $"assets/characters/{name}"
         let^sc = vp.script.load($"{dir}/portrait.lton")

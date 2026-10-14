@@ -239,3 +239,4 @@
 
 - [0154-replay-list.md](0154-replay-list.md) — モードメニューに SURVIVAL / ONLINE VS / LAN VS（準備中）と WATCH REPLAY。WATCH REPLAY は画面遷移せず replays/ の一覧を開き、B/D・ESC で閉じる。
 - [0155-replay.md](0155-replay.md) — VS の入力（方向ビット・ボタン・CPU フラグ）を std.binary で replays/ に記録し、WATCH REPLAY から入力だけで再生。シミュレーション専用乱数とシード、試合開始フレームの固定、CPU フレームは CPU を再実行。F3/F4 で VS の CPU 切替。
+- [0156-snapshot-rewind.md](0156-snapshot-rewind.md) — 試合のスナップショット（技コルーチンは L^ の save/load、Fighter 等は同じオブジェクトへ書き戻し、乱数は xorshift32）。リプレイの → 4倍速・← 直前のスナップショットへ巻き戻し。取得 7.3ms／復元 4.6ms。

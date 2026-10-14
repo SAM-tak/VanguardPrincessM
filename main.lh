@@ -47,6 +47,7 @@ require^"src/practicemenu.lh"
 require^"src/replaylist.lh"
 require^"src/replay.lh"
 require^"src/rng.lh"
+require^"src/snapshot.lh"
 require^"src/cpu.lh"
 require^"src/input.lh"
 require^"src/media.lh"
@@ -119,6 +120,15 @@ var^paused = false^
 var^recording : vp.replay.Tape|nil^= nil^
 var^playing : vp.replay.Tape|nil^= nil^
 var^replayFrame = 0            # the next of the played replay's frames
+# Playing a replay keeps a snapshot every second (TechnicalDocuments/0156):
+# left goes back to the last one before now, right holds fast forward.
+var^replaySnapshots : t^{[number^]:Saved|nil^} = {}
+let^SNAPSHOT_EVERY = 100
+let^FAST_FORWARD = 4           # frames a frame while right is held
+let^REWIND_REPEAT = 0.25       # seconds between steps back while left is held
+let^REWIND_MARGIN = 30         # a step back from just past a snapshot goes to the one before
+var^rewindTimer = 0
+var^fastForward = false^
 var^leavingReplay = false^     # a played replay has ended; the mode menu is loading
 var^replayMatched = false^     # the last replay ended as it was recorded
 var^lastReplay = ""            # the last saved replay's file name
@@ -658,6 +668,7 @@ let^startReplay = p^name:string^{
     if^name1 is^nil^ or^name2 is^nil^ { print($"Replay of unknown characters: {name}") return^ }
     playing := tape
     replayFrame := 0
+    replaySnapshots := {}
     replayMatched := false^
     storyMode := false^
     practiceMode := false^
@@ -685,6 +696,8 @@ let^endReplay = p^finished:bool^{
         }
     }
     playing := nil^
+    replaySnapshots := {}
+    fastForward := false^
     love.audio.stop()
     if^matchArena != nil^ { vp.arena.pop() matchArena := nil^ }
     matchLoading := false^
@@ -1062,6 +1075,7 @@ let^debugReload = p^{
     leavePractice()
     recording := nil^
     playing := nil^
+    replaySnapshots := {}
     leavingReplay := false^
     let^l = pending
     if^l != nil^ { l.batch.cancel() pending := nil^ }
@@ -1156,12 +1170,99 @@ public^let^status = f^{
         difficulty = if^st != nil^: st.difficulty el^: -1;,
         event = if^st != nil^: st.at el^: -1;,
         recording = recording != nil^, replaying = playing != nil^, replayFrame = replayFrame,
-        replayMatched = replayMatched, lastReplay = lastReplay, cpuFirst = cpuFirst, cpuSecond = cpuSecond,
+        replayMatched = replayMatched, lastReplay = lastReplay, replaySnapshots = snapshotCount(), fastForward = fastForward, cpuFirst = cpuFirst, cpuSecond = cpuSecond,
     }
 }
 
 # VS rounds' length in seconds (tests shorten matches with it).
 public^let^setVSSeconds = p^n:number^{ vsSeconds := n }
+
+# A match's state at a frame (TechnicalDocuments/0156): src/snapshot.lh's
+# fighters, round, HUD and stage, and what this file keeps of the match.
+public^let^Saved = def^{
+    self^{
+        abstract^state : vp.snapshot.Snapshot,
+        camX = 0, camY = 0, aimX = 0, aimY = 0,
+        roundFrames = 0, frame = 0, wasTiming = false^, matchSeconds = 0, replayFrame = 0,
+        firstBrain : vp.cpu.Brain|nil^= nil^,
+        firstStore : vp.cpu.Brain|nil^= nil^,
+        secondBrain : vp.cpu.Brain|nil^= nil^,
+        secondStore : vp.cpu.Brain|nil^= nil^,
+    },
+    override^new = p^state:vp.snapshot.Snapshot{ self^{ state = state } },
+}
+
+let^brainStore = p^b:vp.cpu.Brain|nil^, p:Fighter-> vp.cpu.Brain|nil^{
+    if^b is^nil^ { return^nil^ }
+    let^store = vp.cpu.Brain.new(nameOf(p), b.level)
+    b.copyStateTo(store)
+    return^store
+}
+
+# The running match's state, taken between frames.
+public^let^snapshot = p^-> Saved {
+    let^s = Saved.new(vp.snapshot.take({ me, foe }, flow, hud, stage))
+    s.camX := camX s.camY := camY s.aimX := aimX s.aimY := aimY
+    s.roundFrames := roundFrames s.frame := frame s.wasTiming := wasTiming
+    s.matchSeconds := matchSeconds s.replayFrame := replayFrame
+    s.firstBrain := demoBrain
+    s.firstStore := brainStore(demoBrain, me)
+    s.secondBrain := brain
+    s.secondStore := brainStore(brain, foe)
+    return^s
+}
+
+# Puts the match back as the snapshot found it; the snapshot can be used again.
+public^let^restore = p^s:Saved{
+    vp.snapshot.restore(s.state)
+    camX := s.camX camY := s.camY aimX := s.aimX aimY := s.aimY
+    roundFrames := s.roundFrames frame := s.frame wasTiming := s.wasTiming
+    matchSeconds := s.matchSeconds replayFrame := s.replayFrame
+    vp.fighter.setRound(roundFrames, flow.number)
+    demoBrain := s.firstBrain
+    let^first = s.firstBrain
+    let^firstStore = s.firstStore
+    if^first != nil^ and^firstStore != nil^ { firstStore.copyStateTo(first) }
+    brain := s.secondBrain
+    let^second = s.secondBrain
+    let^secondStore = s.secondStore
+    if^second != nil^ and^secondStore != nil^ { secondStore.copyStateTo(second) }
+}
+
+# The characters' sounds stop (a rewind does not play them backwards).
+let^stopFighterSounds = p^{
+    for^p in^{ me, foe } {
+        for^n, src in^p.sounds { if^src != nil^ { src.stop() } }
+        for^path, src in^p.soundsByPath { if^src != nil^ { src.stop() } }
+    }
+}
+
+let^snapshotCount = f^-> number^{
+    var^n = 0
+    for^k, v in^replaySnapshots { if^v != nil^ { n += 1 } }
+    return^n
+}
+
+# Back to the last snapshot at least REWIND_MARGIN frames before now.
+let^rewindReplay = p^{
+    var^at = ((replayFrame - REWIND_MARGIN) / SNAPSHOT_EVERY).floor() * SNAPSHOT_EVERY
+    if^at < 0 { at := 0 }
+    repeat^while^at > 0 and^replaySnapshots[at] is^nil^ { at -= SNAPSHOT_EVERY }
+    let^s = replaySnapshots[at]
+    if^s is^nil^ { return^ }
+    stopFighterSounds()
+    restore(s)
+}
+
+# What the match looks like this frame, to compare two runs of it (tests).
+public^let^signature = p^-> string^{
+    var^out = $"{frame} {replayFrame} {roundFrames} {flow.phase} {flow.wins1}-{flow.wins2} rng {vp.rng.get()} cam {camX},{camY}"
+    for^p in^{ me, foe } {
+        out := $"{out} | {p.x},{p.y} {p.life} {p.special} #{p.skillNo} i{p.image} o{p.objects.length^}"
+        for^o in^p.objects { out := $"{out} {o.skillNo}:{o.image}@{o.x},{o.y}" }
+    }
+    return^out
+}
 
 # The directions held, as a replay records them: up 1, down 2, left 4, right 8.
 let^heldDirs = p^up:love.keyboard.Key, down:love.keyboard.Key, left:love.keyboard.Key, right:love.keyboard.Key-> number^{
@@ -1231,6 +1332,9 @@ let^tick = p^{
     # The sides' input this frame: the played replay's, or the keys' and pads'
     # (and F3 / F4's CPU in VS), recorded when VS records.
     let^tape = playing
+    if^tape != nil^ and^replayFrame % SNAPSHOT_EVERY = 0 and^replaySnapshots[replayFrame] is^nil^ {
+        replaySnapshots[replayFrame] := snapshot()
+    }
     var^one = 0
     var^two = 0
     if^tape != nil^ {
@@ -1417,13 +1521,28 @@ public^let^update = p^dt:number^{
         elseif^sc.attractReady and^pending is^nil^: queueAttract() }
         return^
     }
+    # A played replay: left steps back to a snapshot (again while held),
+    # right holds fast forward.
+    let^watching = playing != nil^ and^inBattle()
+    fastForward := watching and^vp.input.isDown(Key.right)
+    if^watching and^vp.input.isDown(Key.left) {
+        rewindTimer -= dt
+        if^rewindTimer <= 0 {
+            rewindReplay()
+            rewindTimer := REWIND_REPEAT
+        }
+    else^:
+        rewindTimer := 0
+    }
     clock += dt
     # At most two frames of catching up after a slow frame: the game slows
     # down instead of skipping what it did not show.
     if^clock > 2 * FRAME { clock := 2 * FRAME }
     repeat^while^clock >= FRAME {
         clock -= FRAME
-        tick()
+        for^i from^1 to^(if^fastForward: FAST_FORWARD el^: 1;) {
+            if^i = 1 or^(playing != nil^ and^inBattle()) { tick() }
+        }
     }
 }
 
@@ -1638,8 +1757,23 @@ public^let^draw = p^{
     love.graphics.setColor(1, 1, 1, 1)
 }
 
+# A played replay's state, along the bottom of the window.
+let^drawReplayBar = p^{
+    let^tape = playing
+    if^tape is^nil^ or^!inBattle() { return^ }
+    let^seconds = (replayFrame / 100).floor()
+    let^total = (tape.frames() / 100).floor()
+    let^mode = if^fastForward: ">> x4" el^vp.input.isDown(Key.left): "<<" el^: ">";
+    let^text = $"REPLAY  {mode}  {(seconds / 60).floor()}:{seconds % 60:%02d} / {(total / 60).floor()}:{total % 60:%02d}    LEFT: rewind   RIGHT: fast forward   ESC: stop"
+    love.graphics.setColor(0, 0, 0, 0.6)
+    love.graphics.rectangle(love.graphics.DrawMode.fill, 0, WINDOW_H - 28, WINDOW_W, 28)
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.print(text, 12, WINDOW_H - 22)
+}
+
 let^drawGame = p^{
     drawScene()
+    drawReplayBar()
     if^paused { vp.practicemenu.draw(dummyGuard, showBoxes) }
     if^scene != nil^ { vp.replaylist.draw() }
     # What the pending load is reading (source runs only, like other debug text).

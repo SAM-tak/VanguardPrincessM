@@ -1,0 +1,73 @@
+# A character's running skill (src/script.lh's run, with show / hold awaited
+# under it) goes back to where it stood with its coroutine's save() / load()
+# (L^ 02 15.16): the frames after a restore show the same images as the
+# frames after the save did.
+module^vp.costateprobe
+import^love.event
+require^"../src/fighter.lh"
+require^"../src/script.lh"
+require^"../src/rng.lh"
+let^Fighter = vp.fighter.Fighter
+
+let^SAVE_AT = 7               # inside an image's hold
+let^AFTER = 120
+
+let^probe = p^n:number^{
+    let^a = Fighter.new("assets/characters/ゆい", 500, 920)
+    let^sc = vp.script.load("assets/characters/ゆい/script.lton")
+    if^sc is^nil^ { panic^"Missing script" }
+    sc.install(a)
+    a.begin(n)
+    for^i from^1 to^SAVE_AT { a.stepScript() }
+    let^co = a.skill
+    if^co is^nil^ { panic^"no running skill at the save" }
+    var^state : costate^|nil^= nil^
+    if^co fits^c^{p^-> nil^} { state := co.save() elseif^co fits^c^{p^-> nil^ -> -}: state := co.save() }
+    let^skillNo = a.skillNo
+    let^image = a.image
+    let^timer = a.waitTimer
+    let^ix = a.ix
+    let^iy = a.iy
+    # The random state is not the frame's (a later step puts it in the snapshot).
+    vp.rng.seed(42)
+    var^first : t^{string^[]} = {}
+    for^i from^1 to^AFTER {
+        a.stepScript()
+        first.push^($"{a.skillNo}:{a.image}")
+    }
+    # Put the frame back, and what the frame does not hold.
+    a.skill := co
+    let^saved = state
+    if^saved is^nil^ { panic^"nothing saved" }
+    if^co fits^c^{p^-> nil^} { co.load(saved) elseif^co fits^c^{p^-> nil^ -> -}: co.load(saved) }
+    a.skillNo := skillNo
+    a.image := image
+    a.waitTimer := timer
+    a.ix := ix
+    a.iy := iy
+    a.jumpSkill := -1
+    a.eventPending := false^
+    vp.rng.seed(42)
+    var^second : t^{string^[]} = {}
+    for^i from^1 to^AFTER {
+        a.stepScript()
+        second.push^($"{a.skillNo}:{a.image}")
+    }
+    var^changes = 0
+    for^s in^first {
+        if^second[index^] != s {
+            panic^$"skill #{n}: frame {index^ + 1} after the restore: {second[index^] ?? "-"}, after the save: {s}"
+        }
+        if^index^ > 0 and^first[index^ - 1] != s { changes += 1 }
+    }
+    if^changes < 3 { panic^$"skill #{n} hardly moved ({changes} changes): not a test of the hold" }
+    print($"skill #{n}: {changes} image changes in {AFTER} frames match after the restore")
+}
+
+public^let^load = p^{
+    probe(1)        # standing
+    probe(2)        # walking forward
+    print("PASS: a running skill's coroutine (run / show / hold) goes back with save() / load()")
+    love.event.quit()
+}
+public^let^draw = p^{}

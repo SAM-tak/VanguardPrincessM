@@ -3,16 +3,40 @@
 # inputs alone, so what the simulation draws must not be shared with draws
 # made while drawing (an afterimage's flicker) or in menus; each match seeds
 # it afresh and records the seed.
+#
+# xorshift32 in L^ rather than love.math's generator: its whole state is one
+# number, which a snapshot (src/snapshot.lh) keeps and puts back.
 module^vp.rng
 
 import^love.math
 
-var^generator = love.math.newRandomGenerator(love.math.random(0, 2147483647))
+let^MASK = 4294967295           # 2^32 - 1
+let^SPREAD = 2654435769         # 2^32 / golden ratio: seeds that differ a little start far apart
 
-public^let^seed = p^n:number^{ generator.setSeed(n) }
-# A fresh seed for a match, from the unshared generator.
+var^state = 1
+
+public^let^seed = p^n:number^{
+    state := (n.floor() bitxor^ SPREAD) bitand^ MASK
+    if^state = 0 { state := 1 }
+}
+# The generator's state, for a snapshot.
+public^let^get = f^-> number^{ state }
+public^let^set = p^s:number^{ state := s }
+
+let^next = p^-> number^{
+    var^s = state
+    s := (s bitxor^ (s bitshift^ 13)) bitand^ MASK
+    s := s bitxor^ (s bitshift^ -17)
+    s := (s bitxor^ (s bitshift^ 5)) bitand^ MASK
+    state := s
+    return^s
+}
+
+# A fresh seed for a match, from love.math's unshared generator.
 public^let^fresh = p^-> number^{ return^love.math.random(0, 2147483647) }
 # An integer in [low, high].
-public^let^int = p^low:number^, high:number^-> number^{ return^generator.random(low, high) }
+public^let^int = p^low:number^, high:number^-> number^{ return^low + next() % (high - low + 1) }
 # A real in [0, 1).
-public^let^unit = p^-> number^{ return^generator.random() }
+public^let^unit = p^-> number^{ return^next() / (MASK + 1) }
+
+seed(fresh())
