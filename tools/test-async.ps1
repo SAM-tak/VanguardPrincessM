@@ -1,11 +1,20 @@
 param([string]$Engine = "C:/Users/Owner/source/repos/lhat-love/build/love/Release/lovec.exe",
-      [ValidateSet('async-flow', 'story-flow', 'story-navigation', 'story-continue', 'support-flow', 'support-palettes', 'selective-preload', 'victory-preload', 'attract-flow', 'combat-flow', 'match-intro', 'memory-soak', 'metadata-lifetime', 'vs-memory-return', 'story-memory-return', 'sound-reuse', 'turn-result', 'hilda-whiteout', 'ending-chain', 'load-throughput', 'system-object-position', 'locale-image', 'practice-mode', 'practice-guard', 'locale-system', 'locale-reload')][string]$Test = 'async-flow')
+      [ValidateSet('async-flow', 'story-flow', 'story-navigation', 'story-continue', 'support-flow', 'support-palettes', 'selective-preload', 'victory-preload', 'attract-flow', 'combat-flow', 'match-intro', 'memory-soak', 'metadata-lifetime', 'vs-memory-return', 'story-memory-return', 'sound-reuse', 'turn-result', 'hilda-whiteout', 'ending-chain', 'load-throughput', 'system-object-position', 'locale-image', 'practice-mode', 'practice-guard', 'locale-system', 'locale-reload', 'f8-main-reload')][string]$Test = 'async-flow')
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 $entry = Join-Path $root '.async-flow-test.lh'
 if (Test-Path -LiteralPath $entry) { throw "Test entry already exists: $entry" }
 # The test lives under tests/, but LOVE must mount the game root for assets.
 $source = [IO.File]::ReadAllText((Join-Path $root "tests/$Test.lh"))
+if ($Test -eq 'f8-main-reload') {
+    # Run the actual game body as the engine's main unit, rather than require
+    # it from a test entry (which would preserve vp.main across reload).
+    $game = [IO.File]::ReadAllText((Join-Path $root 'main.lh'))
+    foreach ($callback in @('load', 'update', 'draw')) {
+        $game = $game.Replace("public^let^$callback =", "let^game_$callback =")
+    }
+    $source = $game + "`n" + $source
+}
 [IO.File]::WriteAllText($entry, $source.Replace('require^"../', 'require^"'))
 try {
     Push-Location $root

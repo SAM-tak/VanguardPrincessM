@@ -1,6 +1,7 @@
 {
   "strict": true,
   "types": [
+    {"kind": "errordef", "module": "love.event", "name": "Error", "variants": ["Rejected"]},
     {"kind": "errordef", "module": "love.filesystem", "name": "Error", "variants": ["IO", "Rejected"]},
     {"kind": "errordef", "module": "love.image", "name": "Error", "variants": ["CouldNotLoad"]},
     {"kind": "errordef", "module": "love.sound", "name": "Error", "variants": ["CouldNotLoad"]},
@@ -117,6 +118,7 @@
     {"kind": "func", "module": "love.event", "name": "restart", "signature": "p^;"},
     {"kind": "func", "module": "love.event", "name": "restart", "signature": "p^any^;"},
     {"kind": "func", "module": "love.event", "name": "restartValue", "signature": "p^ -> any^;"},
+    {"kind": "func", "module": "love.event", "name": "reload", "signature": "p^ -> nil^|love.event.Error;"},
     {"kind": "func", "module": "love.event", "name": "clear", "signature": "p^;"},
     {"kind": "func", "module": "love.keyboard", "name": "isDown", "signature": "f^love.keyboard.Key, ... -> bool^;"},
     {"kind": "func", "module": "love.keyboard", "name": "isScancodeDown", "signature": "f^love.keyboard.Scancode, ... -> bool^;"},

@@ -12,7 +12,7 @@
 #   F1             show boxes      1-8         palette
 #   F2             opponent at 1 life (the next hit KOs); F3 sound log
 #   t              (select screen) the stage: random, or one of them in turn
-#   F8             return to title from any scene, settings.json and the locale table read again (development)
+#   F8             reload changed code and return to title (development)
 #   escape         back (quit on title); pause/resume during battle
 #   return         confirm menus; pause/resume during battle (gamepad Start)
 #
@@ -108,7 +108,7 @@ var^attractNames : t^{string^[]} = {}
 var^attractSupports : t^{number^[]} = {}
 var^matchSeconds = 60
 var^paused = false^
-var^titleAfterBoot = false^
+var^reloadPending = false^
 var^collectSceneGarbage = false^
 
 let^inBattle = f^-> bool^{
@@ -706,6 +706,7 @@ let^prepare = p^kind:string^{
 }
 
 public^let^load = p^{
+    reloadPending := false^
     if^vp.settings.fullscreen() { love.window.setFullscreen(true^) }
     vp.media.prepare()
     # Finish incremental cycles before transient battle objects accumulate.
@@ -753,8 +754,7 @@ let^completeLoad = p^{
         flow := vp.round.load(SYSTEM)
         demos := vp.title.loadDemos(SYSTEM)
         vp.arena.push("opening")
-        scene := vp.title.openingScreen(!titleAfterBoot)
-        titleAfterBoot := false^
+        scene := vp.title.openingScreen(true^)
         initialized := true^
     elseif^kind = "attract":
         l.batch.arena.attach()
@@ -901,25 +901,27 @@ let^goBack = p^{
     }
 }
 
-# Development escape hatch, independent of menu and pause restrictions.
-let^debugTitle = p^{
-    if^!initialized { titleAfterBoot := true^ return^ }
+# Check before touching the running scene: a rejected edit keeps it playable.
+# Unchanged units survive reload, so release their jobs and scene resources.
+let^debugReload = p^{
+    let^refused = love.event.reload()
+    if^refused fits^love.event.Error { print(refused.message) return^ }
+    reloadPending := true^
     leavePractice()
     let^l = pending
     if^l != nil^ { l.batch.cancel() pending := nil^ }
+    vp.resource.stop()
     love.audio.stop()
+    releaseBattle()
+    vp.fighter.clearSystemVars()
     vp.arena.popToRoot()
-    # The locale's table read again (an edited images.lton shows): what was
-    # drawn from the old one and what the new one draws are dropped.
-    let^before = vp.locale.keys()
+    vp.arena.pop()
     vp.locale.reload()
-    vp.arena.forget(before)
-    vp.arena.forget(vp.locale.keys())
+    # Also clear references for the remaining frame and for test/tool entries
+    # that call this module without being this game's reload root.
     campaign := nil^
     selecting := nil^
     matchArena := nil^
-    brain := nil^
-    demoBrain := nil^
     attract := false^
     attractLoaded := false^
     attractSeconds := 0
@@ -935,11 +937,9 @@ let^debugTitle = p^{
     leftPressed := false^
     rightPressed := false^
     clear2()
-    vp.fighter.clearSystemVars()
-    releaseBattle()
     opening := true^
-    vp.arena.push("opening")
-    scene := vp.title.openingScreen(false^)
+    scene := nil^
+    initialized := false^
 }
 
 public^let^quit = p^-> bool^{
@@ -1110,6 +1110,7 @@ let^tick = p^{
 }
 
 public^let^update = p^dt:number^{
+    if^reloadPending { return^ }
     # Run after the retiring scene's call stack has unwound. Automatic GC
     # otherwise keeps large, discarded skill graphs across opening loops.
     if^collectSceneGarbage {
@@ -1117,7 +1118,9 @@ public^let^update = p^dt:number^{
         L^.gc.collect()
     }
     for^key in^vp.input.poll() { keypressed(key, love.keyboard.Scancode.unknown, false^) }
-    if^paused { return^ }
+    # The host stops the pool at the reload boundary. Do not start it again
+    # in this retiring frame, leaving resource.started out of sync.
+    if^reloadPending or^paused { return^ }
     vp.resource.pump(LOAD_SLICE)
     completeLoad()
     if^pending != nil^ or^scene != nil^ or^(campaign != nil^ and^selecting is^nil^) { clear2() }
@@ -1404,6 +1407,7 @@ let^drawScene = p^{
 }
 
 public^let^draw = p^{
+    if^reloadPending { return^ }
     let^w, h = love.graphics.getDimensions()
     let^k = std.math.min(w / WINDOW_W, h / WINDOW_H)
     let^ox = ((w - WINDOW_W * k) / 2).floor()
@@ -1460,7 +1464,7 @@ public^let^keypressed = p^key:love.keyboard.Key, scancode:love.keyboard.Scancode
         }
         return^
     }
-    if^key = Key.f8 { if^!isrepeat { debugTitle() } return^ }
+    if^key = Key.f8 { if^!isrepeat { debugReload() } return^ }
     if^attract {
         let^action = key = Key.z or^key = Key.x or^key = Key.c or^key = Key.a or^key = Key.s or^key = Key.d or^
             key = Key.l or^key = Key.semicolon or^key = Key.quote or^key = Key.o or^key = Key.p or^key = Key.leftbracket or^key = Key.return

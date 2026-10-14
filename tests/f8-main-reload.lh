@@ -1,0 +1,27 @@
+# Appended to main.lh by tools/test-async.ps1; vp.main is the reload root.
+require^"../tests/reload-state.lh"
+let^checkpoint = vp.reloadstate.flow
+public^let^load = p^{
+    checkpoint.loads += 1
+    if^checkpoint.loads = 1 { checkpoint.began := love.timer.getTime() }
+    if^checkpoint.loads > 3 { panic^"Unexpected extra reload" }
+    game_load()
+}
+public^let^update = p^dt:number^{
+    game_update(0.02)
+    if^vp.arena.names() = "system / opening" {
+        if^checkpoint.loads = 3 {
+            if^vp.resource.outstanding() != 0 or^status().paused { panic^"Reload left jobs or pause state" }
+            print("PASS: actual main unit reloads twice; task pool restarts after the frame boundary")
+            love.event.quit()
+        else^:
+            checkpoint.phase := checkpoint.loads
+            keypressed(love.keyboard.Key.f8, love.keyboard.Scancode.unknown, false^)
+            # A key event can precede update in the same frame. Exercise that
+            # path so an empty pump cannot restart the pool before host stop.
+            game_update(0.02)
+        }
+    }
+    if^love.timer.getTime() - checkpoint.began > 60 { panic^"main reload timeout" }
+}
+public^let^draw = p^{ game_draw() }

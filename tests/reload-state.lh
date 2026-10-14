@@ -1,0 +1,6 @@
+# The test entry is rerun on reload; this unchanged unit keeps its progress.
+module^vp.reloadstate
+public^let^state = { phase = 0, previous : string^|nil^ = nil^ }
+# Flow tests checkpoint only when requesting a reload. Local variables in the
+# entry reset; these values prove that load ran again and preserve the deadline.
+public^let^flow = { phase = 0, loads = 0, began = 0, frames = 0, worst = 0 }

@@ -224,3 +224,5 @@
 - [0145-practice-mode.md](0145-practice-mode.md) — PRACTICE MODEをモードメニューの独立項目に。原作の試合中F切替（V140=300→500）を、V140に300/500を書く技の生成停止で無効化。
 - [0146-support-no-wall-recoil.md](0146-support-no-wall-recoil.md) — 画面端の押し戻しはサポート（本体の管理番号5とその子）の攻撃では返さず、本体の攻撃でのみ返す。
 - [0147-settings-and-fullscreen.md](0147-settings-and-fullscreen.md) — 設定ファイル settings.json（"lang"・"fullscreen"、lang が無ければ OS の優先言語、JSON なのは配布版エンジンがLTONテキストを読めないため。lhat-love に std.json を登録）と、Alt+Enter のデスクトップフルスクリーン（1280x960 を拡縮・中央寄せ・黒帯）。
+
+- [0148-event-reload.md](0148-event-reload.md) — F8 を love.event.reload に変更。検査拒否時は続行、受理後は資源を整理して main から再実行。

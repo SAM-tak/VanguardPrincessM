@@ -5,6 +5,8 @@ import^love.timer
 require^"../main.lh"
 require^"../src/arena.lh"
 require^"../src/input.lh"
+require^"../tests/reload-state.lh"
+let^checkpoint = vp.reloadstate.flow
 
 # PRACTICE MODE: the menu's third item leads through VS's select (1P picks
 # both sides) to a match
@@ -22,7 +24,13 @@ let^switch = p^{
     if^fighting % 40 = 10 { vp.input.tap(Key.leftbracket) }
     if^fighting % 40 = 25 { vp.input.tap(Key.d) }
 }
-public^let^load = p^{ began := love.timer.getTime() vp.main.load() }
+public^let^load = p^{
+    checkpoint.loads += 1
+    if^checkpoint.loads = 1 { checkpoint.began := love.timer.getTime() }
+    began := checkpoint.began
+    phase := checkpoint.phase
+    vp.main.load()
+}
 public^let^update = p^dt:number^{
     vp.main.update(0.02)
     let^where = vp.arena.names()
@@ -80,11 +88,15 @@ public^let^update = p^dt:number^{
     elseif^phase = 7 and^s.phase = "select" and^where = "system / select":
         print("practice: 1P picks both sides, 140 = 500 throughout, no clock, F switch inert, ESC menu: guard, hitboxes, resume, select; F8 turns hitboxes off")
         if^!s.boxes { panic^"hitboxes turned off going back to practice's select" }
+        checkpoint.phase := 8
         press(Key.f8)
-        if^vp.main.status().boxes { panic^"leaving practice (F8) left hitboxes on" }
         phase := 8
         wait := 0
-    elseif^phase = 8 and^where = "system / opening": press(Key.z) phase := 13
+    elseif^phase = 8 and^where = "system / opening":
+        if^checkpoint.loads != 2 or^s.boxes or^s.paused or^s.practiceMenu or^s.practice { panic^"F8 did not reset practice after reload" }
+        press(Key.z)
+        phase := 14
+    elseif^phase = 14: press(Key.z) phase := 13
     elseif^phase = 13 and^where = "system / title":
         wait += 1
         if^wait = 20 { press(Key.down) }

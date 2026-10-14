@@ -7,6 +7,8 @@ require^"../main.lh"
 require^"../src/arena.lh"
 require^"../src/resource.lh"
 require^"../src/input.lh"
+require^"../tests/reload-state.lh"
+let^checkpoint = vp.reloadstate.flow
 var^phase = 0
 var^frames = 0
 var^wait = 0
@@ -28,7 +30,12 @@ let^press = p^key:love.keyboard.Key {
 }
 
 public^let^load = p^{
-    began := love.timer.getTime()
+    checkpoint.loads += 1
+    if^checkpoint.loads = 1 { checkpoint.began := love.timer.getTime() }
+    began := checkpoint.began
+    phase := checkpoint.phase
+    frames := checkpoint.frames
+    worst := checkpoint.worst
     vp.main.load()
 }
 
@@ -79,11 +86,18 @@ public^let^update = p^dt:number^{
             let^before = vp.arena.names()
             press(love.keyboard.Key.escape)
             if^vp.arena.names() != before or^vp.main.status().phase != "match-intro" or^vp.main.status().paused { panic^"ESC affected loading" }
+            checkpoint.phase := 7
+            checkpoint.frames := frames
+            checkpoint.worst := worst
             press(love.keyboard.Key.f8)
-            if^vp.main.status().paused or^vp.arena.names() != "system / opening" { panic^"F8 failed during loading" }
+            if^vp.resource.outstanding() != 0 { panic^"F8 retained loading jobs" }
             phase := 7
         }
-    elseif^phase = 7 and^where = "system / opening": press(love.keyboard.Key.z) phase := 9
+    elseif^phase = 7 and^where = "system / opening":
+        if^checkpoint.loads != 2 or^state.paused or^state.battleResourcesHeld { panic^"F8 did not reload from loading" }
+        press(love.keyboard.Key.z)
+        phase := 8
+    elseif^phase = 8: press(love.keyboard.Key.z) phase := 9
     elseif^phase = 9 and^where = "system / title": press(love.keyboard.Key.down) press(love.keyboard.Key.z) phase := 10
     elseif^phase = 10 and^where = "system / select": press(love.keyboard.Key.z) phase := 11
     elseif^phase = 11: press(love.keyboard.Key.j) phase := 12
@@ -156,16 +170,21 @@ public^let^update = p^dt:number^{
                 else^:
                     press(love.keyboard.Key.escape)
                     if^!vp.main.status().paused { panic^"Pause setup failed" }
+                    checkpoint.phase := 19
+                    checkpoint.frames := frames
+                    checkpoint.worst := worst
                     press(love.keyboard.Key.f8)
-                    if^vp.main.status().paused or^vp.arena.names() != "system / opening" { panic^"F8 failed from pause" }
-                    if^vp.main.status().battleResourcesHeld { panic^"F8 retained battle resources" }
-                    vp.main.update(0.02)
-                    if^vp.resource.cachedScripts() != 1 { panic^"F8 retained battle definitions" }
-                    print($"PASS: F8 from loading and pause, loading ignores ESC, two fighters, D support attack, pause/freeze/resume, battle drawing, missing image, sound, typed table and script; frames={frames}; synchronous fallback reads=0")
-                    love.event.quit()
+                    if^vp.resource.outstanding() != 0 or^vp.main.status().battleResourcesHeld { panic^"F8 retained battle resources or jobs" }
+                    phase := 19
                 }
             }
         }
+    }
+    if^phase = 19 and^where = "system / opening" {
+        if^checkpoint.loads != 3 or^state.paused or^state.battleResourcesHeld { panic^"F8 did not reload from pause" }
+        if^vp.resource.cachedScripts() != 1 { panic^"F8 retained battle definitions" }
+        print($"PASS: F8 from loading and pause, loading ignores ESC, two fighters, D support attack, pause/freeze/resume, battle drawing, missing image, sound, typed table and script; frames={frames}; synchronous fallback reads=0")
+        love.event.quit()
     }
     if^love.timer.getTime() - began > 120 { panic^$"timeout phase={phase} arena={where}" }
 }
