@@ -1,0 +1,7 @@
+# Copy to eosconfig.lton and fill in the game-client deployment settings.
+# The distribution build compiles eosconfig.lton into the game archive.
+productId = "YOUR_PRODUCT_ID",
+sandboxId = "YOUR_SANDBOX_ID",
+deploymentId = "YOUR_DEPLOYMENT_ID",
+clientId = "YOUR_CLIENT_ID",
+clientSecret = "YOUR_GAME_CLIENT_SECRET",

@@ -1,0 +1,155 @@
+# Generated beside five independent copies of the link and a mock EOS SDK.
+module^vp.onlinelinktest
+import^love.event
+import^love.timer
+import^love.keyboard
+import^love.filesystem
+require^"src/net.lh"
+require^"src/netguest.lh"
+require^"src/netthird.lh"
+require^"src/netfourth.lh"
+require^"src/netfifth.lh"
+require^"src/online.lh"
+require^"src/onlineguest.lh"
+require^"src/onlinethird.lh"
+require^"src/onlinefourth.lh"
+require^"src/onlinefifth.lh"
+require^"src/roommenu.lh"
+require^"src/lobby.lh"
+require^"src/settings.lh"
+let^check = p^ok:bool^, why:string^{ if^!ok { panic^why } }
+let^pump = p^{
+    for^i from^0 to^49 {
+        vp.net.poll() vp.netguest.poll() vp.netthird.poll() vp.netfourth.poll() vp.netfifth.poll()
+        love.timer.sleep(0.01)
+    }
+}
+public^let^load = p^{
+    let^_^ = love.filesystem.write("settings.json", "{\"playerName\":\"Player\"}") catch^panic^it^
+    vp.settings.reload()
+    check(!vp.settings.hasPlayerName(), "Legacy Player fallback is not a custom name")
+    vp.roommenu.open()
+    vp.roommenu.step(false^, true^, 0)
+    vp.roommenu.step(false^, false^, 1) pump() vp.roommenu.step(false^, false^, 0)
+    check(vp.online.displayName() = "Epic Test Player", "Epic account display name available")
+    vp.roommenu.step(false^, false^, 1)
+    let^_^ = vp.roommenu.keypressed(love.keyboard.Key.return)
+    pump() vp.roommenu.step(false^, false^, 0)
+    let^defaultPlayer = vp.online.localPlayer()
+    check(defaultPlayer != nil^ and^defaultPlayer.name = "Epic Test Player", "Unconfigured player name defaults to Epic display name")
+    check(!vp.settings.hasPlayerName(), "Automatic account name does not become a custom override")
+    vp.roommenu.back() pump() vp.roommenu.back() pump()
+    vp.settings.setPlayerName("Player")
+    check(vp.settings.hasPlayerName(), "Explicitly chosen Player is retained")
+    vp.settings.setPlayerName("Custom Player")
+    vp.roommenu.open()
+    vp.roommenu.step(false^, true^, 0)
+    vp.roommenu.step(false^, false^, 1) pump() vp.roommenu.step(false^, false^, 0)
+    vp.roommenu.step(false^, false^, 1)
+    let^_^ = vp.roommenu.keypressed(love.keyboard.Key.return)
+    pump() vp.roommenu.step(false^, false^, 0)
+    let^customPlayer = vp.online.localPlayer()
+    check(customPlayer != nil^ and^customPlayer.name = "Custom Player", "Saved player name overrides Epic display name")
+    vp.roommenu.back() pump() vp.roommenu.back() pump()
+    # Real UTF-8 input, codepoint-aware backspace, numeric PIN validation.
+    vp.roommenu.open()
+    check(vp.net.status() = "", "Authentication waits for a choice")
+    vp.roommenu.step(false^, false^, 1) pump() vp.roommenu.step(false^, false^, 0)
+    vp.roommenu.step(false^, false^, 1)
+    check(vp.roommenu.editing(), "Host opens a text form")
+    for^i from^0 to^3 { let^_^ = vp.roommenu.keypressed(love.keyboard.Key.backspace) }
+    vp.roommenu.textinput("友達の部屋😀")
+    let^_^ = vp.roommenu.keypressed(love.keyboard.Key.backspace)
+    let^_^ = vp.roommenu.keypressed(love.keyboard.Key.tab)
+    vp.roommenu.textinput("12ab34")
+    let^_^ = vp.roommenu.keypressed(love.keyboard.Key.tab)
+    for^i from^0 to^30 { let^_^ = vp.roommenu.keypressed(love.keyboard.Key.backspace) }
+    vp.roommenu.textinput("ホスト")
+    let^_^ = vp.roommenu.keypressed(love.keyboard.Key.return)
+    pump() vp.roommenu.step(false^, false^, 0)
+    check(vp.roommenu.status() = "room" and^vp.online.title() = "友達の部屋", "Named room opens without starting a match")
+    check(vp.online.players().length^ = 1 and^!vp.net.active(), "Host waits inside the room")
+    vp.roommenu.step(false^, false^, 2) vp.roommenu.step(false^, false^, 8) pump()
+    check(vp.roommenu.status() = "room" and^vp.online.inRoom(), "B/D cannot leave an idle room")
+    vp.roommenu.step(false^, false^, 1) pump()
+    vp.roommenu.step(false^, false^, 2) vp.roommenu.step(false^, false^, 8) pump()
+    let^seatedPlayer = vp.online.localPlayer()
+    check(seatedPlayer != nil^ and^seatedPlayer.seat = 1 and^!seatedPlayer.ready, "B/D cannot stand or mark READY")
+    vp.roommenu.back() pump()
+    let^standingPlayer = vp.online.localPlayer()
+    check(standingPlayer != nil^ and^standingPlayer.seat = 0, "Esc/Back still stands from the seat")
+    # Leaving a room returns to Host/Search, with authentication retained.
+    vp.roommenu.back() pump()
+    check(vp.roommenu.status() = "menu" and^vp.net.status() = "ready", "Back from room retains login")
+    vp.roommenu.back() pump()
+    check(!vp.roommenu.isOpen(), "Back from menu closes overlay")
+    vp.net.openOnlineDevice() vp.netguest.openOnline() vp.netthird.openOnlineDevice() vp.netfourth.openOnline() vp.netfifth.openOnlineDevice()
+    pump()
+    check(vp.net.status() = "ready" and^vp.netguest.status() = "ready", "Device/Epic login")
+    vp.net.hostRoom("友達のルーム", "1234", "Host") pump()
+    vp.netfifth.searchOnline() pump()
+    let^badRoom = vp.netfifth.hostsShown()[0]
+    if^badRoom is^nil^ { panic^"Missing named room" }
+    check(badRoom.name = "友達のルーム" and^badRoom.locked and^badRoom.capacity = 16, "Search shows room name, lock and capacity")
+    vp.netfifth.joinRoom(badRoom, "9999", "Intruder") pump()
+    check(!vp.onlinefifth.inRoom() and^vp.netfifth.status() = "failed", "Incorrect PIN cannot enter")
+    check(vp.online.players().length^ = 1, "Incorrect PIN never reaches the admitted roster")
+    vp.netguest.searchOnline() pump()
+    let^h = vp.netguest.hostsShown()[0]
+    if^h is^nil^ { panic^"Missing room" }
+    vp.netguest.joinRoom(h, "1234", "Alice") pump()
+    vp.netthird.searchOnline() pump()
+    let^h3 = vp.netthird.hostsShown()[0]
+    if^h3 is^nil^ { panic^"Missing third room" }
+    vp.netthird.joinRoom(h3, "1234", "Bob") pump()
+    vp.netfourth.searchOnline() pump()
+    let^h4 = vp.netfourth.hostsShown()[0]
+    if^h4 is^nil^ { panic^"Missing fourth room" }
+    vp.netfourth.joinRoom(h4, "1234", "Carol") pump()
+    check(vp.online.players().length^ = 4 and^vp.onlineguest.players().length^ = 4, "Roster synchronized")
+    check(!vp.net.active() and^!vp.netguest.active(), "Joining alone does not start a match")
+    vp.onlineguest.sit(1) vp.onlinethird.sit(1) pump()
+    let^one = vp.online.atSeat(1)
+    if^one is^nil^ { panic^"Missing seated player" }
+    check(one.id = vp.onlineguest.userId(), "Owner resolves competing seat requests")
+    vp.onlinethird.sit(2) pump()
+    vp.onlineguest.sit(1) pump()
+    check(!vp.netguest.active(), "One READY is insufficient")
+    vp.onlinethird.sit(2) pump()
+    check(vp.netguest.active() and^vp.netthird.active(), "Both READY start table 1")
+    check(vp.netguest.localSide() = 0 and^vp.netthird.localSide() = 1, "Seat determines 1P/2P independently of lobby owner")
+    check(!vp.net.active(), "Room owner does not enter another table's match")
+    vp.online.sit(3) vp.onlinefourth.sit(4) pump()
+    vp.online.sit(3) vp.onlinefourth.sit(4) pump()
+    check(vp.net.active() and^vp.netfourth.active(), "Table 2 can play concurrently")
+    check(vp.online.battleId() != vp.onlineguest.battleId(), "Tables use distinct battle epochs")
+    vp.netguest.resetMatch(1) vp.netthird.resetMatch(1) vp.net.resetMatch(1) vp.netfourth.resetMatch(1)
+    for^f from^3 to^10 {
+        vp.netguest.sample(f, f * 7) vp.netthird.sample(f, f * 9)
+        vp.net.sample(f, f * 11) vp.netfourth.sample(f, f * 13)
+    }
+    pump()
+    for^f from^3 to^10 {
+        check(vp.netguest.remote(f) = f * 9 and^vp.netthird.remote(f) = f * 7, "Table 1 binary inputs")
+        check(vp.net.remote(f) = f * 13 and^vp.netfourth.remote(f) = f * 11, "Table 2 isolated binary inputs")
+    }
+    let^previousBattle = vp.onlineguest.battleId()
+    vp.netguest.finishOnline() vp.netthird.finishOnline() pump()
+    check(vp.onlineguest.inRoom() and^vp.onlineguest.players().length^ = 4 and^!vp.netguest.active(), "Match ends inside the same room")
+    check(vp.net.active() and^vp.netfourth.active(), "Other table remains in its match")
+    let^returned = vp.onlineguest.localPlayer()
+    check(returned != nil^ and^returned.seat = 1 and^!returned.ready and^returned.battle = 0, "Return clears READY and retains seat")
+    vp.net.finishOnline() vp.netfourth.finishOnline() pump()
+    vp.onlineguest.sit(1) vp.onlinethird.sit(2) pump()
+    check(vp.netguest.active() and^vp.onlineguest.battleId() > previousBattle, "Rematch uses a fresh epoch without recreating room")
+    check(vp.netguest.remote(3) = nil^, "Rematch discards previous match inputs")
+    vp.netthird.leave() pump()
+    check(vp.online.inRoom() and^vp.online.players().length^ = 3, "Non-owner departure keeps room open")
+    check(!vp.netguest.active() and^vp.online.atSeat(2) = nil^, "Opponent departure clears table")
+    vp.net.leave() pump()
+    check(!vp.onlineguest.inRoom() and^!vp.onlinefourth.inRoom(), "Owner departure closes room for everyone")
+    vp.netguest.leave() vp.netfourth.leave() vp.netfifth.leave() pump()
+    vp.online.shutdown() vp.onlineguest.shutdown() vp.onlinethird.shutdown() vp.onlinefourth.shutdown() vp.onlinefifth.shutdown()
+    print("ONLINE_LINK_OK: UTF-8 forms, named/PIN rooms, admission rejection, roster, seat collision, READY, concurrent tables, binary input isolation, room return, rematch, departures")
+    love.event.quit()
+}

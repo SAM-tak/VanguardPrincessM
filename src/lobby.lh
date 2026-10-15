@@ -1,0 +1,74 @@
+# Owner-authoritative room model, independent of EOS and rendering.
+module^vp.lobby
+import^std.math
+public^let^TABLES = 4
+public^let^CAPACITY = 16
+public^let^Player = t^{id:string^, name:string^, seat:number^, ready:bool^, battle:number^, done:bool^}
+public^let^name = f^text:string^-> string^{
+    var^out = ""
+    for^i from^0 to^std.math.min(text.length, 24) - 1 {
+        let^c = text.at(i)
+        if^c != "\n" and^c != "\r" and^c != "\t" and^c != "\0" { out := out .. c }
+    }
+    return^if^out = "": "Player" el^: out;
+}
+public^let^Room = def^{
+    self^{ players:t^{Player[]} = {}, serial = 0 },
+    get = f^self^, id:string^-> Player|nil^{
+        for^p in^self^.players { if^p.id = id { return^p } }
+        return^nil^
+    },
+    at = f^self^, seat:number^-> Player|nil^{
+        for^p in^self^.players { if^p.seat = seat { return^p } }
+        return^nil^
+    },
+    admit = p^self^, id:string^, text:string^{
+        if^self^.get(id) != nil^ or^self^.players.length^ >= CAPACITY { return^ }
+        self^.players.push^({ id = id, name = name(text), seat = 0, ready = false^, battle = 0, done = false^ })
+    },
+    drop = p^self^, id:string^{
+        let^gone = self^.get(id)
+        var^keep:t^{Player[]} = {}
+        for^p in^self^.players {
+            if^p.id = id { continue^ }
+            if^gone != nil^ and^gone.battle > 0 and^p.battle = gone.battle { p.battle := 0 p.ready := false^ p.done := false^ }
+            keep.push^(p)
+        }
+        self^.players := keep
+    },
+    abort = p^self^, id:string^{
+        let^p = self^.get(id)
+        if^p is^nil^ or^p.battle = 0 { return^ }
+        let^battle = p.battle
+        for^q in^self^.players { if^q.battle = battle { q.battle := 0 q.ready := false^ q.done := false^ } }
+    },
+    act = p^self^, id:string^, seat:number^, ready:bool^, finished:number^{
+        let^p = self^.get(id)
+        if^p is^nil^ { return^ }
+        if^finished > 0 {
+            if^p.battle != finished { return^ }
+            p.done := true^
+            for^other in^self^.players {
+                if^other.id != id and^other.battle = finished and^other.done {
+                    p.battle := 0 other.battle := 0 p.ready := false^ other.ready := false^
+                    p.done := false^ other.done := false^
+                }
+            }
+            return^
+        }
+        if^p.battle > 0 or^seat < 0 or^seat > TABLES * 2 or^seat != seat.floor() { return^ }
+        let^occupied = if^seat > 0: self^.at(seat) el^: nil^;
+        if^occupied != nil^ and^occupied.id != id { return^ }
+        let^same = p.seat = seat
+        p.seat := seat
+        p.ready := same and^seat > 0 and^ready
+        p.done := false^
+        if^!p.ready { return^ }
+        let^mate = self^.at(if^seat % 2 = 1: seat + 1 el^: seat - 1;)
+        if^mate != nil^ and^mate.ready and^mate.battle = 0 {
+            self^.serial += 1
+            p.battle := self^.serial mate.battle := self^.serial
+            p.ready := false^ mate.ready := false^
+        }
+    },
+}

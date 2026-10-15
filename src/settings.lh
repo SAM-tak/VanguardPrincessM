@@ -70,3 +70,18 @@ public^let^setFullscreen = p^on:bool^{
     data["fullscreen"] := on
     save()
 }
+
+public^let^playerName = p^-> string^{
+    load()
+    let^v = data["playerName"]
+    return^if^v fits^string^: v el^: "Player";
+}
+public^let^setPlayerName = p^name:string^{
+    load() data["playerName"] := name data["playerNameSource"] := "custom" save()
+}
+public^let^hasPlayerName = p^-> bool^{
+    load()
+    let^v = data["playerName"]
+    # Older builds saved the fallback as though the player had chosen it.
+    return^v fits^string^ and^v != "" and^(v != "Player" or^data["playerNameSource"] = "custom")
+}

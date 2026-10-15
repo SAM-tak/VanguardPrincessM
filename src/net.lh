@@ -17,6 +17,7 @@ import^love.timer
 import^std.net
 import^std.binary
 import^std.math
+require^"online.lh"
 
 public^let^PORT = 7650
 public^let^INPUT_DELAY = 3
@@ -69,12 +70,14 @@ let^head = f^kind:number^-> string^{ HEAD.encode({ magic = MAGIC, kind = kind })
 
 # A host found by searching.
 public^let^Host = def^{
-    self^{ address = "", port = 0, version = 0, busy = false^, seen = 0 },
+    self^{ address = "", port = 0, version = 0, busy = false^, seen = 0, name = "", locked = false^, capacity = 0, available = 0 },
 }
 
 # The link's state: "" none, "hosting" (waiting for a guest), "searching",
 # "joining", "connected", "lost" (the other side left or went silent), or
 # "failed" (with `problem`).
+var^onlineBattle = 0
+var^online = false^
 var^state = ""
 var^problem = ""
 var^sock : std.net.Udp|nil^= nil^
@@ -116,6 +119,7 @@ public^let^testImpairment = p^seconds:number^{
     testPending := {}
 }
 
+public^let^isOnline = f^-> bool^{ online }
 public^let^status = f^-> string^{ state }
 public^let^problemText = f^-> string^{ problem }
 public^let^hosting = f^-> bool^{ isHost }
@@ -131,12 +135,16 @@ public^let^active = f^-> bool^{ state = "connected" }
 public^let^localSide = f^-> number^{ if^isHost: 0 el^: 1; }
 
 let^close = p^{
+    if^online { vp.online.stop() }
     let^s = sock
     if^s != nil^ { s.dispose() }
     sock := nil^
 }
 
 let^fail = p^why:string^{
+    if^online and^vp.online.inRoom() {
+        vp.online.abortBattle() state := "room" problem := why peerAddress := "" return^
+    }
     close()
     state := "failed"
     problem := why
@@ -149,7 +157,9 @@ let^send = p^data:string^, address:string^, port:number^{
 catch^:
     print($"LAN: not sent to {address}:{port}: {it^.message}")
 }
-let^sendPeer = p^data:string^{ send(data, peerAddress, peerPort) }
+let^sendPeer = p^data:string^{
+    if^online { vp.online.send(data) else^: send(data, peerAddress, peerPort) }
+}
 
 # This machine's address on the LAN: a socket aimed outward (no datagram is
 # sent) is bound to the interface that route uses.
@@ -165,6 +175,8 @@ catch^:
 
 let^reset = p^{
     close()
+    online := false^
+    onlineBattle := 0
     state := ""
     problem := ""
     hosts := {}
@@ -177,6 +189,40 @@ let^reset = p^{
     myChoice := { match = 0, confirmed = false^, row = 0, colour = 0, support = 101 }
     mySetup := nil^
     resetMatch(0)
+}
+
+public^let^openOnline = p^{
+    reset()
+    online := true^
+    state := "login"
+    vp.online.start()
+}
+public^let^openOnlineDevice = p^{
+    reset()
+    online := true^
+    state := "login"
+    vp.online.startDevice()
+}
+public^let^hostOnline = p^{ vp.online.host() state := "hosting" }
+public^let^searchOnline = p^{ vp.online.search() state := "searching" }
+public^let^hostRoom = p^name:string^, pin:string^, display:string^{ vp.online.hostRoom(name, pin, display) state := "hosting" }
+public^let^joinRoom = p^h:Host, pin:string^, display:string^{ vp.online.joinRoom(h.address, pin, display) state := "lobbyJoining" }
+public^let^finishOnline = p^{
+    vp.online.finishBattle()
+    state := "room" peerAddress := "" peerPort := 0 mySetup := nil^
+}
+public^let^abortOnline = p^{
+    vp.online.abortBattle()
+    state := "room" peerAddress := "" peerPort := 0 mySetup := nil^
+}
+public^let^peerConfirmed = f^-> number^{ peerNext }
+public^let^backOnline = p^{
+    vp.online.returnToMenu()
+    state := "returning"
+    peerAddress := ""
+    peerPort := 0
+    hosts := {}
+    isHost := false^
 }
 
 # Waits for a guest on PORT.
@@ -205,6 +251,7 @@ catch^:
 }
 
 public^let^join = p^h:Host{
+    if^online { vp.online.join(h.address) state := "lobbyJoining" return^ }
     peerAddress := h.address
     peerPort := h.port
     state := "joining"
@@ -316,7 +363,7 @@ let^heard = p^data:string^, address:string^, port:number^{
     if^kind = JOIN and^state = "hosting" {
         let^h, at = try^HELLO.decode(data, 3)
         if^h.version != VERSION {
-            send(head(REFUSE), address, port)
+            if^online { sendPeer(head(REFUSE)) else^: send(head(REFUSE), address, port) }
             return^
         }
         peerAddress := address
@@ -339,7 +386,10 @@ let^heard = p^data:string^, address:string^, port:number^{
     }
     if^kind = REFUSE and^state = "joining" { fail("The host runs another version") return^ }
     if^state != "connected" { return^ }
-    if^kind = BYE { close() state := "lost" problem := "The other side left" return^ }
+    if^kind = BYE {
+        if^online and^vp.online.inRoom() { abortOnline() else^: close() state := "lost" }
+        problem := "The other side left" return^
+    }
     if^kind = STATE {
         let^c, at = try^CHOICE.decode(data, 3)
         choice := c
@@ -369,8 +419,45 @@ catch^:
 
 # Each frame: reads what arrived and sends what is due.
 public^let^poll = p^{
+    vp.online.tick()
+    if^online {
+        let^os = vp.online.status()
+        if^os = "failed" { fail(vp.online.problemText()) return^ }
+        if^os = "ready" and^(state = "login" or^state = "returning") { state := "ready" }
+        if^os = "room" { state := "room" peerAddress := "" }
+        if^os = "searching" {
+            hosts := {}
+            for^room in^vp.online.results() {
+                let^h = Host.new()
+                h.address := room.id
+                h.name := room.name h.locked := room.locked h.capacity := room.capacity h.available := room.available
+                h.version := VERSION
+                hosts.push^(h)
+            }
+        }
+        if^os = "linked" and^(peerAddress = "" or^onlineBattle != vp.online.battleId()) {
+            onlineBattle := vp.online.battleId()
+            choice := { match = 0, confirmed = false^, row = 0, colour = 0, support = 101 }
+            myChoice := { match = 0, confirmed = false^, row = 0, colour = 0, support = 101 }
+            setup := { match = 0, seed = 0, stage = 0, seconds = 0, toWin = 0 }
+            mySetup := nil^
+            resetMatch(0)
+            peerAddress := vp.online.peerId()
+            peerPort := 0
+            isHost := vp.online.hosting()
+            state := if^isHost: "hosting" el^: "joining";
+            joinStarted := love.timer.getTime()
+            lastJoin := -100
+        }
+        for^i from^0 to^63 {
+            let^data = vp.online.receive()
+            if^data is^nil^ { break^ }
+            heard(data, peerAddress, 0)
+            if^state = "lost" or^state = "failed" { return^ }
+        }
+    }
     let^s = sock
-    if^s is^nil^ { return^ }
+    if^s is^nil^ and^!online { return^ }
     let^now = love.timer.getTime()
     if^testDelay > 0 {
         var^waiting : t^{t^{data:string^, address:string^, port:number^, due:number^}[]} = {}
@@ -379,7 +466,7 @@ public^let^poll = p^{
         }
         testPending := waiting
     }
-    repeat^while^true^ {
+    repeat^while^s != nil^ {
         let^data, address, port = try^s.receive()
         if^data is^nil^ { break^ }
         let^text : string^ = data
@@ -398,7 +485,7 @@ public^let^poll = p^{
         else^: heard(text, address, port) }
         if^sock is^nil^ { return^ }
     }
-    if^state = "searching" {
+    if^state = "searching" and^!online {
         if^now - lastQuery >= QUERY_EVERY {
             lastQuery := now
             let^q = head(QUERY) .. HELLO.encode({ version = VERSION, busy = false^ })
@@ -409,7 +496,7 @@ public^let^poll = p^{
         for^h in^hosts { if^now - h.seen < HOST_EXPIRES { fresh.push^(h) } }
         hosts := fresh
     elseif^state = "joining":
-        if^now - joinStarted > JOIN_GIVES_UP { fail("The host did not answer") return^ }
+        if^now - joinStarted > (if^online: 15 el^: JOIN_GIVES_UP;) { fail("The host did not answer") return^ }
         if^now - lastJoin >= JOIN_EVERY {
             lastJoin := now
             sendPeer(head(JOIN) .. HELLO.encode({ version = VERSION, busy = false^ }))

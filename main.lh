@@ -50,6 +50,7 @@ require^"src/rng.lh"
 require^"src/snapshot.lh"
 require^"src/net.lh"
 require^"src/lanmenu.lh"
+require^"src/online.lh"
 require^"src/cpu.lh"
 require^"src/input.lh"
 require^"src/media.lh"
@@ -528,6 +529,9 @@ let^endAttract = p^animate:bool^{
 let^toSelect = p^{
     if^attract { endAttract(true^) return^ }
     if^playing != nil^ { endReplay(true^) return^ }
+    if^netplay and^vp.net.isOnline() {
+        saveRecording() vp.net.finishOnline() endNet("") return^
+    }
     saveRecording()
     if^netplay { netRound += 1 }
     love.audio.stop()              # the match's music and sounds end with it
@@ -781,7 +785,10 @@ let^startNetSelect = p^{
 # The LAN session ends (ESC, or the link was lost): back to the mode menu,
 # with `why` shown there unless it is "".
 let^endNet = p^why:string^{
-    vp.net.leave()
+    let^keepRoom = vp.net.isOnline() and^vp.online.inRoom()
+    if^keepRoom {
+        if^vp.net.active() { vp.net.abortOnline() else^: vp.net.finishOnline() }
+    else^: vp.net.leave() }
     netplay := false^
     rollback.saved := nil^
     rollback.spare := nil^
@@ -802,7 +809,8 @@ let^endNet = p^why:string^{
     releaseBattle()
     # From a match nothing is left to show while the menu loads.
     if^selecting is^nil^ { leavingReplay := true^ }
-    if^why != "" { vp.lanmenu.showMessage(why) }
+    if^keepRoom { vp.lanmenu.openRoom()
+    elseif^why != "": vp.lanmenu.showMessage(why) }
     prepare("title")
 }
 
@@ -1217,6 +1225,8 @@ let^debugReload = p^{
 }
 
 public^let^quit = p^-> bool^{
+    vp.net.leave()
+    vp.online.shutdown()
     let^l = pending
     if^l != nil^ { l.batch.cancel() }
     vp.resource.stop()
@@ -1551,7 +1561,7 @@ let^netTick = p^{
             vp.fighter.setResimulating(false^)
             rollback.resimulating := false^
         }
-        if^confirmed >= netFrame { rollback.saved := nil^ }
+        if^confirmed >= netFrame and^(!vp.net.isOnline() or^vp.net.peerConfirmed() >= netFrame) { rollback.saved := nil^ }
     }
     # Publish only confirmed states; speculative summaries are overwritten
     # during correction before they can be compared with the peer's.
@@ -2078,7 +2088,10 @@ let^addButton = f^mask:number^, bit:number^-> number^{
     return^if^(mask / bit).floor() % 2 = 0: mask + bit el^: mask;
 }
 
+public^let^textinput = p^text:string^{ vp.lanmenu.textinput(text) }
+
 public^let^keypressed = p^key:love.keyboard.Key, scancode:love.keyboard.Scancode, isrepeat:bool^{
+    if^scene != nil^ and^vp.lanmenu.keypressed(key) { return^ }
     # Alt+Enter: fullscreen (a borderless window over the desktop) or not,
     # kept in settings.json. The Enter is not Start.
     if^key = Key.return and^(love.keyboard.isDown(Key.lalt) or^love.keyboard.isDown(Key.ralt)) {

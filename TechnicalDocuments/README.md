@@ -245,3 +245,7 @@
 - [0159-rollback-profile.md](0159-rollback-profile.md) — 補正時間を復元・再計算・保存に分解。update・draw・再計算フレーム数と分布も記録し、保存点更新の再計算が大半の費用を占めることを確認。
 - [0160-update-cost-hold.md](0160-update-cost-hold.md) — 通常更新のスクリプト・判定・移動等を計測。表示待ちのコルーチン再開を省き、固定シードの試合で通常更新・再計算を約5%短縮。
 - [0161-archive-profiling.md](0161-archive-profiling.md) — 計測版を `rollback-profiled-2026-10-15` タグへ保存。実行経路の計測を削除し、最適化・回帰検証・計測結果は維持。
+- [0162-online-vs-eos.md](0162-online-vs-eos.md) — EpicアカウントとEOSの公開ロビー・P2PでOnline VSを追加。LANと対戦プロトコル・巻き戻しを共有。設定・Bootstrapper・模擬EOSテストと実サービス未検証の範囲。
+- [0163-online-device-id.md](0163-online-device-id.md) — Device IDによるアカウント不要接続を追加。Epicとロビーを共有し、4通りの認証組み合わせを模擬EOSで検証。実EOSで認証・ロビー作成／検索・認証更新・退出を確認。
+- [0164-persistent-online-rooms.md](0164-persistent-online-rooms.md) — 名前・暗証番号・16人の参加者一覧・4台の対戦台を持つ常設ルーム。着席と双方READYで対戦し、試合後は席を維持してルームへ戻る。
+- [0165-account-display-name.md](0165-account-display-name.md) — 未設定のプレイヤー名にEpic表示名を使用。保存済みの独自名を優先し、プロフィール取得失敗でもログインを継続。

@@ -35,6 +35,10 @@ function Get-PackageFiles([string]$Directory) {
 }
 $files = @(
     Get-Item -LiteralPath (Join-Path $SourceRoot 'main.lh'), (Join-Path $SourceRoot 'conf.lton')
+    foreach ($name in 'extensions.txt', 'eosconfig.lton') {
+        $file = Join-Path $SourceRoot $name
+        if (Test-Path -LiteralPath $file -PathType Leaf) { Get-Item -LiteralPath $file }
+    }
     foreach ($folder in 'src', 'data') { Get-PackageFiles (Join-Path $SourceRoot $folder) }
     if ($IncludeAssets) { Get-PackageFiles (Join-Path $SourceRoot 'assets') }
 )
@@ -52,6 +56,15 @@ foreach ($entry in $entries | Where-Object Compile) {
     $target = Join-Path $stage $entry.Name
     New-Item -ItemType Directory -Path (Split-Path $target) -Force | Out-Null
     Copy-Item -LiteralPath $entry.File -Destination $target
+}
+# Extensions must be real files beside the staging source for the compiler.
+# The archive contains the manifest; native binaries are deployed externally.
+$manifest = Join-Path $SourceRoot 'extensions.txt'
+if (Test-Path -LiteralPath $manifest -PathType Leaf) {
+    $native = Join-Path $SourceRoot 'native'
+    if (-not (Test-Path -LiteralPath $native -PathType Container)) { throw 'Run tools/setup-eos.ps1 before packaging' }
+    Copy-Item -LiteralPath $manifest -Destination $stage
+    Copy-Item -LiteralPath $native -Destination $stage -Recurse
 }
 Write-Host ("staged scripts/data only: {0:N2}s" -f $timer.Elapsed.TotalSeconds)
 $timer.Restart()

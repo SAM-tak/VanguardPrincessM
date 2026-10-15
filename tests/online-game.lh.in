@@ -1,0 +1,87 @@
+# A real game against an input-only mock peer, with real assets and mock EOS.
+module^vp.onlinegametest
+import^love.event
+import^love.timer
+import^love.keyboard
+require^"game.lh"
+require^"src/net.lh"
+require^"src/online.lh"
+require^"src/lanmenu.lh"
+require^"src/roommenu.lh"
+require^"src/netguest.lh"
+require^"src/onlineguest.lh"
+require^"src/arena.lh"
+require^"src/replay.lh"
+let^Key = love.keyboard.Key
+var^phase = 0
+var^wait = 0
+var^began = 0
+var^peerMatch = 0
+var^firstBattle = 0
+let^press = p^key:love.keyboard.Key{ vp.main.keypressed(key, love.keyboard.Scancode.unknown, false^) }
+public^let^load = p^{
+    began := love.timer.getTime()
+    vp.main.setVSSeed(123456)
+    vp.main.load()
+}
+public^let^update = p^dt:number^{
+    vp.netguest.poll()
+    let^setup = vp.netguest.hostSetup()
+    if^setup.match > peerMatch { peerMatch := setup.match vp.netguest.resetMatch(peerMatch) }
+    let^before = vp.main.status()
+    if^vp.netguest.active() and^peerMatch > 0 {
+        let^ahead = before.netFrame + vp.netguest.INPUT_DELAY + 8
+        for^f from^vp.netguest.sampled() + 1 to^ahead { vp.netguest.sample(f, 0) }
+    }
+    vp.main.update(0.02)
+    let^s = vp.main.status()
+    let^where = vp.arena.names()
+    if^phase = 0 and^where = "system / opening" { press(Key.z) phase := 1
+    elseif^phase = 1: press(Key.z) phase := 2
+    elseif^phase = 2 and^where = "system / title":
+        vp.net.openOnlineDevice() vp.netguest.openOnline() phase := 3
+    elseif^phase = 3 and^vp.net.status() = "ready" and^vp.netguest.status() = "ready":
+        vp.net.hostRoom("Game return test", "", "Host") phase := 4
+    elseif^phase = 4 and^vp.online.inRoom():
+        vp.netguest.searchOnline() phase := 5
+    elseif^phase = 5:
+        let^h = vp.netguest.hostsShown()[0]
+        if^h != nil^ { vp.netguest.joinRoom(h, "", "Peer") phase := 6 }
+    elseif^phase = 6 and^vp.onlineguest.inRoom():
+        vp.online.sit(1) vp.onlineguest.sit(2) wait := 0 phase := 7
+    elseif^phase = 7:
+        wait += 1
+        if^wait > 30 {
+            vp.online.sit(1) vp.onlineguest.sit(2) vp.lanmenu.openRoom() phase := 8
+        }
+    elseif^phase = 8 and^s.netplay and^s.phase = "select" and^!s.loading:
+        firstBattle := vp.online.battleId()
+        vp.main.setVSSeconds(5)
+        press(Key.f3)
+        vp.netguest.choose({ match = 1, confirmed = true^, row = 1, colour = 0, support = 101 })
+        press(Key.z) wait := 0 phase := 9
+    elseif^phase = 9:
+        wait += 1
+        if^wait = 20 { press(Key.z) }
+        if^s.phase = "battle" { phase := 10 }
+    elseif^phase = 10 and^!s.netplay:
+        if^!vp.online.inRoom() or^vp.online.players().length^ != 2 { panic^"Match destroyed the room" }
+        if^vp.roommenu.status() != "room" { panic^"Match did not reopen the room overlay" }
+        let^tape = vp.replay.load(s.lastReplay)
+        if^tape is^nil^ or^tape.frames() < 100 { panic^"Finished online game did not record its replay" }
+        vp.netguest.finishOnline() wait := 0 phase := 11
+    elseif^phase = 11:
+        wait += 1
+        let^p = vp.online.localPlayer()
+        if^wait > 30 and^p != nil^ and^p.battle = 0 {
+            vp.online.sit(1) vp.onlineguest.sit(2) peerMatch := 0 phase := 12
+        }
+    elseif^phase = 12 and^s.netplay and^s.phase = "select":
+        if^vp.online.battleId() <= firstBattle { panic^"Rematch reused battle epoch" }
+        print("ONLINE_GAME_OK: actual match, replay saved, same room restored, READY again starts a new match")
+        vp.netguest.leave() love.event.quit()
+    }
+    if^love.timer.getTime() - began > 120 { panic^$"Online game timed out at phase {phase}, scene {s.phase}, link {s.link}" }
+}
+public^let^draw = p^{ vp.main.draw() }
+public^let^quit = p^-> bool^{ vp.netguest.leave() vp.onlineguest.shutdown() return^vp.main.quit() }

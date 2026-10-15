@@ -55,7 +55,18 @@ jobs:
           . ./tools/engine-platform.ps1
           ./tools/test-external-media.ps1 -Lovec (Get-EngineExecutable build/release-engine/compiler -Compiler) -ShippingDirectory build/release-engine/runtime
       - name: Build game and standalone asset builder
+        # Secrets are not supplied to pull-request builds.
+        # Configuration is compiled into trusted push/manual distributions.
+        env:
+          EOS_PRODUCT_ID: ${{ github.event_name != 'pull_request' && secrets.EOS_PRODUCT_ID || '' }}
+          EOS_SANDBOX_ID: ${{ github.event_name != 'pull_request' && secrets.EOS_SANDBOX_ID || '' }}
+          EOS_DEPLOYMENT_ID: ${{ github.event_name != 'pull_request' && secrets.EOS_DEPLOYMENT_ID || '' }}
+          EOS_CLIENT_ID: ${{ github.event_name != 'pull_request' && secrets.EOS_CLIENT_ID || '' }}
+          EOS_CLIENT_SECRET: ${{ github.event_name != 'pull_request' && secrets.EOS_CLIENT_SECRET || '' }}
         run: |
+          if ('${{ github.event_name }}' -ne 'pull_request') {
+            ./tools/write-eos-config.ps1
+          }
           . ./tools/engine-platform.ps1
           ./tools/dist.ps1 -Lovec (Get-EngineExecutable build/release-engine/compiler -Compiler) -ShippingDirectory build/release-engine/runtime
       - name: Test asset builder and package contents

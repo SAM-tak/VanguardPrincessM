@@ -1,0 +1,257 @@
+# Online room overlay: text forms, public room list and four battle tables.
+module^vp.roommenu
+import^love.graphics
+import^love.keyboard
+import^love.system
+require^"locale.lh"
+require^"settings.lh"
+require^"net.lh"
+require^"online.lh"
+require^"lobby.lh"
+let^Key = love.keyboard.Key
+var^mode = ""
+var^item = 0
+var^device = true^
+var^field = 0
+var^roomName = "Room"
+var^pin = ""
+var^display = "Player"
+var^displayEdited = false^
+var^message = ""
+var^chosen:vp.net.Host|nil^= nil^
+var^fonts:t^{[number^]:love.graphics.Font|nil^} = {}
+let^word = p^ja:string^, en:string^-> string^{ return^if^vp.locale.locale() = "en": en el^: ja; }
+public^let^isOpen = f^-> bool^{ mode != "" }
+public^let^status = f^-> string^{ mode }
+public^let^selection = f^-> number^{ item }
+public^let^editing = f^-> bool^{ mode = "create" or^mode = "password" }
+let^textMode = p^on:bool^{ love.keyboard.setTextInput(on) }
+public^let^open = p^{ mode := "auth" item := 0 message := "" display := vp.settings.playerName() displayEdited := false^ }
+public^let^openRoom = p^{
+    textMode(false^) mode := "room"
+    let^p = vp.online.localPlayer()
+    item := if^p != nil^ and^p.seat > 0: p.seat - 1 el^: 0;
+}
+public^let^close = p^{ textMode(false^) if^!vp.net.active() { vp.net.leave() } mode := "" }
+public^let^showMessage = p^text:string^{ textMode(false^) mode := "message" message := text }
+public^let^back = p^{
+    if^mode = "create" { textMode(false^) mode := "menu" item := 0 message := "" return^ }
+    if^mode = "password" { textMode(false^) mode := "searching" item := 0 message := "" return^ }
+    if^mode = "room" {
+        let^p = vp.online.localPlayer()
+        if^p != nil^ and^p.seat > 0 {
+            if^p.battle > 0 { vp.net.abortOnline() }
+            vp.online.stand() return^
+        }
+        vp.net.backOnline() mode := "menu" item := 0 return^
+    }
+    if^mode = "hosting" or^mode = "searching" or^mode = "joining" {
+        item := if^mode = "hosting": 0 el^: 1;
+        vp.net.backOnline() mode := "menu" return^
+    }
+    if^mode = "login" or^mode = "message" { vp.net.leave() mode := "auth" item := if^device: 0 el^: 1; return^ }
+    close()
+}
+let^maskedPin = f^-> string^{
+    var^out = ""
+    for^i from^0 to^pin.length - 1 { out := out .. "*" }
+    return^out
+}
+let^value = f^-> string^{
+    if^mode = "create" { return^if^field = 0: roomName elseif^field = 1: pin el^: display; }
+    return^if^field = 0: pin el^: display;
+}
+let^setValue = p^text:string^{
+    if^mode = "create" and^field = 0 { roomName := text
+    elseif^(mode = "create" and^field = 1) or^(mode = "password" and^field = 0): pin := text
+    else^: display := text displayEdited := true^ }
+}
+public^let^textinput = p^text:string^{
+    if^!editing() { return^ }
+    var^out = value()
+    let^numeric = (mode = "create" and^field = 1) or^(mode = "password" and^field = 0)
+    let^limit = if^numeric: 8 elseif^mode = "create" and^field = 0: 24 el^: 16;
+    for^i from^0 to^text.length - 1 {
+        let^c = text.at(i)
+        if^out.length >= limit { break^ }
+        if^c = "\n" or^c = "\r" or^c = "\t" or^c = "\0" { continue^ }
+        if^numeric and^("0123456789".find(c) ?? -1) < 0 { continue^ }
+        out := out .. c
+    }
+    setValue(out)
+}
+let^submit = p^{
+    if^!vp.online.validPin(pin) { message := word("暗証番号は空欄、または4〜8桁の数字", "Use an empty PIN or 4-8 digits") return^ }
+    if^display = "" or^(mode = "create" and^roomName = "") { message := word("名前を入力してください", "Please enter a name") return^ }
+    if^displayEdited { vp.settings.setPlayerName(display) }
+    textMode(false^) message := ""
+    if^mode = "create" { vp.net.hostRoom(roomName, pin, display) mode := "hosting"
+    else^:
+        let^h = chosen
+        if^h != nil^ { vp.net.joinRoom(h, pin, display) mode := "joining" }
+    }
+}
+public^let^keypressed = p^key:love.keyboard.Key-> bool^{
+    if^mode = "" { return^false^ }
+    if^editing() {
+        if^key = Key.escape { back()
+        elseif^key = Key.v and^(love.keyboard.isDown(Key.lctrl) or^love.keyboard.isDown(Key.rctrl) or^love.keyboard.isDown(Key.lgui) or^love.keyboard.isDown(Key.rgui)):
+            textinput(love.system.getClipboardText())
+        elseif^key = Key.backspace:
+            let^old = value()
+            setValue(if^old.length > 1: old.substring(0, old.length - 2) el^: "";)
+        elseif^key = Key.tab or^key = Key.down:
+            field := (field + 1) % (if^mode = "create": 3 el^: 2;)
+        elseif^key = Key.up:
+            field := (field + (if^mode = "create": 2 el^: 1;)) % (if^mode = "create": 3 el^: 2;)
+        elseif^key = Key.return or^key = Key.kpenter: submit()
+        }
+        return^true^
+    }
+    if^mode = "room" and^(key = Key.left or^key = Key.right) { item := if^item % 2 = 0: item + 1 el^: item - 1; return^true^ }
+    return^false^
+}
+public^let^step = p^up:bool^, down:bool^, pressed:number^{
+    let^link = vp.net.status()
+    if^link = "failed" and^mode != "message" { message := vp.net.problemText() vp.net.leave() mode := "message" textMode(false^) return^ }
+    if^mode = "message" { if^pressed != 0 { back() } return^ }
+    if^editing() { return^ }
+    let^cancel = (pressed / 2).floor() % 2 = 1 or^(pressed / 8).floor() % 2 = 1
+    let^confirm = pressed != 0 and^!cancel
+    if^cancel { if^mode != "room" { back() } return^ }
+    if^vp.online.inRoom() and^(mode = "hosting" or^mode = "joining") { openRoom() }
+    if^mode = "login" and^link = "ready" {
+        if^!vp.settings.hasPlayerName() {
+            let^account = vp.online.displayName()
+            display := if^account != "": vp.lobby.name(account) el^: "Player";
+            if^display.length > 16 { display := display.substring(0, 15) }
+        }
+        mode := "menu" item := 0
+    }
+    if^mode = "auth" {
+        if^up or^down { item := (item + (if^down: 1 el^: 2;)) % 3 }
+        if^confirm {
+            if^item = 2 { close() return^ }
+            device := item = 0
+            if^device { vp.net.openOnlineDevice() else^: vp.net.openOnline() }
+            mode := "login" item := 0
+        }
+    elseif^mode = "menu":
+        if^up or^down { item := (item + (if^down: 1 el^: 2;)) % 3 }
+        if^confirm and^link = "ready" {
+            if^item = 0 { mode := "create" field := 0 pin := "" message := "" textMode(true^)
+            elseif^item = 1: vp.net.searchOnline() mode := "searching" item := 0
+            else^: close() }
+        }
+    elseif^mode = "searching":
+        let^rooms = vp.net.hostsShown()
+        let^count = rooms.length^
+        if^count > 0 and^(up or^down) { item := (item + (if^down: 1 el^: count - 1;)) % count }
+        if^item >= count { item := 0 }
+        let^h = rooms[item]
+        if^confirm and^h != nil^ { chosen := h mode := "password" field := 0 pin := "" message := "" textMode(true^) }
+    elseif^mode = "room":
+        if^up or^down { item := (item + (if^down: 2 el^: 6;)) % 8 }
+        if^confirm { vp.online.sit(item + 1) }
+    }
+}
+let^font = p^size:number^-> love.graphics.Font {
+    let^known = fonts[size]
+    if^known != nil^ { return^known }
+    let^f = love.graphics.newFont("data/NotoSansMonoCJKjp-Regular.otf", size) catch^panic^it^
+    fonts[size] := f return^f
+}
+let^label = p^text:string^, x:number^, y:number^, size:number^{ love.graphics.setFont(font(size)) love.graphics.print(text, x, y) }
+let^fitted = p^text:string^, x:number^, y:number^, size:number^, width:number^{
+    let^f = font(size)
+    let^measured = f.getWidth(text)
+    let^use = if^measured > width: (size * width / measured).floor().clamp(12, size) el^: size;
+    label(text, x, y, use)
+}
+let^box = p^x:number^, y:number^, w:number^, h:number^, selected:bool^{
+    love.graphics.setColor(if^selected: 0.20 el^: 0.10;, 0.09, if^selected: 0.34 el^: 0.19;, 0.97)
+    love.graphics.rectangle(love.graphics.DrawMode.fill, x, y, w, h)
+    love.graphics.setColor(if^selected: 1 el^: 0.52;, if^selected: 0.8 el^: 0.43;, if^selected: 0.3 el^: 0.73;, 1)
+    love.graphics.rectangle(love.graphics.DrawMode.line, x, y, w, h)
+}
+public^let^draw = p^{
+    if^mode = "" { return^ }
+    love.graphics.push()
+    let^previous = love.graphics.getFont()
+    love.graphics.setColor(0, 0, 0, 0.62) love.graphics.rectangle(love.graphics.DrawMode.fill, 0, 0, 1280, 960)
+    let^wide = mode = "room"
+    let^x = if^wide: 50 el^: 180;
+    let^y = if^wide: 70 el^: 170;
+    let^w = if^wide: 1180 el^: 920;
+    let^h = if^wide: 820 el^: 620;
+    box(x, y, w, h, false^)
+    love.graphics.setColor(1, 0.85, 0.4, 1)
+    label(if^wide: vp.online.title() el^: "ONLINE VS";, x + 28, y + 20, 30)
+    if^wide {
+        love.graphics.setColor(0.8, 0.78, 0.93, 1)
+        label(if^vp.online.locked(): word("暗証番号あり", "PIN protected") el^: word("暗証番号なし", "No PIN");, x + 28, y + 64, 18)
+        for^t from^0 to^3 {
+            let^ty = y + 112 + t * 142
+            love.graphics.setColor(0.85, 0.8, 1, 1)
+            label(word("対戦台", "TABLE") .. $" {t + 1}", x + 28, ty, 20)
+            for^s from^0 to^1 {
+                let^seat = t * 2 + s + 1
+                let^sx = x + 28 + s * 310
+                box(sx, ty + 30, 294, 96, item = seat - 1)
+                let^p = vp.online.atSeat(seat)
+                love.graphics.setColor(1, 1, 1, 1)
+                label($"{s + 1}P", sx + 12, ty + 38, 18)
+                if^p is^nil^ { label(word("着席する", "Take a seat"), sx + 56, ty + 55, 22)
+                else^:
+                    fitted(p.name, sx + 12, ty + 62, 22, 268)
+                    love.graphics.setColor(if^p.ready: 0.3 el^: 0.85;, 0.9, 0.65, 1)
+                    let^status = if^p.battle > 0: (if^p.done: word("終了待ち", "Finishing") el^: word("対戦中", "In match");) elseif^p.ready: "READY" el^: word("待機中", "Seated");
+                    label(status, sx + 12, ty + 94, 18)
+                }
+            }
+        }
+        love.graphics.setColor(0.65, 0.55, 0.9, 1) love.graphics.line(x + 666, y + 105, x + 666, y + 700)
+        love.graphics.setColor(1, 1, 1, 1)
+        let^people = vp.online.players()
+        label(word("参加者", "PLAYERS") .. $"  {people.length^}/16", x + 694, y + 112, 24)
+        for^p in^people {
+            let^py = y + 160 + index^ * 31
+            love.graphics.setColor(if^p.id = vp.online.userId(): 1 el^: 0.84;, 0.85, 0.94, 1)
+            let^mark = if^p.id = vp.online.roomOwner(): "★ " el^: "  ";
+            fitted(mark .. p.name, x + 686, py, 19, 310)
+            let^place = if^p.seat = 0: word("待機", "Idle") el^: $"{((p.seat - 1) / 2).floor() + 1} / {(p.seat - 1) % 2 + 1}P";
+            label(place, x + 1010, py, 18)
+        }
+        love.graphics.setColor(0.9, 0.87, 0.98, 1)
+        label(word("↑↓ 対戦台  ←→ 1P/2P  A 着席・READY切替", "Up/Down: table  Left/Right: side  A: sit / READY"), x + 28, y + 716, 20)
+        label(word("Esc / Back 離席（待機中はルーム退出）", "Esc / Back: stand / leave room when idle"), x + 28, y + 750, 20)
+    else^:
+        var^lines:t^{string^[]} = {}
+        if^mode = "auth" { lines := { word("アカウントなしで接続", "Connect without an account"), word("Epic アカウントで接続", "Sign in with Epic Games"), word("戻る", "Back") }
+        elseif^mode = "menu": lines := { word("ルームを作成", "Create room"), word("ルームを探す", "Search rooms"), word("戻る", "Back") }
+        elseif^mode = "create" or^mode = "password":
+            if^mode = "create" { lines := { word("ルーム名", "Room name") .. ": " .. roomName, word("暗証番号（任意）", "PIN (optional)") .. ": " .. maskedPin(), word("プレイヤー名", "Player name") .. ": " .. display }
+            else^: lines := { word("暗証番号", "PIN") .. ": " .. maskedPin(), word("プレイヤー名", "Player name") .. ": " .. display } }
+        elseif^mode = "searching":
+            for^r in^vp.net.hostsShown() { lines.push^((if^r.locked: "[PIN] " el^: "";) .. r.name .. $"  {r.capacity - r.available}/{r.capacity}") }
+            if^lines.length^ = 0 { lines := { word("ルームを探しています…", "Searching for rooms...") } }
+        elseif^mode = "login": lines := { word("オンラインに接続しています…", "Connecting online...") }
+        elseif^mode = "hosting": lines := { word("ルームを作成しています…", "Creating room...") }
+        elseif^mode = "joining": lines := { word("ルームに参加しています…", "Joining room...") }
+        elseif^mode = "message": lines := { message }
+        }
+        for^line in^lines {
+            let^chosenLine = (editing() and^index^ = field) or^(!editing() and^index^ = item)
+            love.graphics.setColor(if^chosenLine: 1 el^: 0.85;, if^chosenLine: 0.83 el^: 0.82;, if^chosenLine: 0.4 el^: 0.92;, 1)
+            label(if^chosenLine: ">" el^: "";, x + 26, y + 94 + index^ * 46, 24)
+            love.graphics.setFont(font(24))
+            love.graphics.printf(line .. (if^editing() and^chosenLine: "_" el^: "";), x + 60, y + 94 + index^ * 46, w - 90)
+        }
+        love.graphics.setColor(1, 0.7, 0.5, 1)
+        if^editing() and^message != "" { label(message, x + 28, y + h - 122, 19) }
+        love.graphics.setColor(0.9, 0.87, 0.98, 1)
+        label(if^editing(): word("Tab / ↑↓ 項目移動  Enter 確定  ESC 戻る", "Tab / Up/Down: field  Enter: submit  ESC: back") el^: word("↑↓ 選択  A 決定  B / D・ESC 戻る", "Up/Down: choose  A: confirm  B / D, ESC: back");, x + 28, y + h - 70, 20)
+        if^vp.net.status() = "returning" { label(word("前の操作を終了しています…", "Finishing the previous operation..."), x + 28, y + h - 38, 18) }
+    }
+    love.graphics.setFont(previous) love.graphics.setColor(1, 1, 1, 1) love.graphics.pop()
+}

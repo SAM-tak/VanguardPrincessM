@@ -37,6 +37,7 @@ public^let^run = p^{
 }
 '''.encode(),
             'conf.lton': b'window = false^, modules = { audio = false^, graphics = false^ }',
+            'eosconfig.lton': b'productId = "test-product",',
             'src/helper.lh': b'module^helper\npublic^let^value = f^ -> number^ { 7 }',
             'src/unreferenced.lh': b'module^unreferenced\npublic^let^value = 23',
             'data/日本語/settings.lton': b'value = 10',
@@ -49,6 +50,7 @@ public^let^run = p^{
             'assets/nested/skills/invalid.lh', 'data/_conversion/invalid.lton',
             'data/nested/data.lton', 'assets/support-source.lton',
             'tools/private.txt', 'unselected.txt',
+            'eosconfig.example.lton',
         }
         for name, content in files.items():
             target = source / name
@@ -66,7 +68,7 @@ public^let^run = p^{
         def pack(workdir, expected=0, jobs=1):
             return run('pwsh', '-NoProfile', '-File', package, '-SourceRoot', source,
                        '-Lovec', compiler, '-WorkDirectory', workdir, '-Archive', archive,
-                       '-Jobs', jobs, expected=expected)
+                       '-Jobs', jobs, '-IncludeAssets', expected=expected)
         pack(work)
         units = {name for name in files if name.endswith(('.lh', '.lton'))}
         for folder in ('source', 'compiled'):
@@ -93,12 +95,12 @@ public^let^run = p^{
             serial = {name: zipped.read(name) for name in zipped.namelist()}
         parallel_work = root / 'parallel work'
         result = pack(parallel_work, jobs=6)
-        assert 'with 3 threads' in result.stdout, result.stdout
+        assert 'with 4 threads' in result.stdout, result.stdout
         with zipfile.ZipFile(archive) as zipped:
             assert {name: zipped.read(name) for name in zipped.namelist()} == serial
         assert {p.relative_to(parallel_work / 'compiled').as_posix()
                 for p in (parallel_work / 'compiled').rglob('*') if p.is_file()} == units
-        assert len(list((parallel_work / 'source').rglob('*.lton'))) == 3
+        assert len(list((parallel_work / 'source').rglob('*.lton'))) == 4
         assert not (parallel_work / 'lton').exists()
         run(vm, '--no-error-screen', archive, expected=17)
 

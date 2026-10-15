@@ -1,0 +1,386 @@
+# EOS authentication, persistent rooms, admission and table coordination.
+module^vp.online
+import^eos
+import^std.lton
+import^std.json
+import^std.math
+import^love.filesystem
+import^love.timer
+
+require^"lobby.lh"
+
+let^BUCKET = "vanguard-m-0164-room-v1"
+let^SOCKET = "vanguard-room-v1"
+
+public^let^RoomInfo = t^{id:string^, owner:string^, bucket:string^, capacity:number^, available:number^, name:string^, locked:bool^}
+
+let^Player = vp.lobby.Player
+var^client:eos.Client|nil^= nil^
+var^state = ""
+var^problem = ""
+var^deviceAuth = false^
+var^owner = false^
+var^ownerId = ""
+var^localId = ""
+var^accountName = ""
+var^roomId = ""
+var^roomName = ""
+var^roomPin = ""
+var^profile = "Player"
+var^joinPin = ""
+var^roomLocked = false^
+var^admitted = false^
+var^peer = ""
+var^side = 0
+var^epoch = 0
+var^finishedEpoch = 0
+var^inLobby = false^
+var^closing = false^
+var^closeAt = 0
+var^deadline = 0
+var^searchPending = false^
+var^mutationPending = false^
+var^lastSearch = 0
+var^lastBroadcast = -100
+var^lastHello = -100
+var^lastOwner = 0
+var^revision = 0
+var^incomingRevision = -1
+var^appliedRevision = -1
+var^pendingPlayers:t^{Player[]} = {}
+var^roster = vp.lobby.Room.new()
+var^members:t^{string^[]} = {}
+var^waiting:t^{[string^]:number^|nil^} = {}
+var^commands:t^{[string^]:number^|nil^} = {}
+var^sequence = 0
+var^rooms:t^{RoomInfo[]} = {}
+var^battlePackets:t^{string^[]} = {}
+public^let^status = f^-> string^{ state }
+public^let^problemText = f^-> string^{ problem }
+public^let^peerId = f^-> string^{ peer }
+public^let^hosting = f^-> bool^{ side = 0 }
+public^let^battleId = f^-> number^{ epoch }
+public^let^userId = f^-> string^{ localId }
+public^let^displayName = f^-> string^{ accountName }
+public^let^roomOwner = f^-> string^{ ownerId }
+public^let^title = f^-> string^{ roomName }
+public^let^locked = f^-> bool^{ roomLocked }
+public^let^inRoom = f^-> bool^{ inLobby and^admitted and^!closing and^state != "returning" }
+public^let^players = f^-> t^{Player[]} { roster.players }
+public^let^localPlayer = f^-> Player|nil^{ roster.get(localId) }
+public^let^atSeat = f^seat:number^-> Player|nil^{ roster.at(seat) }
+public^let^results = f^-> t^{RoomInfo[]} { rooms }
+public^let^validPin = f^pin:string^-> bool^{
+    if^pin = "" { return^true^ }
+    if^pin.length < 4 or^pin.length > 8 { return^false^ }
+    for^i from^0 to^pin.length - 1 { if^"0123456789".find(pin.at(i)) ?? 0 < 0 { return^false^ } }
+    return^true^
+}
+let^dispose = p^{
+    let^c = client
+    if^c != nil^ { c.close() catch^nil^ }
+    client := nil^ closing := false^ inLobby := false^ searchPending := false^ mutationPending := false^
+    peer := "" admitted := false^ roomId := "" battlePackets := {}
+}
+public^let^stop = p^{
+    state := "" peer := "" rooms := {} battlePackets := {}
+    if^closing { return^ }
+    let^c = client
+    if^c != nil^ and^inLobby {
+        let^request = c.leave() catch^nil^
+        if^request != nil^ { closing := true^ closeAt := love.timer.getTime() + 5 return^ }
+    }
+    dispose()
+}
+let^fail = p^why:string^{ stop() state := "failed" problem := why }
+let^startWith = p^device:bool^{
+    if^closing { fail("Please wait for the previous room to close") return^ }
+    stop()
+    problem := "" deviceAuth := device accountName := ""
+    let^config = try^std.lton.load("eosconfig.lton")
+    if^!(config fits^t^{productId:string^,sandboxId:string^,deploymentId:string^,clientId:string^,clientSecret:string^}) {
+        fail("Configure eosconfig.lton (see eosconfig.example.lton)") return^
+    }
+    let^_^ = love.filesystem.createDirectory("eos-cache")
+    let^c = try^eos.create({ productId=config.productId,sandboxId=config.sandboxId,deploymentId=config.deploymentId,
+        clientId=config.clientId,clientSecret=config.clientSecret,cacheDirectory=love.filesystem.getSaveDirectory() .. "/eos-cache",socketName=SOCKET })
+    client := c state := "login" deadline := love.timer.getTime() + 120
+    if^deviceAuth { try^c.loginDevice("Player") else^: try^c.loginEpic(true^) }
+catch^:
+    fail($"Online login unavailable: {it^.message}")
+}
+public^let^start = p^{ startWith(false^) }
+public^let^startDevice = p^{ startWith(true^) }
+public^let^hostRoom = p^name:string^, pin:string^, display:string^{
+    let^c = client
+    if^c is^nil^ or^state != "ready" { return^ }
+    if^!validPin(pin) { problem := "PIN must contain 4 to 8 digits" return^ }
+    roomName := vp.lobby.name(name) roomPin := pin roomLocked := pin != "" profile := vp.lobby.name(display)
+    roster := vp.lobby.Room.new() waiting := {} commands := {} sequence := 0
+    epoch := 0 finishedEpoch := 0 revision := 0 appliedRevision := -1
+    owner := true^ admitted := false^ state := "creating" mutationPending := true^
+    deadline := love.timer.getTime() + 30
+    try^c.createLobby(BUCKET, vp.lobby.CAPACITY)
+catch^:
+    fail($"Cannot create room: {it^.message}")
+}
+public^let^host = p^{ hostRoom("Room", "", profile) }
+public^let^search = p^{
+    let^c = client
+    if^c is^nil^ or^searchPending or^(state != "ready" and^state != "searching") { return^ }
+    if^state = "ready" { rooms := {} }
+    state := "searching" searchPending := true^ lastSearch := love.timer.getTime() deadline := lastSearch + 30
+    try^c.search(BUCKET, 100)
+catch^:
+    fail($"Cannot search rooms: {it^.message}")
+}
+public^let^joinRoom = p^id:string^, pin:string^, display:string^{
+    let^c = client
+    if^c is^nil^ or^state != "searching" { return^ }
+    owner := false^ admitted := false^ profile := vp.lobby.name(display) joinPin := pin
+    roster := vp.lobby.Room.new() sequence := 0 epoch := 0 finishedEpoch := 0 appliedRevision := -1 incomingRevision := -1
+    peer := "" roomId := "" lastHello := -100
+    state := "joining" mutationPending := true^ deadline := love.timer.getTime() + 30
+    try^c.join(id)
+catch^:
+    fail($"Cannot join room: {it^.message}")
+}
+public^let^join = p^id:string^{ joinRoom(id, "", profile) }
+public^let^returnToMenu = p^{
+    if^client is^nil^ or^closing { return^ }
+    state := "returning" peer := "" rooms := {} battlePackets := {}
+    deadline := love.timer.getTime() + 30
+}
+let^control = p^id:string^, message:t^{}{
+    let^c = client
+    if^c is^nil^ { return^ }
+    let^text = try^std.json.encode(message)
+    try^c.send(id, text, 1, eos.Reliability.reliableOrdered)
+catch^:
+    problem := "A room message could not be sent"
+}
+let^snapshot = p^{
+    revision += 1
+    for^p in^roster.players {
+        if^p.id = localId { continue^ }
+        control(p.id, { kind="begin",room=roomId,rev=revision,name=roomName,locked=roomLocked })
+        for^entry in^roster.players {
+            # One player per packet keeps UTF-8 names below the EOS packet limit.
+            control(p.id, { kind="player",room=roomId,rev=revision,player=entry })
+        }
+        control(p.id, { kind="end",room=roomId,rev=revision })
+    }
+    lastBroadcast := love.timer.getTime()
+}
+let^request = p^seat:number^, ready:bool^, finished:number^{
+    if^!inRoom() { return^ }
+    if^owner {
+        roster.act(localId, seat, ready, finished)
+        lastBroadcast := -100
+    else^:
+        sequence += 1
+        control(ownerId, { kind="act",room=roomId,seq=sequence,seat=seat,ready=ready,finished=finished })
+    }
+}
+public^let^sit = p^seat:number^{
+    let^p = localPlayer()
+    if^p != nil^ { request(seat, if^p.seat = seat: !p.ready el^: false^;, 0) }
+}
+public^let^stand = p^{ request(0, false^, 0) }
+public^let^abortBattle = p^{
+    if^owner { roster.abort(localId) lastBroadcast := -100
+    else^: control(ownerId, { kind="abort",room=roomId,battle=epoch }) }
+    finishedEpoch := epoch peer := "" state := "room" battlePackets := {}
+}
+public^let^finishBattle = p^{
+    if^epoch > 0 {
+        finishedEpoch := epoch
+        request(0, false^, epoch)
+    }
+    peer := "" state := "room" battlePackets := {}
+}
+let^isMember = f^id:string^-> bool^{
+    for^m in^members { if^m = id { return^true^ } }
+    return^false^
+}
+let^heardControl = p^from:string^, data:string^{
+    let^decoded = std.json.decode(data) catch^nil^
+    if^!(decoded fits^t^{kind:string^,room:string^}) or^decoded.room != roomId { return^ }
+    let^kind = decoded.kind
+    let^raw:any^ = decoded
+    if^owner {
+        if^kind = "enter" and^raw fits^t^{name:string^,pin:string^} {
+            if^roster.get(from) != nil^ { lastBroadcast := -100 return^ }
+            if^raw.pin != roomPin {
+                control(from, { kind="reject",room=roomId })
+                let^c = client
+                if^c != nil^ { c.kick(from) catch^nil^ }
+                waiting[from] := nil^
+                return^
+            }
+            roster.admit(from, raw.name)
+            commands[from] := 0
+            waiting[from] := nil^ lastBroadcast := -100
+        elseif^kind = "abort" and^raw fits^t^{battle:number^}:
+            let^p = roster.get(from)
+            if^p != nil^ and^p.battle = raw.battle { roster.abort(from) lastBroadcast := -100 }
+        elseif^kind = "act" and^raw fits^t^{seq:number^,seat:number^,ready:bool^,finished:number^}:
+            if^raw.seq > (commands[from] ?? 0) and^roster.get(from) != nil^ {
+                commands[from] := raw.seq
+                roster.act(from, raw.seat, raw.ready, raw.finished)
+                lastBroadcast := -100
+            }
+        }
+        return^
+    }
+    if^from != ownerId { return^ }
+    lastOwner := love.timer.getTime()
+    if^kind = "reject" { fail("Incorrect room PIN") return^ }
+    if^kind = "begin" and^raw fits^t^{rev:number^,name:string^,locked:bool^} {
+        if^raw.rev <= appliedRevision { return^ }
+        incomingRevision := raw.rev pendingPlayers := {} roomName := raw.name roomLocked := raw.locked
+    elseif^kind = "player" and^raw fits^t^{rev:number^,player:Player}:
+        if^raw.rev = incomingRevision and^pendingPlayers.length^ < vp.lobby.CAPACITY {
+            pendingPlayers.push^(raw.player)
+        }
+    elseif^kind = "end" and^raw fits^t^{rev:number^}:
+        if^raw.rev = incomingRevision and^raw.rev > appliedRevision {
+            roster.players := pendingPlayers
+            appliedRevision := raw.rev
+            if^roster.get(localId) != nil^ {
+                admitted := true^ deadline := 0
+                if^state = "joining" { state := "room" }
+            }
+        }
+    }
+}
+public^let^tick = p^{
+    let^c = client
+    if^c is^nil^ { return^ }
+    try^c.tick()
+    repeat^{
+        let^e = try^c.poll()
+        if^e is^nil^ { break^ }
+        if^closing { if^e.kind = eos.EventKind.left { dispose() return^ } continue^ }
+        if^e.kind = eos.EventKind.roomUpdated and^state != "publishing" { continue^ }
+        if^state = "returning" and^!e.ok and^(e.kind = eos.EventKind.created or^e.kind = eos.EventKind.joined) {
+            mutationPending := false^ continue^
+        }
+        if^e.kind = eos.EventKind.kicked { continue^ }
+        if^!e.ok { fail($"EOS: {e.code}") return^ }
+        if^e.kind = eos.EventKind.login {
+            if^state = "login" {
+                localId := try^c.userId()
+                accountName := c.displayName() catch^""
+                state := "ready" deadline := 0
+            }
+        elseif^e.kind = eos.EventKind.search:
+            searchPending := false^
+            if^state = "searching" {
+                rooms := {}
+                let^found = try^c.results()
+                for^r in^found {
+                    if^r.owner != "" and^r.name != "" and^r.capacity = vp.lobby.CAPACITY and^r.available > 0 and^rooms.length^ < 8 { rooms.push^(r) }
+                }
+                deadline := 0
+            }
+        elseif^e.kind = eos.EventKind.created or^e.kind = eos.EventKind.joined:
+            mutationPending := false^ inLobby := true^
+            let^r = try^c.lobby()
+            roomId := r.id ownerId := r.owner members := try^c.members()
+            if^state != "returning" {
+                if^owner {
+                    admitted := true^ roster.admit(localId, profile)
+                    state := "publishing"
+                    try^c.setRoom(roomName, roomLocked)
+                else^:
+                    roomName := r.name roomLocked := r.locked state := "joining" lastHello := -100
+                    lastOwner := love.timer.getTime()
+                }
+            }
+        elseif^e.kind = eos.EventKind.roomUpdated:
+            if^state = "publishing" { state := "room" deadline := 0 lastBroadcast := -100 }
+        elseif^e.kind = eos.EventKind.left:
+            mutationPending := false^ inLobby := false^ admitted := false^
+        elseif^e.kind = eos.EventKind.authExpired:
+            if^deviceAuth { try^c.loginDevice("Player") else^: try^c.loginEpic(false^) }
+        elseif^e.kind = eos.EventKind.loggedOut:
+            fail("Online session signed out") return^
+        elseif^e.kind = eos.EventKind.ownerChanged or^e.kind = eos.EventKind.lobbyClosed:
+            if^state != "returning" and^inLobby { fail("The room host left") return^ }
+        elseif^e.kind = eos.EventKind.memberLeft:
+            if^e.peerId = localId and^state != "returning" { fail("You left the room or the PIN was rejected") return^ }
+            if^owner { roster.drop(e.peerId) waiting[e.peerId] := nil^ commands[e.peerId] := nil^ lastBroadcast := -100 }
+        elseif^e.kind = eos.EventKind.overflow or^e.kind = eos.EventKind.internalError:
+            fail("EOS event processing failed") return^
+        }
+    }
+    let^now = love.timer.getTime()
+    if^closing { if^now >= closeAt { dispose() } return^ }
+    if^state = "returning" {
+        if^inLobby and^!mutationPending { mutationPending := true^ try^c.leave() }
+        if^!inLobby and^!mutationPending and^!searchPending { admitted := false^ state := "ready" deadline := 0 }
+        return^
+    }
+    if^inLobby {
+        members := try^c.members()
+        if^!isMember(ownerId) { fail("The room host left") return^ }
+        if^owner {
+            var^gone:t^{string^[]} = {}
+            for^p in^roster.players { if^!isMember(p.id) { gone.push^(p.id) } }
+            for^id in^gone { roster.drop(id) commands[id] := nil^ lastBroadcast := -100 }
+            for^id in^members {
+                if^roster.get(id) != nil^ { continue^ }
+                let^since = waiting[id]
+                if^since is^nil^ { waiting[id] := now
+                elseif^now - since > 15:
+                    c.kick(id) catch^nil^
+                    waiting[id] := now
+                }
+            }
+        }
+        for^i from^0 to^255 {
+            let^packet = try^c.receive()
+            if^packet is^nil^ { break^ }
+            if^!isMember(packet.peerId) { continue^ }
+            if^packet.channel = 1 { heardControl(packet.peerId, packet.data) }
+            if^state = "failed" { return^ }
+            if^packet.channel = 0 and^packet.peerId = peer and^epoch > 0 {
+                let^prefix = $"{roomId}:{epoch}|"
+                if^packet.data.find(prefix) = 0 and^battlePackets.length^ < 256 { battlePackets.push^(packet.data.substring(prefix.length)) }
+            }
+        }
+        if^!owner and^!admitted and^now - lastHello >= 1 {
+            control(ownerId, { kind="enter",room=roomId,name=profile,pin=joinPin })
+            lastHello := now
+        }
+        if^owner and^admitted and^now - lastBroadcast >= 0.5 { snapshot() }
+        if^!owner and^admitted and^now - lastOwner > 15 { fail("The room host stopped responding") return^ }
+        let^me = roster.get(localId)
+        if^me != nil^ and^me.battle > finishedEpoch and^!me.done {
+            let^mate = roster.at(if^me.seat % 2 = 1: me.seat + 1 el^: me.seat - 1;)
+            if^mate != nil^ and^mate.battle = me.battle and^isMember(mate.id) {
+                if^epoch != me.battle { battlePackets := {} }
+                epoch := me.battle peer := mate.id side := (me.seat - 1) % 2 state := "linked"
+            }
+        elseif^admitted and^(state = "linked" or^state = "room"):
+            state := "room" peer := ""
+        }
+    }
+    if^state = "searching" and^!searchPending and^now - lastSearch >= 3 { search() }
+    if^deadline > 0 and^now >= deadline { fail("EOS operation timed out") }
+catch^:
+    fail($"EOS failed: {it^.message}")
+}
+public^let^send = p^data:string^{
+    let^c = client
+    if^c != nil^ and^peer != "" { try^c.send(peer, $"{roomId}:{epoch}|" .. data, 0, eos.Reliability.unreliable) }
+catch^:
+    problem := "A battle packet could not be sent"
+}
+public^let^receive = p^-> string^|nil^{
+    let^data = battlePackets[0]
+    if^data != nil^ { battlePackets.remove^(0) }
+    return^data
+}
+public^let^shutdown = p^{ dispose() }

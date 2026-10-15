@@ -662,6 +662,14 @@
     font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 12,
     color = { 0, 0, 0.03 },
 },
+# ONLINE VS MODE's caption (src/lanmenu.lh).
+["locale:mode-menu/online-caption"] = {
+    text = "Play against someone online.",
+    size = { 300, 18 }, rect = { 0, 2, 300, 14 }, align = "left", valign = "middle",
+    offset = { 0, -2 },
+    font = "data/montserrat/Montserrat-Bold.ttf", fontSize = 12,
+    color = { 0, 0, 0.03 },
+},
 # LAN VS MODE's caption (src/lanmenu.lh).
 ["locale:mode-menu/lan-caption"] = {
     text = "Play against someone on the LAN.",

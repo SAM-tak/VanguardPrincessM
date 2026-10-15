@@ -80,6 +80,10 @@ New-Item -ItemType Directory -Force $out | Out-Null
 
 Write-Host "fusing"
 $launcher = & (Join-Path $PSScriptRoot 'fuse-game.ps1') -ShippingDirectory $vm -Archive $zip -OutputDirectory $out
+if (Test-Path -LiteralPath (Join-Path $root 'extensions.txt')) {
+    Copy-Item -LiteralPath (Join-Path $root 'native') -Destination $out -Recurse
+    Copy-Item -LiteralPath (Join-Path $root 'extensions/eos/ThirdPartySoftwareNotice.txt') -Destination (Join-Path $out 'eos-ThirdPartySoftwareNotice.txt')
+}
 $notices = [ordered]@{
     'license.txt' = 'lhat-love-license.txt'
     'build-info.txt' = 'lhat-love-build-info.txt'

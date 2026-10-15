@@ -12,3 +12,6 @@ tools/fm2k_convert/.venv/
 __pycache__/
 build/
 dist/
+eosconfig.lton
+eos-cache/
+native/

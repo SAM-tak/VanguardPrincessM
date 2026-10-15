@@ -7,6 +7,8 @@
 module^vp.lanmenu
 
 import^love.graphics
+import^love.keyboard
+require^"roommenu.lh"
 require^"locale.lh"
 require^"net.lh"
 
@@ -37,22 +39,30 @@ var^item = 0
 var^message = ""
 var^fonts : t^{[string^]:love.graphics.Font|nil^} = {}
 
-public^let^isOpen = f^-> bool^{ mode != "" }
-public^let^open = p^{ mode := "menu" item := 0 }
+var^online = false^
+public^let^isOpen = f^-> bool^{ if^online: vp.roommenu.isOpen() el^: mode != ""; }
+public^let^openOnline = p^{ online := true^ mode := "" vp.roommenu.open() }
+public^let^openRoom = p^{ online := true^ mode := "" vp.roommenu.openRoom() }
+public^let^textinput = p^text:string^{ if^online { vp.roommenu.textinput(text) } }
+public^let^keypressed = p^key:love.keyboard.Key-> bool^{ return^online and^vp.roommenu.keypressed(key) }
+public^let^open = p^{ online := false^ mode := "menu" item := 0 }
 public^let^close = p^{
+    if^online { vp.roommenu.close() return^ }
     if^vp.net.status() != "connected" { vp.net.leave() }
     mode := ""
 }
 # Linked: main.lh starts the session's select screen.
-public^let^linked = f^-> bool^{ mode != "" and^vp.net.active() }
+public^let^linked = f^-> bool^{ (if^online: vp.roommenu.isOpen() el^: mode != "";) and^vp.net.active() }
 # Shown when the menu next opens on the mode menu (a lost session).
 public^let^showMessage = p^text:string^{
+    if^online { vp.roommenu.showMessage(text) return^ }
     mode := "message"
     message := text
 }
 
 # ESC, or B / D: one step back.
 public^let^back = p^{
+    if^online { vp.roommenu.back() return^ }
     if^mode = "menu" { close() return^ }
     vp.net.leave()
     mode := "menu"
@@ -61,6 +71,7 @@ public^let^back = p^{
 # One frame while open. up / down: pressed this frame; pressed: buttons
 # (A = 1 ... F = 32).
 public^let^step = p^up:bool^, down:bool^, pressed:number^{
+    if^online { vp.roommenu.step(up, down, pressed) return^ }
     let^cancel = (pressed / 2).floor() % 2 = 1 or^(pressed / 8).floor() % 2 = 1
     let^confirm = pressed != 0 and^!cancel
     let^link = vp.net.status()
@@ -111,6 +122,7 @@ let^fontFor = p^file:string^, size:number^-> love.graphics.Font {
 let^WINDOW_W = 1280
 let^WINDOW_H = 960
 public^let^draw = p^{
+    if^online { vp.roommenu.draw() return^ }
     if^mode = "" { return^}
     let^words = if^vp.locale.locale() = "en": EN el^: JA;
     let^u = WINDOW_H / 480
