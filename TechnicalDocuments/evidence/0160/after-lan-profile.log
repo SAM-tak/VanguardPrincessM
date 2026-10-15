@@ -1,0 +1,130 @@
+host> [host] hosting
+host> [host] linked: select
+host> [host] match
+host> [host] PROFILE resim.fighters.finish.ms n=1262 avg=0.0186 p50=0.0168 p95=0.0326 p99=0.0561 max=0.2018 sum=23.5216
+host> [host] PROFILE normal.game.hud.ms n=2419 avg=0.3114 p50=0.2800 p95=0.5008 p99=0.8426 max=4.5515 sum=753.3769
+host> [host] PROFILE snapshot.new.ms n=1 avg=3.5327 p50=3.5327 p95=3.5327 p99=3.5327 max=3.5327 sum=3.5327
+host> [host] PROFILE update.ordinary.ms n=1175 avg=3.0141 p50=2.8186 p95=6.5005 p99=8.7907 max=29.1540 sum=3541.5770
+host> [host] PROFILE snapshot.reach.ms n=857 avg=0.3155 p50=0.2888 p95=0.5021 p99=0.7024 max=0.7713 sum=270.3816
+host> [host] PROFILE correction.frames n=329 avg=3.8359 p50=4.0000 p95=4.0000 p99=4.0000 max=4.0000 sum=1262.0000
+host> [host] PROFILE restore.ms n=329 avg=1.8555 p50=1.6617 p95=3.1210 p99=3.9666 max=24.4944 sum=610.4632
+host> [host] PROFILE correction.ms n=329 avg=13.9093 p50=13.4705 p95=20.8305 p99=30.1885 max=42.6596 sum=4576.1653
+host> [host] PROFILE correction.1-frames.ms n=5 avg=6.4896 p50=5.2984 p95=11.3173 p99=11.3173 max=11.3173 sum=32.4480
+host> [host] PROFILE normal.step.ms n=2420 avg=2.6849 p50=2.4793 p95=4.1758 p99=6.0017 max=39.2138 sum=6497.5050
+host> [host] PROFILE normal.game.control.ms n=2420 avg=0.4521 p50=0.3957 p95=1.0595 p99=1.4366 max=3.0599 sum=1094.1930
+host> [host] PROFILE normal.fighters.move.ms n=2419 avg=0.2303 p50=0.2045 p95=0.4308 p99=0.6648 max=1.1946 sum=557.1415
+host> [host] PROFILE correction.3-frames.ms n=19 avg=11.0084 p50=11.0203 p95=19.3927 p99=19.3927 max=19.3927 sum=209.1605
+host> [host] PROFILE normal.fighters.collisions.ms n=2419 avg=0.2440 p50=0.2099 p95=0.4120 p99=0.6911 max=6.8306 sum=590.2702
+host> [host] PROFILE normal.fighters.scripts.ms n=2419 avg=0.7760 p50=0.7058 p95=1.3792 p99=1.8927 max=25.6394 sum=1877.2168
+host> [host] PROFILE update.with-snapshot.ms n=534 avg=6.7827 p50=6.1542 p95=11.9754 p99=15.5494 max=31.1478 sum=3621.9527
+host> [host] PROFILE snapshot.before-prediction.ms n=568 avg=2.3977 p50=2.2390 p95=4.1610 p99=4.9980 max=7.6261 sum=1361.8984
+host> [host] PROFILE resim.fighters.move.ms n=1262 avg=0.2222 p50=0.1940 p95=0.4286 p99=0.6183 max=1.1244 sum=280.3658
+host> [host] PROFILE resim.fighters.prepare.ms n=1262 avg=0.0089 p50=0.0070 p95=0.0154 p99=0.0283 max=0.2203 sum=11.2690
+host> [host] PROFILE snapshot.in-correction.ms n=289 avg=2.3247 p50=2.0192 p95=4.0727 p99=4.8712 max=24.4771 sum=671.8281
+host> [host] PROFILE frame.interval.ms n=2038 avg=14.7499 p50=12.7703 p95=29.5071 p99=37.4817 max=58.7035 sum=30060.2668
+host> [host] PROFILE correction.resim.ms n=329 avg=9.9491 p50=9.6294 p95=15.2000 p99=18.0783 max=22.4061 sum=3273.2419
+host> [host] PROFILE resim.game.control.ms n=1262 avg=0.4863 p50=0.4075 p95=1.1875 p99=1.5372 max=3.4979 sum=613.6757
+host> [host] PROFILE resim.game.stage.ms n=1262 avg=0.3081 p50=0.2942 p95=0.5533 p99=0.8150 max=1.9847 sum=388.8531
+host> [host] PROFILE correction.other.ms n=329 avg=0.0627 p50=0.0599 p95=0.0910 p99=0.1291 max=0.5524 sum=20.6321
+host> [host] PROFILE normal.game.round.ms n=2419 avg=0.2015 p50=0.1207 p95=0.5883 p99=1.0572 max=33.3287 sum=487.4574
+host> [host] PROFILE snapshot.ms n=857 avg=2.3731 p50=2.1708 p95=4.1431 p99=4.9479 max=24.4771 sum=2033.7265
+host> [host] PROFILE update.ms n=2038 avg=6.4885 p50=4.1361 p95=19.8485 p99=27.4920 max=50.8200 sum=13223.4811
+host> [host] PROFILE snapshot.copy.ms n=857 avg=1.6420 p50=1.4469 p95=3.0487 p99=3.8197 max=23.6425 sum=1407.1749
+host> [host] PROFILE snapshot.rest.ms n=857 avg=0.0393 p50=0.0348 p95=0.0688 p99=0.1458 max=0.2404 sum=33.6531
+host> [host] PROFILE correction.4-frames.ms n=295 avg=14.4416 p50=13.6680 p95=21.1529 p99=31.9224 max=42.6596 sum=4260.2739
+host> [host] PROFILE correction.snapshot.ms n=329 avg=2.0420 p50=1.9204 p95=4.0039 p99=4.7271 max=24.4771 sum=671.8281
+host> [host] PROFILE normal.fighters.finish.ms n=2419 avg=0.0183 p50=0.0167 p95=0.0321 p99=0.0481 max=0.1979 sum=44.2009
+host> [host] PROFILE snapshot.fighters n=857 avg=74.5578 p50=72.0000 p95=96.0000 p99=116.0000 max=121.0000 sum=63896.0000
+host> [host] PROFILE resim.game.fighters.ms n=1262 avg=1.2755 p50=1.1466 p95=2.2157 p99=3.4721 max=7.5320 sum=1609.7435
+host> [host] PROFILE normal.game.stage.ms n=2419 avg=0.3234 p50=0.3099 p95=0.5622 p99=0.8098 max=2.0372 sum=782.3445
+host> [host] PROFILE correction.rebase.ms n=274 avg=14.5236 p50=13.6801 p95=21.1529 p99=31.9224 max=42.6596 sum=3979.4666
+host> [host] PROFILE resim.game.round.ms n=1262 avg=0.1781 p50=0.1071 p95=0.6509 p99=1.1273 max=5.7584 sum=224.7572
+host> [host] PROFILE resim.step.ms n=1262 avg=2.5937 p50=2.4347 p95=4.2781 p99=5.8715 max=10.4962 sum=3273.2419
+host> [host] PROFILE frame.with-correction.ms n=329 avg=23.9182 p50=22.6342 p95=36.5295 p99=47.2244 max=56.9776 sum=7869.0956
+host> [host] PROFILE resim.game.hud.ms n=1262 avg=0.2945 p50=0.2628 p95=0.5229 p99=0.7919 max=3.8632 sum=371.6026
+host> [host] PROFILE resim.fighters.collisions.ms n=1262 avg=0.2433 p50=0.2010 p95=0.4081 p99=0.7430 max=5.7287 sum=307.0738
+host> [host] PROFILE draw.ms n=2038 avg=5.6160 p50=5.1029 p95=8.0117 p99=26.2797 max=33.0421 sum=11445.4466
+host> [host] PROFILE normal.fighters.prepare.ms n=2419 avg=0.0089 p50=0.0073 p95=0.0155 p99=0.0243 max=0.1388 sum=21.5549
+host> [host] PROFILE frame.cpu-update-and-draw.ms n=2038 avg=12.1045 p50=9.6798 p95=27.1845 p99=35.3575 max=56.9776 sum=24668.9277
+host> [host] PROFILE correction.mismatch.ms n=55 avg=10.8491 p50=10.8622 p95=19.5449 p99=23.4579 max=23.4579 sum=596.6987
+host> [host] PROFILE correction.restore.ms n=329 avg=1.8555 p50=1.6617 p95=3.1210 p99=3.9666 max=24.4944 sum=610.4632
+host> [host] PROFILE update.frames n=2038 avg=1.1874 p50=1.0000 p95=2.0000 p99=2.0000 max=2.0000 sum=2420.0000
+host> [host] PROFILE snapshot.coroutines.ms n=857 avg=0.3137 p50=0.2788 p95=0.5563 p99=0.8762 max=1.6089 sum=268.8650
+host> [host] PROFILE update.with-correction.ms n=329 avg=18.4193 p50=17.1793 p95=28.0519 p99=39.0403 max=50.8200 sum=6059.9514
+host> [host] PROFILE normal.game.fighters.ms n=2419 avg=1.3318 p50=1.1976 p95=2.2194 p99=3.0679 max=26.1776 sum=3221.5479
+host> [host] PROFILE correction.2-frames.ms n=10 avg=7.4283 p50=6.8059 p95=10.5725 p99=10.5725 max=10.5725 sum=74.2829
+host> [host] PROFILE snapshot.reused.ms n=856 avg=2.3717 p50=2.1673 p95=4.1431 p99=4.9479 max=24.4771 sum=2030.1938
+host> [host] PROFILE resim.fighters.scripts.ms n=1262 avg=0.7404 p50=0.6778 p95=1.3634 p99=1.8159 max=4.5035 sum=934.4139
+host> [host] PROFILE frame.with-snapshot.ms n=534 avg=12.4185 p50=11.5014 p95=19.4240 p99=31.3538 max=38.8009 sum=6631.4913
+host> [host] PROFILE frame.ordinary.ms n=1175 avg=8.6539 p50=7.9668 p95=13.5418 p99=30.0320 max=35.3575 sum=10168.3408
+host> RESULT frames 2420 wins 0-2 life 826 874 seed 1280802992 inputs 70235634
+host> [host] PASS: 24 summaries matched, 55 corrections, 2031 predicted, 857 snapshots, 1262 replayed
+host> [host] depth 4, waits 173, correction average 13.91 ms, longest 42.66 ms
+host> Replay ended as recorded: frames 2420 / 2420, wins 0-2 / 0-2, life 826 874 / 826 874
+host> [host] PASS: rollback match also matches its forward-only replay
+guest> [guest] searching
+guest> [guest] found 172.28.224.1
+guest> [guest] linked: select
+guest> [guest] match
+guest> [guest] PROFILE resim.fighters.finish.ms n=1250 avg=0.0172 p50=0.0155 p95=0.0304 p99=0.0459 max=0.1234 sum=21.4899
+guest> [guest] PROFILE normal.game.hud.ms n=2419 avg=0.3102 p50=0.2802 p95=0.4913 p99=0.7858 max=5.7125 sum=750.4226
+guest> [guest] PROFILE snapshot.new.ms n=1 avg=4.8977 p50=4.8977 p95=4.8977 p99=4.8977 max=4.8977 sum=4.8977
+guest> [guest] PROFILE update.ordinary.ms n=1202 avg=3.0558 p50=2.8414 p95=6.5068 p99=8.8260 max=45.3198 sum=3673.0215
+guest> [guest] PROFILE snapshot.reach.ms n=847 avg=0.3181 p50=0.2932 p95=0.4936 p99=0.6107 max=1.0088 sum=269.4729
+guest> [guest] PROFILE correction.frames n=325 avg=3.8462 p50=4.0000 p95=4.0000 p99=4.0000 max=4.0000 sum=1250.0000
+guest> [guest] PROFILE restore.ms n=325 avg=1.9800 p50=1.7234 p95=3.1514 p99=4.5742 max=26.5804 sum=643.4838
+guest> [guest] PROFILE correction.ms n=325 avg=13.9871 p50=12.9646 p95=22.3434 p99=33.9697 max=49.0868 sum=4545.8209
+guest> [guest] PROFILE correction.1-frames.ms n=7 avg=4.4058 p50=4.1646 p95=7.6058 p99=7.6058 max=7.6058 sum=30.8409
+guest> [guest] PROFILE normal.step.ms n=2420 avg=2.6726 p50=2.4826 p95=4.2056 p99=6.0397 max=42.9972 sum=6467.7814
+guest> [guest] PROFILE normal.game.control.ms n=2420 avg=0.4613 p50=0.4029 p95=1.1103 p99=1.4863 max=3.4852 sum=1116.2931
+guest> [guest] PROFILE normal.fighters.move.ms n=2419 avg=0.2256 p50=0.2043 p95=0.3989 p99=0.5744 max=1.4206 sum=545.7152
+guest> [guest] PROFILE correction.3-frames.ms n=13 avg=11.3430 p50=10.4337 p95=16.3733 p99=16.3733 max=16.3733 sum=147.4589
+guest> [guest] PROFILE normal.fighters.collisions.ms n=2419 avg=0.2431 p50=0.2100 p95=0.4021 p99=0.6067 max=7.6624 sum=588.1131
+guest> [guest] PROFILE normal.fighters.scripts.ms n=2419 avg=0.7751 p50=0.7185 p95=1.3380 p99=1.7401 max=25.6880 sum=1874.8623
+guest> [guest] PROFILE update.with-snapshot.ms n=527 avg=6.7555 p50=6.2482 p95=11.1149 p99=13.8018 max=31.9688 sum=3560.1303
+guest> [guest] PROFILE snapshot.before-prediction.ms n=552 avg=2.4063 p50=2.2192 p95=3.8269 p99=4.9825 max=25.4790 sum=1328.2670
+guest> [guest] PROFILE resim.fighters.move.ms n=1250 avg=0.2243 p50=0.2069 p95=0.3990 p99=0.5562 max=0.8271 sum=280.3728
+guest> [guest] PROFILE resim.fighters.prepare.ms n=1250 avg=0.0087 p50=0.0070 p95=0.0148 p99=0.0249 max=0.1199 sum=10.8630
+guest> [guest] PROFILE snapshot.in-correction.ms n=295 avg=2.4013 p50=2.0841 p95=4.2006 p99=5.2398 max=24.8760 sum=708.3792
+guest> [guest] PROFILE frame.interval.ms n=2054 avg=14.5694 p50=12.8686 p95=28.7708 p99=39.5971 max=74.8135 sum=29925.5990
+guest> [guest] PROFILE correction.resim.ms n=325 avg=9.7648 p50=9.2643 p95=15.3872 p99=17.7659 max=40.4564 sum=3173.5698
+guest> [guest] PROFILE resim.game.control.ms n=1250 avg=0.4158 p50=0.3718 p95=1.0815 p99=1.4746 max=2.1448 sum=519.6889
+guest> [guest] PROFILE resim.game.stage.ms n=1250 avg=0.3039 p50=0.2909 p95=0.5277 p99=0.7096 max=2.0007 sum=379.8189
+guest> [guest] PROFILE correction.other.ms n=325 avg=0.0627 p50=0.0620 p95=0.0893 p99=0.1059 max=0.1518 sum=20.3881
+guest> [guest] PROFILE normal.game.round.ms n=2419 avg=0.1967 p50=0.1188 p95=0.5687 p99=1.0916 max=37.9488 sum=475.7399
+guest> [guest] PROFILE snapshot.ms n=847 avg=2.4045 p50=2.1727 p95=3.8868 p99=5.2062 max=25.4790 sum=2036.6462
+guest> [guest] PROFILE update.ms n=2054 avg=6.3948 p50=4.1146 p95=19.4260 p99=28.5712 max=65.8178 sum=13134.9452
+guest> [guest] PROFILE snapshot.copy.ms n=847 avg=1.6761 p50=1.4720 p95=2.7320 p99=3.8284 max=24.6140 sum=1419.6679
+guest> [guest] PROFILE snapshot.rest.ms n=847 avg=0.0404 p50=0.0365 p95=0.0662 p99=0.1041 max=0.5573 sum=34.2166
+guest> [guest] PROFILE correction.4-frames.ms n=297 avg=14.4808 p50=13.2037 p95=22.6596 p99=34.6997 max=49.0868 sum=4300.8121
+guest> [guest] PROFILE correction.snapshot.ms n=325 avg=2.1796 p50=1.9861 p95=4.1336 p99=5.2222 max=24.8760 sum=708.3792
+guest> [guest] PROFILE normal.fighters.finish.ms n=2419 avg=0.0182 p50=0.0168 p95=0.0319 p99=0.0486 max=0.3184 sum=44.1142
+guest> [guest] PROFILE snapshot.fighters n=847 avg=75.1665 p50=73.0000 p95=96.0000 p99=115.0000 max=121.0000 sum=63666.0000
+guest> [guest] PROFILE resim.game.fighters.ms n=1250 avg=1.2778 p50=1.1830 p95=2.1488 p99=2.9151 max=7.0995 sum=1597.2251
+guest> [guest] PROFILE normal.game.stage.ms n=2419 avg=0.3272 p50=0.3124 p95=0.5457 p99=0.6944 max=21.8281 sum=791.4978
+guest> [guest] PROFILE correction.rebase.ms n=276 avg=14.4669 p50=13.2625 p95=22.6596 p99=33.9697 max=43.0094 sum=3992.8514
+guest> [guest] PROFILE resim.game.round.ms n=1250 avg=0.1752 p50=0.1104 p95=0.5751 p99=1.0140 max=2.2539 sum=218.9672
+guest> [guest] PROFILE resim.step.ms n=1250 avg=2.5389 p50=2.3743 p95=4.1898 p99=5.3428 max=28.2638 sum=3173.5698
+guest> [guest] PROFILE frame.with-correction.ms n=325 avg=23.7733 p50=22.1046 p95=37.3182 p99=46.1449 max=72.7066 sum=7726.3063
+guest> [guest] PROFILE resim.game.hud.ms n=1250 avg=0.3137 p50=0.2628 p95=0.4947 p99=0.7963 max=24.1377 sum=392.0963
+guest> [guest] PROFILE resim.fighters.collisions.ms n=1250 avg=0.2327 p50=0.2059 p95=0.3903 p99=0.5574 max=5.7192 sum=290.8241
+guest> [guest] PROFILE draw.ms n=2054 avg=5.5426 p50=5.1401 p95=7.7859 p99=12.0573 max=31.2588 sum=11384.4215
+guest> [guest] PROFILE normal.fighters.prepare.ms n=2419 avg=0.0091 p50=0.0074 p95=0.0152 p99=0.0240 max=0.2322 sum=21.9238
+guest> [guest] PROFILE frame.cpu-update-and-draw.ms n=2054 avg=11.9374 p50=9.5380 p95=26.7365 p99=37.6113 max=72.7066 sum=24519.3667
+guest> [guest] PROFILE correction.restore.ms n=325 avg=1.9800 p50=1.7234 p95=3.1514 p99=4.5742 max=26.5804 sum=643.4838
+guest> [guest] PROFILE correction.mismatch.ms n=49 avg=11.2851 p50=10.5387 p95=17.6536 p99=49.0868 max=49.0868 sum=552.9695
+guest> [guest] PROFILE update.frames n=2054 avg=1.1777 p50=1.0000 p95=2.0000 p99=2.0000 max=2.0000 sum=2419.0000
+guest> [guest] PROFILE snapshot.coroutines.ms n=847 avg=0.3081 p50=0.2821 p95=0.5226 p99=0.6493 max=1.2741 sum=260.9941
+guest> [guest] PROFILE update.with-correction.ms n=325 avg=18.1594 p50=17.0027 p95=28.5998 p99=36.9521 max=65.8178 sum=5901.7934
+guest> [guest] PROFILE normal.game.fighters.ms n=2419 avg=1.3147 p50=1.2038 p95=2.1645 p99=2.9833 max=26.0798 sum=3180.3380
+guest> [guest] PROFILE correction.2-frames.ms n=8 avg=8.3386 p50=8.2398 p95=11.7144 p99=11.7144 max=11.7144 sum=66.7090
+guest> [guest] PROFILE snapshot.reused.ms n=846 avg=2.4016 p50=2.1720 p95=3.8785 p99=5.2062 max=25.4790 sum=2031.7485
+guest> [guest] PROFILE resim.fighters.scripts.ms n=1250 avg=0.7508 p50=0.6972 p95=1.3657 p99=1.8380 max=3.3053 sum=938.4741
+guest> [guest] PROFILE frame.with-snapshot.ms n=527 avg=12.3233 p50=11.7199 p95=17.7485 p99=30.4693 max=39.2442 sum=6494.3804
+guest> [guest] PROFILE frame.ordinary.ms n=1202 avg=8.5680 p50=7.9441 p95=13.1060 p99=28.8773 max=49.0753 sum=10298.6800
+guest> RESULT frames 2420 wins 0-2 life 826 874 seed 1280802992 inputs 70235634
+guest> [guest] PASS: 24 summaries matched, 49 corrections, 2019 predicted, 847 snapshots, 1250 replayed
+guest> [guest] depth 4, waits 172, correction average 13.99 ms, longest 49.09 ms
+guest> Replay ended as recorded: frames 2420 / 2420, wins 0-2 / 0-2, life 826 874 / 826 874
+guest> [guest] PASS: rollback match also matches its forward-only replay
+PASS: host and guest played one match over the LAN link and recorded it alike: RESULT frames 2420 wins 0-2 life 826 874 seed 1280802992 inputs 70235634

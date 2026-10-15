@@ -1,0 +1,75 @@
+# Compare timer-only frames against resuming hold on every frame, including
+# hitstop, fractional/zero waits, interruptions and direct coroutine replacement.
+module^vp.holdfastpathtest
+import^love.event
+import^love.timer
+require^"../src/fighter.lh"
+let^Fighter = vp.fighter.Fighter
+
+let^actor = p^-> Fighter{
+    let^a = Fighter.new("assets/characters/ゆい", 500, 920)
+    a.skills[1] := p^me:Fighter, at:number^{
+        await^me.show(7, 2.5, 1, 2)
+        await^me.show(8, 0, 3, 4)
+        await^me.show(9, 1, 5, 6)
+        await^me.show(10, 4, 7, 8)
+    }
+    a.skills[2] := p^me:Fighter, at:number^{
+        await^me.show(11, 3, 0, 0)
+        yield^
+        await^me.show(13, -2, 0, 0)
+        await^me.show(12, 1, 0, 0)
+    }
+    a.begin(1)
+    return^a
+}
+let^trace = p^forceResume:bool^-> t^{string^[]}{
+    let^a = actor()
+    var^out : t^{string^[]} = {}
+    for^i from^1 to^240 {
+        if^i % 17 = 0 { a.stop := 3 }
+        if^i % 23 = 0 { a.waitTimer := -1 }
+        if^i % 29 = 0 { a.waitTimer := 0 }
+        if^i = 10 { a.waitTimer := 400 }
+        if^i % 31 = 0 { a.start(2, 0) }
+        if^i % 47 = 0 { a.begin(1) }
+        if^i = 5 {
+            let^proc = a.skills[2]
+            if^proc != nil^ { a.skill := proc(a, 0) a.skillNo := 2 }
+        }
+        if^forceResume { a.heldSkill := nil^ }
+        a.stepScript()
+        out.push^($"{a.image}:{a.waitTimer}:{a.stop}:{a.skillNo}:{a.ix}:{a.iy}:{a.finished()}")
+    }
+    return^out
+}
+public^let^load = p^{
+    let^expected = trace(true^)
+    let^actual = trace(false^)
+    for^one in^actual {
+        if^one != expected[index^] { panic^$"hold differs at frame {index^}: {one} / {expected[index^] ?? "-"}" }
+    }
+    # Timer-only frames leave the suspended stack untouched; save/load must
+    # still restore them along with Fighter state.
+    let^a = actor()
+    a.stepScript()
+    let^store = actor()
+    a.copyStateTo(store)
+    let^co = a.skill
+    if^!(co fits^c^{p^-> nil^}) { panic^"missing hold coroutine" }
+    let^state = co.save()
+    var^first : t^{string^[]} = {}
+    for^i from^1 to^12 { a.stepScript() first.push^($"{a.image}:{a.waitTimer}") }
+    for^pass from^1 to^2 {
+        store.copyStateTo(a)
+        co.load(state)
+        for^i from^0 to^11 {
+            a.stepScript()
+            let^now = $"{a.image}:{a.waitTimer}"
+            if^now != first[i] { panic^$"hold restore {pass}, frame {i}: {now} / {first[i] ?? "-"}" }
+        }
+    }
+    print("PASS: hold timing, hitstop, interruption, coroutine replacement and two restores match")
+    love.event.quit()
+}
+public^let^draw = p^{}

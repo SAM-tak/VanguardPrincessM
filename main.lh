@@ -165,6 +165,7 @@ var^cpuFirst = false^          # F3 / F4 in VS: the CPU drives 1P / 2P (in LAN V
 var^cpuSecond = false^
 let^CPU_LEVEL = 100
 var^vsSeconds = 60             # VS rounds' length (tests shorten it)
+var^vsSeed = -1                # tests may fix the seed; -1 chooses one normally
 let^MatchSetup = t^{ name1:string^, colour1:number^, name2:string^, colour2:number^ }
 var^setup : MatchSetup = { name1 = "ゆい", colour1 = 0, name2 = "ゆい", colour2 = 0 }
 var^reloadPending = false^
@@ -428,6 +429,7 @@ let^followCamera = p^{
 
 # Shared fixed-step simulation also catches up newly loaded entrants, hidden.
 let^stepFighters = p^{
+    var^measured = vp.netprofile.begin()
     vp.fighter.setView(camX, camY)
     # The stage's walls, and the camera's: nobody leaves the view.
     for^p in^{ me, foe } {
@@ -438,10 +440,12 @@ let^stepFighters = p^{
         p.wallMinX := camX + VIEW_EDGE
         p.wallMaxX := camX + VIEW_W - VIEW_EDGE
     }
+    measured := vp.netprofile.part("fighters.prepare", measured, rollback.resimulating)
     me.stepScript()
     foe.stepScript()
     me.stepObjectScripts()
     foe.stepObjectScripts()
+    measured := vp.netprofile.part("fighters.scripts", measured, rollback.resimulating)
     # a combo is over once its target is free to move again
     for^p in^{ me, foe } {
         if^groundIdle(p.skillNo) or^airIdle(p.skillNo) {
@@ -456,9 +460,11 @@ let^stepFighters = p^{
     strikeTeam(foe, me)
     for^o in^me.objects { strikeTeam(o, foe) }
     for^o in^foe.objects { strikeTeam(o, me) }
+    measured := vp.netprofile.part("fighters.collisions", measured, rollback.resimulating)
     me.moveStep() foe.moveStep()
     me.moveObjects() foe.moveObjects()
     me.pushAgainst(foe)
+    measured := vp.netprofile.part("fighters.move", measured, rollback.resimulating)
     me.finishHitEvents() foe.finishHitEvents()
     # Keep both fighters inside the current world and camera bounds.
     for^p in^{ me, foe } {
@@ -466,6 +472,7 @@ let^stepFighters = p^{
     }
     followCamera()
     if^flow.fighting() { me.faceOpponent() foe.faceOpponent() }
+    vp.netprofile.part("fighters.finish", measured, rollback.resimulating)
 }
 
 let^startRound = p^{
@@ -617,7 +624,7 @@ let^loadMatch = p^s:vp.select.Select {
     let^name1, colour1 = s.chosen(0)
     let^name2, colour2 = s.chosen(1)
     setup := { name1 = name1, colour1 = colour1, name2 = name2, colour2 = colour2 }
-    matchSeed := vp.rng.fresh()
+    matchSeed := if^vsSeed >= 0: vsSeed el^: vp.rng.fresh();
     if^netplay {
         if^vp.net.hosting() {
             vp.net.offer({ match = netRound, seed = matchSeed, stage = matchStage, seconds = vsSeconds, toWin = flow.toWin })
@@ -1291,6 +1298,7 @@ public^let^status = f^{
 
 # VS rounds' length in seconds (tests shorten matches with it).
 public^let^setVSSeconds = p^n:number^{ vsSeconds := n }
+public^let^setVSSeed = p^n:number^{ vsSeed := n }
 
 # A match's state at a frame (TechnicalDocuments/0156): src/snapshot.lh's
 # fighters, round, HUD and stage, and what this file keeps of the match.
@@ -1404,6 +1412,7 @@ let^syncCPU = p^one:number^, two:number^{
 
 # A battle frame, shared by normal play and rollback resimulation.
 let^battleStep = p^one:number^, two:number^{
+    var^measured = vp.netprofile.begin()
     vp.fighter.setView(camX, camY)
     let^story = campaign
     # Refresh facing before converting physical directions and consuming
@@ -1474,6 +1483,7 @@ let^battleStep = p^one:number^, two:number^{
 
     # The clock runs while they fight and the timer shows (system variable
     # 128, which FIGHT clears a couple of frames after its show time).
+    measured := vp.netprofile.part("game.control", measured, rollback.resimulating)
     let^timing = live and^me.v(128) <= 9999
     if^timing and^roundFrames > 0 and^matchSeconds > 0 { roundFrames -= 1 }
     vp.fighter.setRound(roundFrames, flow.number)
@@ -1486,15 +1496,19 @@ let^battleStep = p^one:number^, two:number^{
         return^
     }
     if^scene != nil^ or^selecting != nil^ or^(story != nil^ and^story.phase != "battle") { return^ }
+    measured := vp.netprofile.part("game.round", measured, rollback.resimulating)
     vp.shake.horizontal.step()
     vp.shake.vertical.step()
     stage.step()
+    measured := vp.netprofile.part("game.stage", measured, rollback.resimulating)
     if^timing and^!wasTiming { hud.fightBegins() }
     wasTiming := timing
     # The digits follow the round time the scripts read (59 through the
     # start, hidden then; layout 5 shows "60").
     hud.step(me, foe, if^matchSeconds = 0: -1 el^: (std.math.max(roundFrames - 1, 0) / 100).floor();)
+    measured := vp.netprofile.part("game.hud", measured, rollback.resimulating)
     stepFighters()
+    vp.netprofile.part("game.fighters", measured, rollback.resimulating)
 
     frame += 1
     if^netplay {

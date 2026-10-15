@@ -1,0 +1,26 @@
+module^vp.benchhold
+import^love.event
+import^love.timer
+require^"../src/fighter.lh"
+let^Fighter = vp.fighter.Fighter
+public^let^load = p^{
+    let^count = 32
+    let^frames = 2000
+    for^trial from^1 to^7 {
+        var^actors : t^{Fighter[]} = {}
+        for^i from^1 to^count {
+            let^a = Fighter.new("assets/characters/ゆい", 500, 920)
+            a.skills[1] := p^me:Fighter, at:number^{ await^me.show(7, 1000000, 0, 0) }
+            a.begin(1)
+            a.stepScript()
+            actors.push^(a)
+        }
+        let^began = love.timer.getTime()
+        for^i from^1 to^frames { for^a in^actors { a.stepScript() } }
+        let^elapsed = (love.timer.getTime() - began) * 1000
+        let^perActor = elapsed * 1000 / (count * frames)
+        print($"HOLD trial {trial}: {elapsed:%.3f} ms, {perActor:%.4f} us/actor-step")
+    }
+    love.event.quit()
+}
+public^let^draw = p^{}

@@ -28,6 +28,13 @@ public^let^finish = p^name:string^, began:number^-> number^{
     return^elapsed
 }
 public^let^total = f^name:string^-> number^{ metrics[name]?.total ?? 0 }
+public^let^part = p^name:string^, began:number^, resimulating:bool^-> number^{
+    if^!active { return^0 }
+    let^elapsed = (love.timer.getTime() - began) * 1000
+    let^mode = if^resimulating: "resim" el^: "normal";
+    record($"{mode}.{name}.ms", elapsed)
+    return^love.timer.getTime()
+}
 
 # Quickselect: expected linear work, with no sorting during the match.
 let^percentile = p^samples:t^{number^[]}, fraction:number^-> number^{

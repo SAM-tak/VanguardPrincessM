@@ -175,6 +175,7 @@ public^let^Fighter = def^{
         lastOwnerX = 0, lastOwnerY = 0, # the parent's position last frame
         spins = 0,
         waitTimer = 0,              # FM2K's I-block timer (see `hold`)
+        heldSkill : Skill|nil^= nil^, # coroutine currently suspended in hold
         # Where x may go, on the ground and in the air (the stage's walls and
         # the view's edges; the controller sets them each frame).
         minX = -1000000, maxX = 1000000, minXAir = -1000000, maxXAir = 1000000,
@@ -451,6 +452,7 @@ public^let^Fighter = def^{
             self^.skillName := $"#{n}"
             self^.skillNo := n
             self^.skill := proc(self^, b)
+            self^.heldSkill := nil^
         }
     },
 
@@ -463,6 +465,12 @@ public^let^Fighter = def^{
 
     advance = p^self^{
         let^co = self^.skill
+        # hold would subtract 100, find a nonnegative timer and yield at
+        # exactly the same suspension point. Keep its stack untouched instead.
+        if^co != nil^ and^self^.heldSkill = co and^self^.waitTimer >= 100 {
+            self^.waitTimer -= 100
+            return^
+        }
         if^co fits^c^{p^-> nil^} {
             if^!co.done() {
                 if^co.started() { co.resume() else^: co.start() }
@@ -1172,7 +1180,9 @@ public^let^Fighter = def^{
         }
         self^.waitTimer += 100 * wait
         repeat^while^true^ {
+            self^.heldSkill := self^.skill
             yield^
+            self^.heldSkill := nil^
             if^self^.waitTimer < 0 { return^}
             self^.waitTimer -= 100
             if^self^.waitTimer < 0 { return^}

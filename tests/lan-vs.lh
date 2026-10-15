@@ -23,6 +23,7 @@ let^IMPAIRED = false^         # tools/test-lan.ps1 -Impaired
 let^REALTIME = false^         # tools/test-lan.ps1 -Realtime
 let^STAGE = 0                # 0 random, 1..7 fixed
 let^PROFILE = false^         # tools/test-lan.ps1 -Profile (real time)
+let^SEED = -1                # tools/test-lan.ps1 -Seed for comparable runs
 
 var^phase = 0
 var^wait = 0
@@ -43,6 +44,7 @@ let^say = p^text:string^{ print($"[{ROLE}] {text}") }
 public^let^load = p^{
     began := love.timer.getTime()
     vp.main.setVSSeconds(5)
+    vp.main.setVSSeed(SEED)
     vp.main.load()
     if^IMPAIRED { vp.net.testImpairment(0.018) }
 }
