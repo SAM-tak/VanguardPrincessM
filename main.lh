@@ -48,7 +48,6 @@ require^"src/replaylist.lh"
 require^"src/replay.lh"
 require^"src/rng.lh"
 require^"src/snapshot.lh"
-require^"src/netprofile.lh"
 require^"src/net.lh"
 require^"src/lanmenu.lh"
 require^"src/cpu.lh"
@@ -153,8 +152,7 @@ let^Rollback = def^{
         ending = false^,
         resimulating = false^,
         corrections = 0, predicted = 0, snapshots = 0, replayed = 0,
-        maxDepth = 0, waits = 0, maxCorrectionMs = 0,
-        correctionMs = 0, correctionRuns = 0,
+        maxDepth = 0, waits = 0,
         sums : t^{[number^]:vp.net.Sum|nil^} = {},
         sentSum = 0,
     },
@@ -429,7 +427,6 @@ let^followCamera = p^{
 
 # Shared fixed-step simulation also catches up newly loaded entrants, hidden.
 let^stepFighters = p^{
-    var^measured = vp.netprofile.begin()
     vp.fighter.setView(camX, camY)
     # The stage's walls, and the camera's: nobody leaves the view.
     for^p in^{ me, foe } {
@@ -440,12 +437,10 @@ let^stepFighters = p^{
         p.wallMinX := camX + VIEW_EDGE
         p.wallMaxX := camX + VIEW_W - VIEW_EDGE
     }
-    measured := vp.netprofile.part("fighters.prepare", measured, rollback.resimulating)
     me.stepScript()
     foe.stepScript()
     me.stepObjectScripts()
     foe.stepObjectScripts()
-    measured := vp.netprofile.part("fighters.scripts", measured, rollback.resimulating)
     # a combo is over once its target is free to move again
     for^p in^{ me, foe } {
         if^groundIdle(p.skillNo) or^airIdle(p.skillNo) {
@@ -460,11 +455,9 @@ let^stepFighters = p^{
     strikeTeam(foe, me)
     for^o in^me.objects { strikeTeam(o, foe) }
     for^o in^foe.objects { strikeTeam(o, me) }
-    measured := vp.netprofile.part("fighters.collisions", measured, rollback.resimulating)
     me.moveStep() foe.moveStep()
     me.moveObjects() foe.moveObjects()
     me.pushAgainst(foe)
-    measured := vp.netprofile.part("fighters.move", measured, rollback.resimulating)
     me.finishHitEvents() foe.finishHitEvents()
     # Keep both fighters inside the current world and camera bounds.
     for^p in^{ me, foe } {
@@ -472,7 +465,6 @@ let^stepFighters = p^{
     }
     followCamera()
     if^flow.fighting() { me.faceOpponent() foe.faceOpponent() }
-    vp.netprofile.part("fighters.finish", measured, rollback.resimulating)
 }
 
 let^startRound = p^{
@@ -670,9 +662,6 @@ let^startBattle = p^{
         rollback.replayed := 0
         rollback.maxDepth := 0
         rollback.waits := 0
-        rollback.maxCorrectionMs := 0
-        rollback.correctionMs := 0
-        rollback.correctionRuns := 0
         rollback.sums := {}
         rollback.sentSum := 0
         flow.toWin := vp.net.hostSetup().toWin
@@ -1288,9 +1277,8 @@ public^let^status = f^{
         recording = recording != nil^, replaying = playing != nil^, replayFrame = replayFrame,
         netplay = netplay, netFrame = netFrame, netRound = netRound, netWaiting = netWaiting,
         netRollbacks = rollback.corrections, netPredicted = rollback.predicted, netSnapshots = rollback.snapshots, netReplayed = rollback.replayed,
-        netMaxDepth = rollback.maxDepth, netWaits = rollback.waits, netMaxCorrectionMs = rollback.maxCorrectionMs,
+        netMaxDepth = rollback.maxDepth, netWaits = rollback.waits,
         netPredictionLimit = ROLLBACK_MAX,
-        netCorrectionMs = rollback.correctionMs, netCorrectionRuns = rollback.correctionRuns,
         netDesync = vp.net.desyncFrame(), netChecked = vp.net.sumsChecked(), link = vp.net.status(),
         replayMatched = replayMatched, lastReplay = lastReplay, replaySnapshots = snapshotCount(), fastForward = fastForward, cpuFirst = cpuFirst, cpuSecond = cpuSecond,
     }
@@ -1412,7 +1400,6 @@ let^syncCPU = p^one:number^, two:number^{
 
 # A battle frame, shared by normal play and rollback resimulation.
 let^battleStep = p^one:number^, two:number^{
-    var^measured = vp.netprofile.begin()
     vp.fighter.setView(camX, camY)
     let^story = campaign
     # Refresh facing before converting physical directions and consuming
@@ -1483,7 +1470,6 @@ let^battleStep = p^one:number^, two:number^{
 
     # The clock runs while they fight and the timer shows (system variable
     # 128, which FIGHT clears a couple of frames after its show time).
-    measured := vp.netprofile.part("game.control", measured, rollback.resimulating)
     let^timing = live and^me.v(128) <= 9999
     if^timing and^roundFrames > 0 and^matchSeconds > 0 { roundFrames -= 1 }
     vp.fighter.setRound(roundFrames, flow.number)
@@ -1496,19 +1482,15 @@ let^battleStep = p^one:number^, two:number^{
         return^
     }
     if^scene != nil^ or^selecting != nil^ or^(story != nil^ and^story.phase != "battle") { return^ }
-    measured := vp.netprofile.part("game.round", measured, rollback.resimulating)
     vp.shake.horizontal.step()
     vp.shake.vertical.step()
     stage.step()
-    measured := vp.netprofile.part("game.stage", measured, rollback.resimulating)
     if^timing and^!wasTiming { hud.fightBegins() }
     wasTiming := timing
     # The digits follow the round time the scripts read (59 through the
     # start, hidden then; layout 5 shows "60").
     hud.step(me, foe, if^matchSeconds = 0: -1 el^: (std.math.max(roundFrames - 1, 0) / 100).floor();)
-    measured := vp.netprofile.part("game.hud", measured, rollback.resimulating)
     stepFighters()
-    vp.netprofile.part("game.fighters", measured, rollback.resimulating)
 
     frame += 1
     if^netplay {
@@ -1525,33 +1507,18 @@ let^battleStep = p^one:number^, two:number^{
 
 # Keep only a confirmed checkpoint, and only while there is speculation.
 let^netCheckpoint = p^{
-    let^began = vp.netprofile.begin()
-    let^reusing = rollback.spare != nil^
     rollback.saved := snapshot(rollback.spare)
     rollback.spare := rollback.saved
     rollback.base := netFrame
     rollback.snapshots += 1
-    let^elapsed = vp.netprofile.finish("snapshot.ms", began)
-    vp.netprofile.record(if^reusing: "snapshot.reused.ms" el^: "snapshot.new.ms";, elapsed)
-    vp.netprofile.record(if^rollback.resimulating: "snapshot.in-correction.ms" el^: "snapshot.before-prediction.ms";, elapsed)
-    if^vp.netprofile.enabled() {
-        let^parts = vp.snapshot.lastProfile()
-        vp.netprofile.record("snapshot.fighters", parts[0] ?? 0)
-        vp.netprofile.record("snapshot.reach.ms", parts[1] ?? 0)
-        vp.netprofile.record("snapshot.copy.ms", parts[2] ?? 0)
-        vp.netprofile.record("snapshot.coroutines.ms", parts[3] ?? 0)
-        vp.netprofile.record("snapshot.rest.ms", parts[4] ?? 0)
-    }
 }
 
 let^netStep = p^{
-    let^began = vp.netprofile.begin()
     let^known = vp.net.remote(netFrame)
     let^other = known ?? rollback.used[netFrame - 1] ?? 0
     rollback.used[netFrame] := other
     let^own = vp.net.localInput(netFrame)
     if^vp.net.localSide() = 0 { battleStep(own, other) else^: battleStep(other, own) }
-    vp.netprofile.finish(if^rollback.resimulating: "resim.step.ms" el^: "normal.step.ms";, began)
 }
 
 let^netTick = p^{
@@ -1570,14 +1537,8 @@ let^netTick = p^{
         # A matching prediction needs no replay. Rebase only when the
         # prediction window fills, or when a correction is necessary.
         if^wrong or^(target - rollback.base >= ROLLBACK_MAX and^confirmed > rollback.base and^confirmed < target) {
-            let^began = love.timer.getTime()
-            let^resimBefore = vp.netprofile.total("resim.step.ms")
-            let^saveBefore = vp.netprofile.total("snapshot.ms")
-            let^framesBefore = rollback.replayed
             if^wrong { rollback.corrections += 1 }
-            let^restoreBegan = vp.netprofile.begin()
             restore(saved)
-            let^restoreMs = vp.netprofile.finish("restore.ms", restoreBegan)
             netFrame := rollback.base
             rollback.ending := false^
             rollback.resimulating := true^
@@ -1589,23 +1550,6 @@ let^netTick = p^{
             }
             vp.fighter.setResimulating(false^)
             rollback.resimulating := false^
-            let^elapsed = (love.timer.getTime() - began) * 1000
-            if^vp.netprofile.enabled() {
-                let^resimMs = vp.netprofile.total("resim.step.ms") - resimBefore
-                let^saveMs = vp.netprofile.total("snapshot.ms") - saveBefore
-                let^steps = rollback.replayed - framesBefore
-                vp.netprofile.record("correction.ms", elapsed)
-                vp.netprofile.record(if^wrong: "correction.mismatch.ms" el^: "correction.rebase.ms";, elapsed)
-                vp.netprofile.record("correction.restore.ms", restoreMs)
-                vp.netprofile.record("correction.resim.ms", resimMs)
-                vp.netprofile.record("correction.snapshot.ms", saveMs)
-                vp.netprofile.record("correction.other.ms", elapsed - restoreMs - resimMs - saveMs)
-                vp.netprofile.record("correction.frames", steps)
-                vp.netprofile.record($"correction.{steps}-frames.ms", elapsed)
-            }
-            rollback.maxCorrectionMs := std.math.max(rollback.maxCorrectionMs, elapsed)
-            rollback.correctionMs += elapsed
-            rollback.correctionRuns += 1
         }
         if^confirmed >= netFrame { rollback.saved := nil^ }
     }
@@ -1721,7 +1665,7 @@ let^tick = p^{
     battleStep(one, two)
 }
 
-let^updateGame = p^dt:number^{
+public^let^update = p^dt:number^{
     if^reloadPending { return^ }
     # Run after the retiring scene's call stack has unwound. Automatic GC
     # otherwise keeps large, discarded skill graphs across opening loops.
@@ -1844,29 +1788,6 @@ let^updateGame = p^dt:number^{
         clock -= FRAME
         for^i from^1 to^(if^fastForward: FAST_FORWARD el^: 1;) {
             if^i = 1 or^(playing != nil^ and^inBattle()) { tick() }
-        }
-    }
-}
-
-# Callback time includes networking and normal ticks; rendering is measured apart.
-public^let^update = p^dt:number^{
-    if^!vp.netprofile.enabled() { updateGame(dt) return^ }
-    let^measure = vp.netprofile.enabled() and^netplay and^inBattle()
-    let^correctionsBefore = vp.netprofile.total("correction.ms")
-    let^savesBefore = vp.netprofile.total("snapshot.ms")
-    let^beforeFrame = netFrame
-    let^began = vp.netprofile.begin()
-    updateGame(dt)
-    if^measure and^netplay and^inBattle() {
-        let^elapsed = vp.netprofile.finish("update.ms", began)
-        vp.netprofile.record("frame.interval.ms", dt * 1000)
-        vp.netprofile.record("update.frames", netFrame - beforeFrame)
-        if^vp.netprofile.total("correction.ms") > correctionsBefore {
-            vp.netprofile.record("update.with-correction.ms", elapsed)
-        elseif^vp.netprofile.total("snapshot.ms") > savesBefore:
-            vp.netprofile.record("update.with-snapshot.ms", elapsed)
-        else^:
-            vp.netprofile.record("update.ordinary.ms", elapsed)
         }
     }
 }
@@ -2058,7 +1979,7 @@ let^drawScene = p^{
     debugText($"arrows move  z x c a s d = A-F  F1 boxes  1-8 palette  F2 opponent at 1  g dummy guard: {GUARD_NAMES[dummyGuard] ?? ""}", 16, 36)
 }
 
-let^drawFrame = p^{
+public^let^draw = p^{
     if^reloadPending { return^ }
     let^w, h = love.graphics.getDimensions()
     let^k = std.math.min(w / WINDOW_W, h / WINDOW_H)
@@ -2080,15 +2001,6 @@ let^drawFrame = p^{
         love.graphics.rectangle(love.graphics.DrawMode.fill, 0, h - oy - 1, w, oy + 1)
     }
     love.graphics.setColor(1, 1, 1, 1)
-}
-
-# CPU time submitting draw commands; present/vsync and GPU completion are outside.
-public^let^draw = p^{
-    if^!vp.netprofile.enabled() { drawFrame() return^ }
-    let^measure = vp.netprofile.enabled() and^netplay and^inBattle()
-    let^began = vp.netprofile.begin()
-    drawFrame()
-    if^measure { vp.netprofile.finish("draw.ms", began) }
 }
 
 # LAN VS: "choosing" over the other side's portrait until its choice

@@ -4,16 +4,13 @@ param([string]$Engine = "C:/Users/Owner/source/repos/lhat-love/build/love/Releas
       [int]$TimeoutSeconds = 300,
       [switch]$Impaired,
       [switch]$Realtime,
-      [switch]$Profile,
       [ValidateRange(-1, 2147483647)][int]$Seed = -1,
       [ValidateRange(0, 7)][int]$Stage = 0)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
-if ($Profile) { $Realtime = $true }
 $source = [IO.File]::ReadAllText((Join-Path $root 'tests/lan-vs.lh')).Replace('require^"../', 'require^"')
 if ($Impaired) { $source = $source.Replace('let^IMPAIRED = false^', 'let^IMPAIRED = true^') }
 if ($Realtime) { $source = $source.Replace('let^REALTIME = false^', 'let^REALTIME = true^') }
-if ($Profile) { $source = $source.Replace('let^PROFILE = false^', 'let^PROFILE = true^') }
 $source = $source.Replace('let^STAGE = 0', "let^STAGE = $Stage")
 $source = $source.Replace('let^SEED = -1', "let^SEED = $Seed")
 $roles = @('host', 'guest')

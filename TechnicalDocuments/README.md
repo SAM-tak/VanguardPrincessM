@@ -244,3 +244,4 @@
 - [0158-lan-rollback.md](0158-lan-rollback.md) — LAN 対戦に入力予測・確定状態のチェックポイント・不一致時の再計算を追加。8フレームの入力窓に受信確認を追加し、連続欠落から回復。通信障害と巻き戻しなしのリプレイで検証。
 - [0159-rollback-profile.md](0159-rollback-profile.md) — 補正時間を復元・再計算・保存に分解。update・draw・再計算フレーム数と分布も記録し、保存点更新の再計算が大半の費用を占めることを確認。
 - [0160-update-cost-hold.md](0160-update-cost-hold.md) — 通常更新のスクリプト・判定・移動等を計測。表示待ちのコルーチン再開を省き、固定シードの試合で通常更新・再計算を約5%短縮。
+- [0161-archive-profiling.md](0161-archive-profiling.md) — 計測版を `rollback-profiled-2026-10-15` タグへ保存。実行経路の計測を削除し、最適化・回帰検証・計測結果は維持。
