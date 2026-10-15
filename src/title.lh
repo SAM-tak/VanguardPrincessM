@@ -11,8 +11,10 @@
 # - PRACTICE MODE is the port's third item (TechnicalDocuments/0145): its
 #   caption is localized text (src/locale.lh; the original has none), drawn
 #   where #107 shows the others.
-# - SURVIVAL / ONLINE VS / LAN VS MODE are listed but not yet made: their
-#   caption is a localized "under construction", and a press does nothing.
+# - SURVIVAL / ONLINE VS MODE are listed but not yet made: their caption is
+#   a localized "under construction", and a press does nothing.
+# - LAN VS MODE opens its menu over this one (src/lanmenu.lh,
+#   TechnicalDocuments/0157); the menu waits while it is open.
 # - WATCH REPLAY opens the list of saved replays over the menu, without a
 #   change of screen (src/replaylist.lh); the menu waits while it is open.
 # - All the items' labels are localized text in one face, over a background
@@ -31,6 +33,7 @@ require^"arena.lh"
 require^"resource.lh"
 require^"locale.lh"
 require^"replaylist.lh"
+require^"lanmenu.lh"
 
 let^Fighter = vp.fighter.Fighter
 
@@ -38,7 +41,8 @@ let^CURSOR = 78
 let^ITEM_X = 291              # "position: title cursor" story (#79) / VS single (#80)
 let^ITEM_Y : t^{number^[]} = { 70, 92, 114, 136, 158, 180, 202 }
 let^PRACTICE = 2
-let^UNMADE = 3                # this item to LAN VS (5) is not made yet
+let^UNMADE = 3                # this item and ONLINE VS (4) are not made yet
+let^LAN = 5
 let^REPLAY = 6
 # The items' labels, at the cursor's rows (the original's were at y 64 /
 # 88 from x 300).
@@ -54,7 +58,7 @@ let^LABEL_GAP = 22
 let^UNMADE_CAPTION = "locale:mode-menu/unmade-caption"
 let^CAPTIONS : t^{string^[]} = {
     "", "", "locale:mode-menu/practice-caption",
-    UNMADE_CAPTION, UNMADE_CAPTION, UNMADE_CAPTION,
+    UNMADE_CAPTION, UNMADE_CAPTION, "locale:mode-menu/lan-caption",
     "locale:mode-menu/replay-caption",
 }
 let^CAPTION = 107             # the cursor's caption object
@@ -237,6 +241,8 @@ public^let^Scene = def^{
         let^cursor = self^.extras[0]
         if^cursor? and^vp.replaylist.isOpen() {
             vp.replaylist.step(up, down, pressed)
+        elseif^cursor? and^vp.lanmenu.isOpen():
+            vp.lanmenu.step(up, down, pressed)
         elseif^cursor?:
             if^up or^down {
                 let^count = ITEM_Y.length^
@@ -254,6 +260,9 @@ public^let^Scene = def^{
             if^pressed != 0 and^self^.item = REPLAY {
                 cursor.sound(MOVE_SOUND)
                 vp.replaylist.open()
+            elseif^pressed != 0 and^self^.item = LAN:
+                cursor.sound(MOVE_SOUND)
+                vp.lanmenu.open()
             elseif^pressed != 0 and^self^.item < UNMADE:
                 let^cue = vp.arena.sound($"assets/demos/{self^.name}/sounds/0002.wav", false^)
                 self^.confirmSound := cue

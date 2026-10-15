@@ -48,6 +48,8 @@ require^"src/replaylist.lh"
 require^"src/replay.lh"
 require^"src/rng.lh"
 require^"src/snapshot.lh"
+require^"src/net.lh"
+require^"src/lanmenu.lh"
 require^"src/cpu.lh"
 require^"src/input.lh"
 require^"src/media.lh"
@@ -133,7 +135,15 @@ var^leavingReplay = false^     # a played replay has ended; the mode menu is loa
 var^replayMatched = false^     # the last replay ended as it was recorded
 var^lastReplay = ""            # the last saved replay's file name
 var^matchSeed = 0              # the simulation's seed for the match being prepared
-var^cpuFirst = false^          # F3 / F4 in VS: the CPU drives 1P / 2P
+# LAN VS (TechnicalDocuments/0157): a linked session's select screen and
+# matches. Each side plays its own; the other's input arrives over src/net.lh
+# INPUT_DELAY frames ahead, and a frame waits until it has.
+var^netplay = false^
+var^netRound = 0               # the select round (and match) of the session
+var^netFrame = 0               # the next battle frame of a LAN match
+var^netWaiting = 0             # frames in a row waited for the other side's input
+var^netFont : love.graphics.Font|nil^= nil^
+var^cpuFirst = false^          # F3 / F4 in VS: the CPU drives 1P / 2P (in LAN VS, F3 this side)
 var^cpuSecond = false^
 let^CPU_LEVEL = 100
 var^vsSeconds = 60             # VS rounds' length (tests shorten it)
@@ -501,6 +511,7 @@ let^toSelect = p^{
     if^attract { endAttract(true^) return^ }
     if^playing != nil^ { endReplay(true^) return^ }
     saveRecording()
+    if^netplay { netRound += 1 }
     love.audio.stop()              # the match's music and sounds end with it
     vp.arena.pop()
     matchArena := nil^
@@ -508,8 +519,8 @@ let^toSelect = p^{
     let^st = campaign
     let^won = flow.wins1 >= flow.toWin
     # Capture the participants before releaseBattle replaces both fighters.
-    let^row1 = characterCode(me) / 100 - 1
-    let^row2 = characterCode(foe) / 100 - 1
+    let^row1 = (characterCode(me) / 100).floor() - 1
+    let^row2 = (characterCode(foe) / 100).floor() - 1
     let^support1 = me.v(142)
     let^support2 = me.v(143)
     let^colour1 = me.palette
@@ -587,6 +598,16 @@ let^loadMatch = p^s:vp.select.Select {
     let^name2, colour2 = s.chosen(1)
     setup := { name1 = name1, colour1 = colour1, name2 = name2, colour2 = colour2 }
     matchSeed := vp.rng.fresh()
+    if^netplay {
+        if^vp.net.hosting() {
+            vp.net.offer({ match = netRound, seed = matchSeed, stage = matchStage, seconds = vsSeconds, toWin = flow.toWin })
+        else^:
+            let^given = vp.net.hostSetup()
+            matchSeed := given.seed
+            matchStage := given.stage
+            vsSeconds := given.seconds
+        }
+    }
     let^l = vp.preload.Load.new("match")
     l.add($"assets/stages/{STAGES[matchStage] ?? "スクール"}", false^)
     pending := l
@@ -607,6 +628,12 @@ let^startBattle = p^{
     # always at the presentation's wait for assets (completeLoad), and from
     # the seed.
     vp.rng.seed(matchSeed)
+    if^netplay {
+        vp.net.resetMatch(netRound)
+        netFrame := 0
+        netWaiting := 0
+        flow.toWin := vp.net.hostSetup().toWin
+    }
     let^tape = playing
     if^tape != nil^ {
         flow.toWin := tape.toWin
@@ -704,6 +731,42 @@ let^endReplay = p^finished:bool^{
     paused := false^
     releaseBattle()
     leavingReplay := true^
+    prepare("title")
+}
+
+# A linked LAN session begins: both go to VS's select screen.
+let^startNetSelect = p^{
+    vp.lanmenu.close()
+    netplay := true^
+    netRound := 1
+    storyMode := false^
+    practiceMode := false^
+    cpuSecond := false^
+    vp.net.resetMatch(0)
+    prepare("select")
+}
+
+# The LAN session ends (ESC, or the link was lost): back to the mode menu,
+# with `why` shown there unless it is "".
+let^endNet = p^why:string^{
+    vp.net.leave()
+    netplay := false^
+    let^l = pending
+    if^l != nil^ { l.batch.cancel() pending := nil^ }
+    love.audio.stop()
+    if^matchArena != nil^ { vp.arena.pop() matchArena := nil^ }
+    matchLoading := false^
+    matchIntro := false^
+    introCatchup := 0
+    flow.preparing := false^
+    flow.externalPresentation := false^
+    paused := false^
+    recording := nil^
+    campaign := nil^
+    releaseBattle()
+    # From a match nothing is left to show while the menu loads.
+    if^selecting is^nil^ { leavingReplay := true^ }
+    if^why != "" { vp.lanmenu.showMessage(why) }
     prepare("title")
 }
 
@@ -1013,6 +1076,7 @@ let^goBack = p^{
     let^sc = scene
     if^sc != nil^ and^sc.customOpening { love.event.quit() return^ }
     if^selecting != nil^ and^selecting.back() { return^ }
+    if^netplay { endNet("") return^ }
     let^st = campaign
     if^st != nil^ and^selecting is^nil^ {
         if^st.phase = "battle" or^st.phase = "gameover" or^st.phase = "return-title" { return^ }
@@ -1077,6 +1141,8 @@ let^debugReload = p^{
     playing := nil^
     replaySnapshots := {}
     leavingReplay := false^
+    vp.net.leave()
+    netplay := false^
     let^l = pending
     if^l != nil^ { l.batch.cancel() pending := nil^ }
     vp.resource.stop()
@@ -1170,6 +1236,8 @@ public^let^status = f^{
         difficulty = if^st != nil^: st.difficulty el^: -1;,
         event = if^st != nil^: st.at el^: -1;,
         recording = recording != nil^, replaying = playing != nil^, replayFrame = replayFrame,
+        netplay = netplay, netFrame = netFrame, netRound = netRound, netWaiting = netWaiting,
+        netDesync = vp.net.desyncFrame(), netChecked = vp.net.sumsChecked(), link = vp.net.status(),
         replayMatched = replayMatched, lastReplay = lastReplay, replaySnapshots = snapshotCount(), fastForward = fastForward, cpuFirst = cpuFirst, cpuSecond = cpuSecond,
     }
 }
@@ -1296,6 +1364,7 @@ let^tick = p^{
         pressed := 0
         let^choice = vp.replaylist.takeChoice()
         if^choice != "" and^pending is^nil^ { startReplay(choice) }
+        if^vp.lanmenu.linked() and^pending is^nil^ { startNetSelect() }
         if^sc.done { sceneDone() }
         return^
     }
@@ -1312,7 +1381,25 @@ let^tick = p^{
         let^dy = if^vp.input.isDown(Key.up): 1 el^vp.input.isDown(Key.down): -1 el^: 0;
         let^dx2 = if^rightPressed2 or^vp.input.isDown(Key.k): 1 el^leftPressed2 or^vp.input.isDown(Key.h): -1 el^: 0;
         let^dy2 = if^vp.input.isDown(Key.u): 1 el^vp.input.isDown(Key.j): -1 el^: 0;
-        s.step(upPressed, downPressed, 5 + dx + 3 * dy, pressed, upPressed2, downPressed2, 5 + dx2 + 3 * dy2, pressed2)
+        if^netplay {
+            # This machine's 1P keys play its own side; the other side only
+            # takes the choice it confirmed over there.
+            let^local = vp.net.localSide()
+            let^remote = 1 - local
+            if^local = 0 {
+                s.step(upPressed, downPressed, 5 + dx + 3 * dy, pressed, false^, false^, 5, 0)
+            else^:
+                s.step(false^, false^, 5, 0, upPressed, downPressed, 5 + dx + 3 * dy, pressed)
+            }
+            let^mine = s.sides[local]
+            if^mine != nil^ {
+                vp.net.choose({ match = netRound, confirmed = mine.confirmed, row = mine.row, colour = mine.colour, support = mine.support })
+            }
+            let^c = vp.net.theirChoice()
+            if^c.match = netRound and^c.confirmed { s.applyChoice(remote, c.row, c.colour, c.support) }
+        else^:
+            s.step(upPressed, downPressed, 5 + dx + 3 * dy, pressed, upPressed2, downPressed2, 5 + dx2 + 3 * dy2, pressed2)
+        }
         leftPressed := false^
         rightPressed := false^
         clear2()
@@ -1320,12 +1407,32 @@ let^tick = p^{
         downPressed := false^
         pressed := 0
         let^canLoad = if^s.story: s.bothChosen() and^s.wait >= LOAD_DELAY el^: s.done;
-        if^canLoad and^!matchLoading and^pending is^nil^ { loadMatch(s) }
+        # A LAN guest loads the match the host set up for this round.
+        let^setUp = !netplay or^vp.net.hosting() or^vp.net.hostSetup().match = netRound
+        if^canLoad and^setUp and^!matchLoading and^pending is^nil^ { loadMatch(s) }
         # The completed match continues the already-running VS presentation.
         return^
     }
     let^story = campaign
     if^story != nil^ and^story.phase != "battle" { return^ }
+    # LAN VS: this side's input goes INPUT_DELAY frames ahead; the frame runs
+    # once the other side's input for it is in.
+    var^netMine = 0
+    var^netTheirs = 0
+    if^netplay {
+        let^ahead = netFrame + vp.net.INPUT_DELAY
+        if^vp.net.sampled() < ahead {
+            vp.net.sample(ahead, vp.replay.pack(heldDirs(Key.up, Key.down, Key.left, Key.right), vp.input.heldButtons(0), cpuFirst))
+        }
+        let^ready, m, t = vp.net.inputs(netFrame)
+        if^!ready {
+            netWaiting += 1
+            return^
+        }
+        netWaiting := 0
+        netMine := m
+        netTheirs := t
+    }
     # Refresh facing before converting physical directions and consuming
     # buffered commands, including the first frame after landing recovery.
     if^flow.fighting() { me.faceOpponent() foe.faceOpponent() }
@@ -1341,6 +1448,10 @@ let^tick = p^{
         one := tape.side1[replayFrame] ?? 0
         two := tape.side2[replayFrame] ?? 0
         replayFrame += 1
+    elseif^netplay:
+        let^hostSide = vp.net.localSide() = 0
+        one := if^hostSide: netMine el^: netTheirs;
+        two := if^hostSide: netTheirs el^: netMine;
     else^:
         let^vs = recording != nil^
         one := vp.replay.pack(heldDirs(Key.up, Key.down, Key.left, Key.right), vp.input.heldButtons(0), vs and^cpuFirst)
@@ -1415,6 +1526,12 @@ let^tick = p^{
     stepFighters()
 
     frame += 1
+    if^netplay {
+        netFrame += 1
+        if^netFrame % vp.net.SUM_EVERY = 0 {
+            vp.net.summarize({ match = netRound, frame = netFrame, random = vp.rng.get(), life1 = me.life, life2 = foe.life, x1 = me.x.floor(), x2 = foe.x.floor() })
+        }
+    }
     if^me.skillName != lastSkill {
         print($"{frame}: {me.skillName}  x={me.x:%.0f} y={me.y:%.0f} facing={me.facing}")
         lastSkill := me.skillName
@@ -1430,6 +1547,8 @@ public^let^update = p^dt:number^{
         L^.gc.collect()
     }
     for^key in^vp.input.poll() { keypressed(key, love.keyboard.Scancode.unknown, false^) }
+    vp.net.poll()
+    if^netplay and^!vp.net.active() { endNet(vp.net.problemText()) }
     # The host stops the pool at the reload boundary. Do not start it again
     # in this retiring frame, leaving resource.started out of sync.
     if^reloadPending or^paused { return^ }
@@ -1757,6 +1876,41 @@ public^let^draw = p^{
     love.graphics.setColor(1, 1, 1, 1)
 }
 
+# LAN VS: "choosing" over the other side's portrait until its choice
+# arrives, and "waiting" when its input is late.
+let^drawNet = p^{
+    if^!netplay { return^ }
+    var^font = netFont
+    if^font is^nil^ {
+        let^f = love.graphics.newFont("data/NotoSansMonoCJKjp-Regular.otf", 24) catch^nil^
+        font := if^f fits^love.graphics.Font: f el^: love.graphics.newFont(24);
+        netFont := font
+    }
+    let^previous = love.graphics.getFont()
+    if^font != nil^ { love.graphics.setFont(font) }
+    let^ja = vp.locale.locale() = "ja"
+    let^s = selecting
+    if^s != nil^ {
+        let^remote = 1 - vp.net.localSide()
+        let^side = s.sides[remote]
+        if^side != nil^ and^!side.confirmed {
+            let^x = if^remote = 0: 60 el^: WINDOW_W - 300;
+            love.graphics.setColor(0, 0, 0, 0.6)
+            love.graphics.rectangle(love.graphics.DrawMode.fill, x - 12, 700, 264, 44)
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.print(if^ja: "選択中…" el^: "Choosing...";, x, 708)
+        }
+    }
+    if^inBattle() and^netWaiting > 30 {
+        love.graphics.setColor(0, 0, 0, 0.6)
+        love.graphics.rectangle(love.graphics.DrawMode.fill, 0, 440, WINDOW_W, 60)
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.print(if^ja: "相手を待っています…" el^: "Waiting for the other side...";, 40, 452)
+    }
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setFont(previous)
+}
+
 # A played replay's state, along the bottom of the window.
 let^drawReplayBar = p^{
     let^tape = playing
@@ -1775,7 +1929,8 @@ let^drawGame = p^{
     drawScene()
     drawReplayBar()
     if^paused { vp.practicemenu.draw(dummyGuard, showBoxes) }
-    if^scene != nil^ { vp.replaylist.draw() }
+    if^scene != nil^ { vp.replaylist.draw() vp.lanmenu.draw() }
+    drawNet()
     # What the pending load is reading (source runs only, like other debug text).
     if^pending != nil^ {
         let^paths, waiting = vp.resource.progress()
@@ -1846,6 +2001,11 @@ public^let^keypressed = p^key:love.keyboard.Key, scancode:love.keyboard.Scancode
             return^
         }
     }
+    # A LAN match does not pause; ESC leaves the session.
+    if^netplay and^inBattle() and^(key = Key.escape or^key = Key.return) {
+        if^!isrepeat and^key = Key.escape { endNet("") }
+        return^
+    }
     # ESC stops a played replay; Start still pauses it.
     if^key = Key.escape and^playing != nil^ and^inBattle() {
         if^!isrepeat and^!paused { endReplay(false^) }
@@ -1857,10 +2017,13 @@ public^let^keypressed = p^key:love.keyboard.Key, scancode:love.keyboard.Scancode
     }
     if^paused { return^ }
     if^key = Key.escape {
-        # ESC closes the mode menu's replay list rather than leaving the menu.
+        # ESC closes the mode menu's replay list (or steps back in the LAN
+        # menu) rather than leaving the menu.
         if^!isrepeat {
             if^scene != nil^ and^vp.replaylist.isOpen() {
                 vp.replaylist.close()
+            elseif^scene != nil^ and^vp.lanmenu.isOpen():
+                vp.lanmenu.back()
             else^:
                 goBack()
             }
@@ -1905,7 +2068,7 @@ public^let^keypressed = p^key:love.keyboard.Key, scancode:love.keyboard.Scancode
             let^who = if^cpuFirst: "CPU" el^: "player";
             print($"1P: {who}")
         }
-        if^key = Key.f4 {
+        if^key = Key.f4 and^!netplay {
             cpuSecond := !cpuSecond
             let^who = if^cpuSecond: "CPU" el^: "player";
             print($"2P: {who}")

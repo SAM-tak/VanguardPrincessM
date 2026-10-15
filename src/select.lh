@@ -322,6 +322,21 @@ public^let^Select = def^{
             if^self^.wait > AFTER_BOTH { self^.done := true^ }
         }
     },
+    # The other side's confirmed choice over the LAN (src/net.lh): its
+    # character, colour and support, locked as its own confirmation would.
+    applyChoice = p^self^, k:number^, row:number^, colour:number^, support:number^{
+        let^sd = self^.sides[k]
+        if^sd is^nil^ or^sd.confirmed { return^ }
+        sd.row := row
+        sd.colour := colour
+        self^.showPortrait(k)
+        sd.phase := "support"
+        self^.restoreSupport(k, support)
+        sd.confirmed := true^
+        sd.phase := "ready"
+        self^.finishSupport(k)
+        sd.cursor := self^.systemRun(if^k = 0: CONFIRMED_1P el^: CONFIRMED_2P;, GRID_X, slotY(sd.row))
+    },
     phase = f^self^, k:number^-> string^{ return^self^.sides[k]?.phase ?? "" },
     paletteVisible = f^self^, k:number^-> bool^{ return^self^.phase(k) = "main" },
     returnToMain = p^self^, k:number^{

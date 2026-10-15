@@ -1,0 +1,92 @@
+# LAN VS between two processes on this machine (tools/test-lan.ps1 runs one
+# as the host and one as the guest): the host hosts, the guest searches and
+# joins it, both hand their side to the CPU (F3) and confirm on the select
+# screen, and the match (5-second rounds) plays over the link. Each side then
+# prints the result of the replay it recorded; the script compares the two.
+# No summary may have differed.
+module^vp.lanvstest
+import^love.keyboard
+import^love.event
+import^love.filesystem
+import^love.timer
+require^"../main.lh"
+require^"../tests/select-input.lh"
+require^"../src/arena.lh"
+require^"../src/net.lh"
+require^"../src/replay.lh"
+
+let^ROLE = "host"            # tools/test-lan.ps1 makes the guest's copy
+
+var^phase = 0
+var^wait = 0
+var^began = 0
+var^ups = 0
+var^done = 0
+var^saved = ""
+let^Key = love.keyboard.Key
+let^press = p^key:love.keyboard.Key{ vp.selectinput.press(key) }
+let^say = p^text:string^{ print($"[{ROLE}] {text}") }
+
+public^let^load = p^{
+    began := love.timer.getTime()
+    vp.main.setVSSeconds(5)
+    vp.main.load()
+}
+public^let^update = p^dt:number^{
+    let^s0 = vp.main.status()
+    let^fast = s0.phase = "battle" or^s0.phase = "match-intro"
+    for^i from^1 to^(if^fast: 4 el^: 1;) { vp.main.update(0.02) }
+    if^ups > 0 { press(Key.up) ups -= 1 }
+    let^s = vp.main.status()
+    let^where = vp.arena.names()
+    if^phase = 0 and^where = "system / opening" { press(Key.z) phase := 1
+    elseif^phase = 1: press(Key.z) phase := 2
+    elseif^phase = 2 and^where = "system / title":
+        wait += 1
+        if^wait = 20 { ups := 2 }                 # STORY -> WATCH REPLAY -> LAN VS
+        if^wait = 40 { press(Key.z) }              # the LAN menu
+        if^ROLE = "host" and^wait = 50 { press(Key.z) phase := 3 say("hosting") }
+        if^ROLE = "guest" and^wait = 100 { press(Key.down) }
+        if^ROLE = "guest" and^wait = 110 { press(Key.z) phase := 3 wait := 0 say("searching") }
+    elseif^phase = 3 and^ROLE = "guest" and^s.link = "searching":
+        wait += 1
+        if^vp.net.hostsShown().length^ > 0 {
+            say($"found {vp.net.hostsShown()[0]?.address ?? "?"}")
+            press(Key.z)
+            phase := 4
+        }
+    elseif^phase = 3 and^ROLE = "host" and^s.link = "connected":
+        phase := 4
+    elseif^phase = 4 and^s.netplay and^s.phase = "select" and^!s.loading:
+        say("linked: select")
+        press(Key.f3)
+        wait := 0
+        phase := 5
+    elseif^phase = 5:
+        wait += 1
+        if^wait = 10 { press(Key.z) }               # the character
+        if^wait = 30 { press(Key.z) }               # the support
+        if^s.phase = "battle" { say("match") phase := 6 }
+    elseif^phase = 6 and^s.phase = "select" and^s.netRound = 2:
+        # Both sides may save under the same name in the same second (the
+        # same match either way), so the file is removed only on the way out.
+        saved := s.lastReplay
+        let^tape = vp.replay.load(saved)
+        if^tape is^nil^ { panic^$"[{ROLE}] no replay of the match ({saved})" }
+        if^s.netDesync >= 0 { panic^$"[{ROLE}] desync at frame {s.netDesync}" }
+        if^s.netChecked < 3 { panic^$"[{ROLE}] only {s.netChecked} summaries compared" }
+        print($"RESULT frames {tape.frames()} wins {tape.wins1}-{tape.wins2} life {tape.life1} {tape.life2} seed {tape.seed}")
+        say($"PASS: {s.netChecked} summaries matched")
+        phase := 7
+    elseif^phase = 7:
+        # Give the other side time to finish before this one goes silent.
+        done += 1
+        if^done = 60 {
+            let^_^ = love.filesystem.remove($"replays/{saved}")
+            love.event.quit()
+        }
+    }
+    if^love.timer.getTime() - began > 240 { panic^$"[{ROLE}] LAN test timeout at phase {phase} (link {s.link})" }
+}
+public^let^draw = p^{ vp.main.draw() }
+public^let^quit = p^-> bool^{ return^vp.main.quit() }

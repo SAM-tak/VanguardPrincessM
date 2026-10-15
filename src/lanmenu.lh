@@ -1,0 +1,175 @@
+# LAN VS MODE's menu, opened over the mode menu (src/title.lh) like WATCH
+# REPLAY's list (TechnicalDocuments/0157): host, or search the LAN; a host
+# waits for a guest, a search lists the hosts that answer, and choosing one
+# joins it. Once linked (src/net.lh), main.lh takes both to the select
+# screen. A plain stand-in like the practice menu: up / down choose, A / C /
+# E / F confirm, B / D or ESC go back.
+module^vp.lanmenu
+
+import^love.graphics
+require^"locale.lh"
+require^"net.lh"
+
+let^Words = t^{
+    title:string^, host:string^, search:string^, back:string^, waiting:string^, address:string^,
+    searching:string^, none:string^, busy:string^, joining:string^, hint:string^, listHint:string^,
+    marker:string^, font:string^,
+}
+let^JA : Words = {
+    title = "LAN 対戦", host = "ホストする", search = "LAN 内を探す", back = "戻る",
+    waiting = "対戦相手を待っています…", address = "このマシン", searching = "ホストを探しています…",
+    none = "見つかりません", busy = "対戦中", joining = "接続しています…",
+    hint = "↑↓ 選択　A 決定　B / D・ESC 戻る", listHint = "↑↓ 選択　A 接続　B / D・ESC 戻る", marker = "▶",
+    font = "data/NotoSansMonoCJKjp-Regular.otf",
+}
+let^EN : Words = {
+    title = "LAN VS", host = "Host", search = "Search the LAN", back = "Back",
+    waiting = "Waiting for an opponent...", address = "This machine", searching = "Searching for hosts...",
+    none = "None found", busy = "in a match", joining = "Connecting...",
+    hint = "Up/Down: choose   A: OK   B / D, ESC: back", listHint = "Up/Down: choose   A: join   B / D, ESC: back", marker = ">",
+    font = "data/montserrat/Montserrat-Bold.ttf",
+}
+let^LINE_FONT = "data/NotoSansMonoCJKjp-Regular.otf"
+
+# "" closed, "menu", "hosting", "searching", "joining", "message".
+var^mode = ""
+var^item = 0
+var^message = ""
+var^fonts : t^{[string^]:love.graphics.Font|nil^} = {}
+
+public^let^isOpen = f^-> bool^{ mode != "" }
+public^let^open = p^{ mode := "menu" item := 0 }
+public^let^close = p^{
+    if^vp.net.status() != "connected" { vp.net.leave() }
+    mode := ""
+}
+# Linked: main.lh starts the session's select screen.
+public^let^linked = f^-> bool^{ mode != "" and^vp.net.active() }
+# Shown when the menu next opens on the mode menu (a lost session).
+public^let^showMessage = p^text:string^{
+    mode := "message"
+    message := text
+}
+
+# ESC, or B / D: one step back.
+public^let^back = p^{
+    if^mode = "menu" { close() return^ }
+    vp.net.leave()
+    mode := "menu"
+}
+
+# One frame while open. up / down: pressed this frame; pressed: buttons
+# (A = 1 ... F = 32).
+public^let^step = p^up:bool^, down:bool^, pressed:number^{
+    let^cancel = (pressed / 2).floor() % 2 = 1 or^(pressed / 8).floor() % 2 = 1
+    let^confirm = pressed != 0 and^!cancel
+    let^link = vp.net.status()
+    if^link = "failed" and^mode != "message" {
+        message := vp.net.problemText()
+        mode := "message"
+        vp.net.leave()
+        return^
+    }
+    if^mode = "message" {
+        if^pressed != 0 { mode := "menu" }
+        return^
+    }
+    if^cancel { back() return^ }
+    if^mode = "menu" {
+        if^up or^down { item := (item + (if^down: 1 el^: 2;)) % 3 }
+        if^confirm {
+            if^item = 0 { vp.net.host() mode := "hosting"
+            elseif^item = 1: vp.net.search() mode := "searching" item := 0
+            else^: close() }
+        }
+    elseif^mode = "searching":
+        let^hosts = vp.net.hostsShown()
+        let^count = hosts.length^
+        if^count > 0 and^(up or^down) { item := (item + (if^down: 1 el^: count - 1;)) % count }
+        if^item >= count { item := 0 }
+        let^h = hosts[item]
+        if^confirm and^h != nil^ and^!h.busy {
+            vp.net.join(h)
+            mode := "joining"
+        }
+    elseif^mode = "joining" and^link = "searching":
+        mode := "searching"
+    }
+}
+
+let^fontFor = p^file:string^, size:number^-> love.graphics.Font {
+    let^known = fonts[$"{file}:{size}"]
+    if^known? { return^known }
+    var^font = love.graphics.newFont(size)
+    let^f = love.graphics.newFont(file, size) catch^nil^
+    if^f fits^love.graphics.Font { font := f }
+    fonts[$"{file}:{size}"] := font
+    return^font
+}
+
+# Drawn in the game window's pixels, like the practice menu.
+let^WINDOW_W = 1280
+let^WINDOW_H = 960
+public^let^draw = p^{
+    if^mode = "" { return^}
+    let^words = if^vp.locale.locale() = "en": EN el^: JA;
+    let^u = WINDOW_H / 480
+    let^previous = love.graphics.getFont()
+    love.graphics.push()
+    love.graphics.setColor(0, 0, 0, 0.55)
+    love.graphics.rectangle(love.graphics.DrawMode.fill, 0, 0, WINDOW_W, WINDOW_H)
+    let^bw = 400 * u
+    let^bh = 200 * u
+    let^bx = (WINDOW_W - bw) / 2
+    let^by = (WINDOW_H - bh) / 2
+    love.graphics.setColor(0.08, 0.06, 0.18, 0.92)
+    love.graphics.rectangle(love.graphics.DrawMode.fill, bx, by, bw, bh)
+    love.graphics.setColor(0.55, 0.5, 0.9, 1)
+    love.graphics.rectangle(love.graphics.DrawMode.line, bx, by, bw, bh)
+    let^big = fontFor(words.font, (14 * u).floor())
+    let^small = fontFor(words.font, (10 * u).floor())
+    let^lineFont = fontFor(LINE_FONT, (13 * u).floor())
+    love.graphics.setFont(big)
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.print(words.title, bx + 16 * u, by + 12 * u)
+    var^lines : t^{string^[]} = {}
+    var^chooses = false^
+    var^hint = words.hint
+    if^mode = "menu" {
+        lines := { words.host, words.search, words.back }
+        chooses := true^
+    elseif^mode = "hosting":
+        let^here = vp.net.address()
+        let^shown = if^here = "": "?" el^: here;
+        lines := { words.waiting, $"{words.address}: {shown}:{vp.net.PORT}" }
+    elseif^mode = "searching":
+        let^hosts = vp.net.hostsShown()
+        if^hosts.length^ = 0 { lines := { words.searching, words.none }
+        else^:
+            for^h in^hosts { lines.push^(if^h.busy: $"{h.address}  ({words.busy})" el^: h.address;) }
+            chooses := true^
+        }
+        hint := words.listHint
+    elseif^mode = "joining":
+        lines := { words.joining }
+    elseif^mode = "message":
+        lines := { message }
+    }
+    love.graphics.setFont(lineFont)
+    for^line in^lines {
+        let^y = by + (44 + 22 * index^) * u
+        if^chooses and^index^ = item {
+            love.graphics.setColor(1, 0.85, 0.3, 1)
+            love.graphics.print(words.marker, bx + 16 * u, y)
+        else^:
+            love.graphics.setColor(0.8, 0.8, 0.85, 1)
+        }
+        love.graphics.print(line, bx + 34 * u, y)
+    }
+    love.graphics.setFont(small)
+    love.graphics.setColor(0.7, 0.7, 0.8, 1)
+    love.graphics.print(hint, bx + 16 * u, by + bh - 20 * u)
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setFont(previous)
+    love.graphics.pop()
+}

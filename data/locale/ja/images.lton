@@ -73,6 +73,14 @@
     font = "data/NotoSansMonoCJKjp-Regular.otf", fontSize = 14,
     color = { 0, 0, 0.03 },
 },
+# LAN VS MODE's caption (src/lanmenu.lh).
+["locale:mode-menu/lan-caption"] = {
+    text = "LAN 内で対戦します。",
+    size = { 300, 18 }, rect = { 0, 2, 300, 14 }, align = "left", valign = "middle",
+    offset = { 0, -2 }, weight = 1.5,
+    font = "data/NotoSansMonoCJKjp-Regular.otf", fontSize = 14,
+    color = { 0, 0, 0.03 },
+},
 # WATCH REPLAY's caption (src/replaylist.lh).
 ["locale:mode-menu/replay-caption"] = {
     text = "保存されたリプレイを再生します。",

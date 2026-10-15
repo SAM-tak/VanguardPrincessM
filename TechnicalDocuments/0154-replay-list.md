@@ -7,8 +7,8 @@
 ## モードメニュー
 
 - 項目は STORY / VS / PRACTICE / SURVIVAL / ONLINE VS / LAN VS / WATCH REPLAY（`src/title.lh` の `ITEM_Y`、y=70 から 22 間隔）
-- SURVIVAL / ONLINE VS / LAN VS は項目だけ。説明文は「準備中」／「Under Construction」、決定しても何もしない
-  （ONLINE VS は EOS 前提、LAN VS は同じネットワーク内のみの予定）
+- SURVIVAL / ONLINE VS は項目だけ。説明文は「準備中」／「Under Construction」、決定しても何もしない
+  （ONLINE VS は EOS 前提の予定）。LAN VS は同じネットワーク内のみで、[0157](0157-lan-vs.md) で実装
 - 説明文は項目ごとの表 `CAPTIONS`（`""` は #107 自身の説明）。ラベル・説明文は両ロケールの `images.lton`
 
 ## リプレイ一覧（`src/replaylist.lh`）

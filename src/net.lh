@@ -1,0 +1,389 @@
+# LAN VS MODE's link (TechnicalDocuments/0157): finding a host, joining it,
+# and the messages of a session, over std.net's UDP.
+#
+# The host binds PORT; a searching guest broadcasts a query there and lists
+# who answers, so a host and a guest can also run on one machine. A session
+# then carries each side's select-screen choice (only once it is confirmed),
+# the host's match setup, and every frame's input: the input of a frame is
+# sent INPUT_DELAY frames ahead, with the INPUT_HISTORY before it, so a lost
+# datagram is made up by the next. Every SUM_EVERY frames each side sends a
+# summary of its state (the simulation's random state, lives, positions) to
+# catch a desync. Nothing is resent otherwise; what must arrive is repeated
+# until it is no longer needed.
+module^vp.net
+
+import^love.timer
+import^std.net
+import^std.binary
+
+public^let^PORT = 7650
+public^let^INPUT_DELAY = 3
+let^INPUT_HISTORY = 8
+public^let^SUM_EVERY = 100
+let^VERSION = 1                 # of this protocol and of the simulation it expects
+let^MAGIC = 22102               # "VP"
+let^QUERY_EVERY = 0.5
+let^HOST_EXPIRES = 2
+let^JOIN_EVERY = 0.2
+let^JOIN_GIVES_UP = 3
+let^STATE_EVERY = 0.1
+public^let^LOST_AFTER = 3       # seconds without a datagram: the other side is gone
+
+let^QUERY = 1
+let^BEACON = 2
+let^JOIN = 3
+let^ACCEPT = 4
+let^REFUSE = 5
+let^STATE = 6
+let^START = 7
+let^INPUT = 8
+let^SUM = 9
+let^BYE = 10
+
+let^b = std.binary
+let^Head = t^{ magic : number^, kind : number^ }
+let^HEAD = b.format(Head, { { "magic", b.uint(16) }, { "kind", b.uint(8) } })
+let^Hello = t^{ version : number^, busy : bool^ }
+let^HELLO = b.format(Hello, { { "version", b.uint(16) }, { "busy", b.bool() } })
+public^let^Choice = t^{ match : number^, confirmed : bool^, row : number^, colour : number^, support : number^ }
+let^CHOICE = b.format(Choice, {
+    { "match", b.uint(16) }, { "confirmed", b.bool() }, { "row", b.uint(8) }, { "colour", b.uint(8) }, { "support", b.uint(16) },
+})
+public^let^Setup = t^{ match : number^, seed : number^, stage : number^, seconds : number^, toWin : number^ }
+let^SETUP = b.format(Setup, {
+    { "match", b.uint(16) }, { "seed", b.uint(32) }, { "stage", b.uint(8) }, { "seconds", b.uint(16) }, { "toWin", b.uint(8) },
+})
+let^Inputs = t^{ match : number^, last : number^, sides : t^{number^[]} }
+let^INPUTS = b.format(Inputs, {
+    { "match", b.uint(16) }, { "last", b.uint(32) }, { "sides", b.array(INPUT_HISTORY, b.uint(11)) },
+})
+public^let^Sum = t^{ match : number^, frame : number^, random : number^, life1 : number^, life2 : number^, x1 : number^, x2 : number^ }
+let^SUM_FORMAT = b.format(Sum, {
+    { "match", b.uint(16) }, { "frame", b.uint(32) }, { "random", b.uint(32) },
+    { "life1", b.int(16) }, { "life2", b.int(16) }, { "x1", b.int(16) }, { "x2", b.int(16) },
+})
+
+let^head = f^kind:number^-> string^{ HEAD.encode({ magic = MAGIC, kind = kind }) }
+
+# A host found by searching.
+public^let^Host = def^{
+    self^{ address = "", port = 0, version = 0, busy = false^, seen = 0 },
+}
+
+# The link's state: "" none, "hosting" (waiting for a guest), "searching",
+# "joining", "connected", "lost" (the other side left or went silent), or
+# "failed" (with `problem`).
+var^state = ""
+var^problem = ""
+var^sock : std.net.Udp|nil^= nil^
+var^peerAddress = ""
+var^peerPort = 0
+var^isHost = false^
+var^lastHeard = 0
+var^lastQuery = -100
+var^lastJoin = -100
+var^joinStarted = 0
+var^lastState = -100
+var^hosts : t^{Host[]} = {}
+var^localAddress = ""
+
+# The session's messages as last heard: the other side's choice, the host's
+# setup, and the other side's inputs and summaries of this match.
+var^choice : Choice = { match = 0, confirmed = false^, row = 0, colour = 0, support = 101 }
+var^setup : Setup = { match = 0, seed = 0, stage = 0, seconds = 0, toWin = 0 }
+var^myChoice : Choice = { match = 0, confirmed = false^, row = 0, colour = 0, support = 101 }
+var^mySetup : Setup|nil^= nil^
+var^match = 0            # the match the inputs belong to
+var^theirs : t^{[number^]:number^|nil^} = {}
+var^mine : t^{[number^]:number^|nil^} = {}
+var^myLast = -1                 # the newest frame of mine sampled
+var^mySums : t^{[number^]:Sum|nil^} = {}
+var^theirSums : t^{[number^]:Sum|nil^} = {}
+var^desync = -1          # the first frame whose summaries differed, -1 none
+var^checked = 0          # summaries compared
+
+public^let^status = f^-> string^{ state }
+public^let^problemText = f^-> string^{ problem }
+public^let^hosting = f^-> bool^{ isHost }
+public^let^address = f^-> string^{ localAddress }
+public^let^theirChoice = f^-> Choice { choice }
+public^let^hostSetup = f^-> Setup { setup }
+public^let^matchNumber = f^-> number^{ match }
+public^let^desyncFrame = f^-> number^{ desync }
+public^let^sumsChecked = f^-> number^{ checked }
+public^let^active = f^-> bool^{ state = "connected" }
+# The side this machine plays: the host 1P (0), the guest 2P (1).
+public^let^localSide = f^-> number^{ if^isHost: 0 el^: 1; }
+
+let^close = p^{
+    let^s = sock
+    if^s != nil^ { s.dispose() }
+    sock := nil^
+}
+
+let^fail = p^why:string^{
+    close()
+    state := "failed"
+    problem := why
+}
+
+let^send = p^data:string^, address:string^, port:number^{
+    let^s = sock
+    if^s is^nil^ { return^ }
+    try^s.sendTo(data, address, port)
+catch^:
+    print($"LAN: not sent to {address}:{port}: {it^.message}")
+}
+let^sendPeer = p^data:string^{ send(data, peerAddress, peerPort) }
+
+# This machine's address on the LAN: a socket aimed outward (no datagram is
+# sent) is bound to the interface that route uses.
+let^findLocalAddress = p^-> string^{
+    let^probe = try^std.net.udp()
+    try^probe.setPeer("192.0.2.1", 9)
+    let^address, port = probe.getLocal()
+    probe.dispose()
+    return^address
+catch^:
+    return^""
+}
+
+let^reset = p^{
+    close()
+    state := ""
+    problem := ""
+    hosts := {}
+    isHost := false^
+    peerAddress := ""
+    peerPort := 0
+    match := 0
+    choice := { match = 0, confirmed = false^, row = 0, colour = 0, support = 101 }
+    setup := { match = 0, seed = 0, stage = 0, seconds = 0, toWin = 0 }
+    myChoice := { match = 0, confirmed = false^, row = 0, colour = 0, support = 101 }
+    mySetup := nil^
+    resetMatch(0)
+}
+
+# Waits for a guest on PORT.
+public^let^host = p^{
+    reset()
+    let^s = try^std.net.udp()
+    sock := s
+    try^s.bind("0.0.0.0", PORT)
+    state := "hosting"
+    isHost := true^
+    localAddress := findLocalAddress()
+catch^:
+    fail($"Cannot host on port {PORT}: {it^.message}")
+}
+
+# Looks for hosts on the LAN (and on this machine).
+public^let^search = p^{
+    reset()
+    let^s = try^std.net.udp()
+    sock := s
+    try^s.bind("0.0.0.0", 0)
+    try^s.setBroadcast(true^)
+    state := "searching"
+catch^:
+    fail($"Cannot search: {it^.message}")
+}
+
+public^let^join = p^h:Host{
+    peerAddress := h.address
+    peerPort := h.port
+    state := "joining"
+    joinStarted := love.timer.getTime()
+    lastJoin := -100
+}
+
+# Leaves whatever the link was doing, telling the other side.
+public^let^leave = p^{
+    if^state = "connected" or^state = "joining" {
+        for^i from^1 to^3 { sendPeer(head(BYE)) }
+    }
+    reset()
+}
+
+# Inputs and summaries start over for match n.
+public^let^resetMatch = p^n:number^{
+    match := n
+    theirs := {}
+    mine := {}
+    myLast := -1
+    mySums := {}
+    theirSums := {}
+    desync := -1
+    checked := 0
+}
+
+# This side's confirmed choice for the select round `match` (sent until the
+# next round begins).
+public^let^choose = p^c:Choice{ myChoice := c }
+# The host's setup of the next match (sent until its inputs arrive).
+public^let^offer = p^s:Setup{
+    mySetup := s
+    setup := s
+}
+
+# This side's input of frame f (packed as src/replay.lh does).
+public^let^sample = p^f:number^, input:number^{
+    mine[f] := input
+    if^f > myLast { myLast := f }
+}
+public^let^sampled = f^-> number^{ myLast }
+# Both sides' inputs of frame f, if this side has the other's; the first
+# INPUT_DELAY frames are neutral for both.
+public^let^inputs = f^f:number^-> bool^, number^, number^{
+    if^f < INPUT_DELAY { return^true^, 0, 0 }
+    let^m = mine[f]
+    let^t = theirs[f]
+    if^m is^nil^ or^t is^nil^ { return^false^, 0, 0 }
+    return^true^, m, t
+}
+
+# This side's summary of frame f; compared with the other's when both are in.
+let^compare = p^f:number^{
+    let^a = mySums[f]
+    let^c = theirSums[f]
+    if^a is^nil^ or^c is^nil^ { return^ }
+    checked += 1
+    let^same = a.random = c.random and^a.life1 = c.life1 and^a.life2 = c.life2 and^a.x1 = c.x1 and^a.x2 = c.x2
+    if^!same and^desync < 0 {
+        desync := f
+        print($"LAN: DESYNC at frame {f}: random {a.random} / {c.random}, life {a.life1} {a.life2} / {c.life1} {c.life2}, x {a.x1} {a.x2} / {c.x1} {c.x2}")
+    }
+}
+public^let^summarize = p^s:Sum{
+    mySums[s.frame] := s
+    sendPeer(head(SUM) .. SUM_FORMAT.encode(s))
+    compare(s.frame)
+}
+
+let^heard = p^data:string^, address:string^, port:number^{
+    let^hd, start = try^HEAD.decode(data, 0)
+    if^hd.magic != MAGIC { return^ }
+    let^kind = hd.kind
+    let^now = love.timer.getTime()
+    if^kind = QUERY and^state = "hosting" {
+        send(head(BEACON) .. HELLO.encode({ version = VERSION, busy = false^ }), address, port)
+        return^
+    }
+    if^kind = QUERY and^state = "connected" and^isHost {
+        send(head(BEACON) .. HELLO.encode({ version = VERSION, busy = true^ }), address, port)
+        return^
+    }
+    if^kind = BEACON and^state = "searching" {
+        let^h, at = try^HELLO.decode(data, 3)
+        var^found : Host|nil^= nil^
+        for^known in^hosts { if^known.address = address and^known.port = port { found := known } }
+        let^entry = found ?? Host.new()
+        if^found is^nil^ { hosts.push^(entry) }
+        entry.address := address
+        entry.port := port
+        entry.version := h.version
+        entry.busy := h.busy
+        entry.seen := now
+        return^
+    }
+    if^kind = JOIN and^state = "hosting" {
+        let^h, at = try^HELLO.decode(data, 3)
+        if^h.version != VERSION {
+            send(head(REFUSE), address, port)
+            return^
+        }
+        peerAddress := address
+        peerPort := port
+        state := "connected"
+        lastHeard := now
+        sendPeer(head(ACCEPT))
+        return^
+    }
+    if^kind = JOIN and^state = "connected" and^address = peerAddress and^port = peerPort {
+        sendPeer(head(ACCEPT))        # our accept was lost
+        return^
+    }
+    if^address != peerAddress or^port != peerPort { return^ }
+    lastHeard := now
+    if^kind = ACCEPT and^state = "joining" {
+        state := "connected"
+        isHost := false^
+        return^
+    }
+    if^kind = REFUSE and^state = "joining" { fail("The host runs another version") return^ }
+    if^state != "connected" { return^ }
+    if^kind = BYE { close() state := "lost" problem := "The other side left" return^ }
+    if^kind = STATE {
+        let^c, at = try^CHOICE.decode(data, 3)
+        choice := c
+    elseif^kind = START:
+        let^s, at = try^SETUP.decode(data, 3)
+        if^!isHost { setup := s }
+    elseif^kind = INPUT:
+        let^i, at = try^INPUTS.decode(data, 3)
+        if^i.match = match {
+            for^v in^i.sides {
+                let^f = i.last - INPUT_HISTORY + 1 + index^
+                if^f >= INPUT_DELAY { theirs[f] := v }
+            }
+        }
+    elseif^kind = SUM:
+        let^s, at = try^SUM_FORMAT.decode(data, 3)
+        if^s.match = match {
+            theirSums[s.frame] := s
+            compare(s.frame)
+        }
+    }
+catch^:
+    print($"LAN: a datagram not understood from {address}:{port}: {it^.message}")
+}
+
+# Each frame: reads what arrived and sends what is due.
+public^let^poll = p^{
+    let^s = sock
+    if^s is^nil^ { return^ }
+    let^now = love.timer.getTime()
+    repeat^while^true^ {
+        let^data, address, port = try^s.receive()
+        if^data is^nil^ { break^ }
+        let^text : string^ = data
+        heard(text, address, port)
+        if^sock is^nil^ { return^ }
+    }
+    if^state = "searching" {
+        if^now - lastQuery >= QUERY_EVERY {
+            lastQuery := now
+            let^q = head(QUERY) .. HELLO.encode({ version = VERSION, busy = false^ })
+            send(q, "255.255.255.255", PORT)
+            send(q, "127.0.0.1", PORT)
+        }
+        var^fresh : t^{Host[]} = {}
+        for^h in^hosts { if^now - h.seen < HOST_EXPIRES { fresh.push^(h) } }
+        hosts := fresh
+    elseif^state = "joining":
+        if^now - joinStarted > JOIN_GIVES_UP { fail("The host did not answer") return^ }
+        if^now - lastJoin >= JOIN_EVERY {
+            lastJoin := now
+            sendPeer(head(JOIN) .. HELLO.encode({ version = VERSION, busy = false^ }))
+        }
+    elseif^state = "connected":
+        if^now - lastHeard > LOST_AFTER { close() state := "lost" problem := "The connection was lost" return^ }
+        if^now - lastState >= STATE_EVERY {
+            lastState := now
+            sendPeer(head(STATE) .. CHOICE.encode(myChoice))
+            let^offered = mySetup
+            if^offered != nil^ { sendPeer(head(START) .. SETUP.encode(offered)) }
+        }
+        # Every poll: the newest INPUT_HISTORY inputs of mine.
+        if^myLast >= INPUT_DELAY {
+            var^sides : t^{number^[]} = {}
+            for^i from^0 to^INPUT_HISTORY - 1 { sides.push^(mine[myLast - INPUT_HISTORY + 1 + i] ?? 0) }
+            sendPeer(head(INPUT) .. INPUTS.encode({ match = match, last = myLast, sides = sides }))
+        }
+    }
+catch^:
+    fail($"The link failed: {it^.message}")
+}
+
+# The hosts found so far.
+public^let^hostsShown = f^-> t^{Host[]} { hosts }
