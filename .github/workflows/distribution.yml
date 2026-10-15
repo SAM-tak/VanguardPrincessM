@@ -81,24 +81,24 @@ jobs:
       - name: Archive Unix distribution
         if: runner.os != 'Windows'
         run: |
-          & tar -czf build/VanguardPrincess-${{ matrix.platform }}.tar.gz -C dist VanguardPrincess
+          & tar -czf build/VanguardPrincessM-${{ matrix.platform }}.tar.gz -C dist VanguardPrincessM
           if ($LASTEXITCODE -ne 0) { throw 'Could not archive the distribution' }
       - name: Upload distribution
         uses: actions/upload-artifact@v7.0.2
         with:
-          name: VanguardPrincess-${{ matrix.platform }}
-          path: ${{ runner.os == 'Windows' && 'dist/VanguardPrincess/' || format('build/VanguardPrincess-{0}.tar.gz', matrix.platform) }}
+          name: VanguardPrincessM-${{ matrix.platform }}
+          path: ${{ runner.os == 'Windows' && 'dist/VanguardPrincessM/' || format('build/VanguardPrincessM-{0}.tar.gz', matrix.platform) }}
           if-no-files-found: error
       # A version tag publishes the same folder as one archive per platform.
       - name: Archive Windows distribution for release
         if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/v')
-        run: Compress-Archive -Path dist/VanguardPrincess -DestinationPath build/VanguardPrincess-${{ matrix.platform }}.zip
+        run: Compress-Archive -Path dist/VanguardPrincessM -DestinationPath build/VanguardPrincessM-${{ matrix.platform }}.zip
       - name: Upload release archive
         if: startsWith(github.ref, 'refs/tags/v')
         uses: actions/upload-artifact@v7.0.2
         with:
           name: release-${{ matrix.platform }}
-          path: build/VanguardPrincess-${{ matrix.platform }}.${{ runner.os == 'Windows' && 'zip' || 'tar.gz' }}
+          path: build/VanguardPrincessM-${{ matrix.platform }}.${{ runner.os == 'Windows' && 'zip' || 'tar.gz' }}
           if-no-files-found: error
       - name: Upload engine check logs on failure
         if: failure()

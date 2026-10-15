@@ -10,12 +10,12 @@ v12.0.0-alpha.8（当初 alpha.2）の各プラットフォーム版を `engine-
 外部 assets は `getSourceBaseDirectory()` の隣に置く（[0128](0128-external-distribution-assets.md)）。
 各OSの起動形式はこれを満たすよう選び、`tools/fuse-game.ps1` にまとめた。
 
-- Windows: 従来どおり `love.exe` に `.love` を連結した `VanguardPrincess.exe` とDLL。
-- Linux: `bin/love` に `.love` を連結した `VanguardPrincess` と `lib/`。
+- Windows: 従来どおり `love.exe` に `.love` を連結した `VanguardPrincessM.exe` とDLL。
+- Linux: `bin/love` に `.love` を連結した `VanguardPrincessM` と `lib/`。
   リリースのRPATHは `$ORIGIN/../lib` なので、連結前にpatchelfで `$ORIGIN/lib` へ書き換える。
   glibc・GLドライバはホスト側（Ubuntu 24.04相当以降）。
-- macOS: `lhat-love.app` は改変せず同梱し、隣に `VanguardPrincess.love` と
-  `VanguardPrincess.command` を置く。launcherは `love --fused VanguardPrincess.love` を実行する。
+- macOS: `lhat-love.app` は改変せず同梱し、隣に `VanguardPrincessM.love` と
+  `VanguardPrincessM.command` を置く。launcherは `love --fused VanguardPrincessM.love` を実行する。
 
 macOSでMach-Oへ連結すると署名が `__LINKEDIT` の外のデータで無効になり、arm64では起動できない。
 上流LÖVEの `Contents/Resources/*.love` 探索はlhat-loveのBoot.cppにない。

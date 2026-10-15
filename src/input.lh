@@ -3,6 +3,8 @@ module^vp.input
 
 import^love.keyboard
 import^love.joystick
+require^"settings.lh"
+require^"keynames.lh"
 
 let^Key = love.keyboard.Key
 let^Button = love.joystick.Button
@@ -12,10 +14,83 @@ let^keys : t^{t^{love.keyboard.Key[]}[]} = {
     {Key.up, Key.left, Key.down, Key.right, Key.z, Key.x, Key.c, Key.a, Key.s, Key.d, Key.escape, Key.return},
     {Key.u, Key.h, Key.j, Key.k, Key.l, Key.semicolon, Key.quote, Key.o, Key.p, Key.leftbracket, Key.escape, Key.return},
 }
-let^buttons = {Button.a, Button.x, Button.y, Button.b, Button.rightshoulder, Button.leftshoulder, Button.back, Button.start}
+let^actions = {"up", "left", "down", "right", "a", "b", "c", "d", "e", "f", "back", "start"}
+let^shortcutKeys = {Key.escape, Key.return, Key.f8}
+let^shortcutActions = {"back", "start", "reload"}
+let^fixedKeys = {Key.f1, Key.g, Key.f2, Key.t, Key.f5, Key.f3, Key.f4,
+    Key.digit1, Key.digit2, Key.digit3, Key.digit4, Key.digit5, Key.digit6, Key.digit7, Key.digit8}
+let^fixedActions = {"hitboxes", "guard", "quickKO", "stage", "soundLog", "cpu1", "cpu2",
+    "palette1", "palette2", "palette3", "palette4", "palette5", "palette6", "palette7", "palette8"}
+let^defaults:t^{[string^]:t^{[string^]:string^}} = {
+    keyboard1 = {up="up",left="left",down="down",right="right",a="z",b="x",c="c",d="a",e="s",f="d"},
+    keyboard2 = {up="u",left="h",down="j",right="k",a="l",b="semicolon",c="quote",d="o",e="p",f="leftbracket"},
+    gamepad1 = {up="dpup",left="dpleft",down="dpdown",right="dpright",a="a",b="x",c="y",d="b",e="rightshoulder",f="leftshoulder",back="back",start="start"},
+    gamepad2 = {up="dpup",left="dpleft",down="dpdown",right="dpright",a="a",b="x",c="y",d="b",e="rightshoulder",f="leftshoulder",back="back",start="start"},
+    shortcuts = {back="escape",start="return",reload="f8"},
+}
+var^loaded = false^
+var^keyboard:t^{[love.keyboard.Key]:t^{love.keyboard.Key[]}|nil^} = {}
+var^pads:t^{t^{t^{button:love.joystick.Button|nil^}[]}[]} = {}
+let^defaultName = f^section:string^, action:string^-> string^{
+    let^group = defaults[section]
+    return^if^group != nil^: group[action] ?? "" el^: "";
+}
+let^configured = p^config:t^{[string^]:any^}, section:string^, action:string^-> string^{
+    let^group = config[section]
+    if^group fits^t^{[string^]:any^} {
+        let^v = group[action]
+        if^v fits^string^ { return^v }
+    }
+    return^defaultName(section, action)
+}
+let^bind = p^logical:love.keyboard.Key, name:string^, fallback:string^{
+    let^physical = vp.keynames.keys[name]
+    if^name = "" { keyboard[logical] := {} return^ }
+    let^key = physical ?? vp.keynames.keys[fallback]
+    if^key != nil^ { keyboard[logical] := {key} }
+}
+let^load = p^{
+    if^loaded { return^ }
+    loaded := true^
+    let^config = vp.settings.inputConfig(defaults, fixedActions)
+    for^player, layout in^keys {
+        let^section = $"keyboard{player + 1}"
+        for^i from^0 to^9 {
+            let^action = actions[i]
+            let^logical = layout[i]
+            if^logical != nil^ { bind(logical, configured(config, section, action), defaultName(section, action)) }
+        }
+        var^pad:t^{t^{button:love.joystick.Button|nil^}[]} = {}
+        let^padSection = $"gamepad{player + 1}"
+        for^action in^actions {
+            let^name = configured(config, padSection, action)
+            let^button = if^name = "": nil^ el^: vp.keynames.buttons[name] ?? vp.keynames.buttons[defaultName(padSection, action)];
+            pad.push^({button=button})
+        }
+        pads.push^(pad)
+    }
+    for^logical in^fixedKeys { keyboard[logical] := {logical} }
+    for^i, logical in^shortcutKeys {
+        let^action = shortcutActions[i]
+        if^action != nil^ { bind(logical, configured(config, "shortcuts", action), defaultName("shortcuts", action)) }
+    }
+}
+public^let^reload = p^{
+    loaded := false^ keyboard := {} pads := {}
+    for^s in^slots { s.held := {} }
+}
+# Physical keyboard events become the same logical keys emitted by gamepads.
+public^let^translate = p^physical:love.keyboard.Key-> t^{love.keyboard.Key[]} {
+    load()
+    var^out:t^{love.keyboard.Key[]} = {}
+    for^logical, bindings in^keyboard {
+        if^bindings != nil^ { for^key in^bindings { if^key = physical { out.push^(logical) } } }
+    }
+    return^out
+}
 
 # Automated tests: battle reads held keys (TechnicalDocuments/0090), which a
-# keypressed event alone does not provide. `tap` holds a key for a few polls.
+# keypressed event alone does not provide. `tap` holds a physical key for a few polls.
 let^TAP_POLLS = 3
 let^Tap = def^{
     self^{ key : love.keyboard.Key|nil^ = nil^, left = 0 },
@@ -27,8 +102,34 @@ public^let^tap = p^key:love.keyboard.Key{
     taps.push^(Tap.new(key, TAP_POLLS))
 }
 
+# Shared sampler keeps gamepad edges and held battle inputs in agreement.
+public^let^samplePad = p^player:number^, down:p^love.joystick.Button-> bool^;, x:number^, y:number^-> t^{love.keyboard.Key[]} {
+    load()
+    var^events:t^{love.keyboard.Key[]} = {}
+    let^mapping = pads[player]
+    let^s = slots[player]
+    let^layout = keys[player]
+    if^mapping is^nil^ or^s is^nil^ or^layout is^nil^ { return^events }
+    var^now:t^{bool^[]} = {}
+    for^entry in^mapping {
+        let^button = entry.button
+        now.push^(button != nil^ and^down(button))
+    }
+    now[0] := (now[0] ?? false^) or^y < -0.35
+    now[1] := (now[1] ?? false^) or^x < -0.35
+    now[2] := (now[2] ?? false^) or^y > 0.35
+    now[3] := (now[3] ?? false^) or^x > 0.35
+    for^k, held in^now {
+        let^key = layout[k]
+        if^held and^!(s.held[k] ?? false^) and^key != nil^ { events.push^(key) }
+    }
+    s.held := now
+    return^events
+}
+
 # Keep occupied slots stable when another controller disconnects.
 public^let^poll = p^-> t^{love.keyboard.Key[]} {
+    load()
     var^events : t^{love.keyboard.Key[]} = {}
     var^held : t^{Tap[]} = {}
     for^t in^taps {
@@ -60,26 +161,22 @@ public^let^poll = p^-> t^{love.keyboard.Key[]} {
         if^pad != nil^ and^layout != nil^ {
             let^x = pad.getGamepadAxis(love.joystick.Axis.leftx)
             let^y = pad.getGamepadAxis(love.joystick.Axis.lefty)
-            var^now = {
-                pad.isGamepadDown(Button.dpup) or^y < -0.35,
-                pad.isGamepadDown(Button.dpleft) or^x < -0.35,
-                pad.isGamepadDown(Button.dpdown) or^y > 0.35,
-                pad.isGamepadDown(Button.dpright) or^x > 0.35,
-            }
-            for^b in^buttons { now.push^(pad.isGamepadDown(b)) }
-            for^k, down in^now {
-                let^key = layout[k]
-                if^down and^!(s.held[k] ?? false^) and^key != nil^ { events.push^(key) }
-            }
-            s.held := now
+            for^key in^samplePad(i, p^button:love.joystick.Button-> bool^{ return^pad.isGamepadDown(button) }, x, y) { events.push^(key) }
         }
     }
     return^events
 }
 
-public^let^isDown = p^key:love.keyboard.Key-> bool^{
+let^physicalDown = p^key:love.keyboard.Key-> bool^{
     if^love.keyboard.isDown(key) { return^true^ }
     for^t in^taps { if^t.key = key { return^true^ } }
+    return^false^
+}
+public^let^isDown = p^key:love.keyboard.Key-> bool^{
+    load()
+    let^bindings = keyboard[key]
+    if^bindings != nil^ { for^physical in^bindings { if^physicalDown(physical) { return^true^ } }
+    elseif^physicalDown(key): return^true^ }
     for^i, s in^slots {
         let^layout = keys[i]
         if^layout != nil^ {

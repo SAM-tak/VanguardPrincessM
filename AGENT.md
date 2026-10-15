@@ -1,4 +1,4 @@
-# Vanguard Princess — Agent Instructions
+# Vanguard Princess M — Agent Instructions
 
 ## プロジェクト概要
 

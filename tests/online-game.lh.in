@@ -3,6 +3,7 @@ module^vp.onlinegametest
 import^love.event
 import^love.timer
 import^love.keyboard
+import^love.filesystem
 require^"game.lh"
 require^"src/net.lh"
 require^"src/online.lh"
@@ -12,14 +13,23 @@ require^"src/netguest.lh"
 require^"src/onlineguest.lh"
 require^"src/arena.lh"
 require^"src/replay.lh"
+require^"src/settings.lh"
+require^"src/input.lh"
 let^Key = love.keyboard.Key
+let^REMAPPED_INPUT = false^
 var^phase = 0
 var^wait = 0
 var^began = 0
 var^peerMatch = 0
 var^firstBattle = 0
-let^press = p^key:love.keyboard.Key{ vp.main.keypressed(key, love.keyboard.Scancode.unknown, false^) }
+let^press = p^key:love.keyboard.Key{
+    let^physical = if^REMAPPED_INPUT and^key = Key.z: Key.space el^: key;
+    vp.main.keypressed(physical, love.keyboard.Scancode.unknown, false^)
+}
 public^let^load = p^{
+    let^config = if^REMAPPED_INPUT: "{\"input\":{\"keyboard1\":{\"a\":\"space\"}}}" el^: "{}";
+    let^_^ = love.filesystem.write("settings.json", config) catch^panic^it^
+    vp.settings.reload() vp.input.reload()
     began := love.timer.getTime()
     vp.main.setVSSeed(123456)
     vp.main.load()

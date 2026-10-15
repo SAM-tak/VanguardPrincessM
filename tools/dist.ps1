@@ -8,7 +8,7 @@
 # it is rebuilt when it is older than the full lovec (or with -RebuildEngine).
 # It cannot parse text LTON either; --compile-game compiles every .lton.
 #
-# Output: dist/VanguardPrincess/ (launcher + engine files; see fuse-game.ps1).
+# Output: dist/VanguardPrincessM/ (launcher + engine files; see fuse-game.ps1).
 # Work files go to build/. On Linux and macOS, pass -Lovec and -ShippingDirectory
 # from release packages (download-engine.ps1); local engine builds are Windows-only.
 param(
@@ -47,8 +47,8 @@ if (-not $prebuilt -and ($RebuildEngine -or -not (Test-Path $vmDll) -or
 
 $build = Join-Path $root "build"
 $work = Join-Path $build "package"
-$zip = Join-Path $build "VanguardPrincess.love"
-$out = Join-Path $root "dist\VanguardPrincess"
+$zip = Join-Path $build "VanguardPrincessM.love"
+$out = Join-Path $root "dist\VanguardPrincessM"
 # Validate the exact cleanup targets before recursively removing generated files.
 function Clear-GeneratedDirectory([string]$Path, [string]$Parent) {
     $resolved = [IO.Path]::GetFullPath($Path)

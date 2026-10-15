@@ -28,11 +28,11 @@
 
 ![BuildAssetsの画面](images/working-directory.png)
 
-あとは `VanguardPrincess.exe` をダブルクリックすればゲームをプレイできるはずです。
+あとは `VanguardPrincessM.exe` をダブルクリックすればゲームをプレイできるはずです。
 
 ### Macの場合
 
-配布物を解凍したフォルダ(`BuildAssets` `VanguradPrincess.command`があるフォルダ)でターミナルを開き、
+配布物を解凍したフォルダ(`BuildAssets` `VanguardPrincessM.command`があるフォルダ)でターミナルを開き、
 次を実行します。
 
 ```sh
@@ -46,16 +46,16 @@
 MacOS版は署名されていないのでそのままでは実行できません。ターミナルで次のコマンドを打って実行を許可してください（フォルダ名は展開先に合わせます）。
 
 ```sh
-xattr -dr com.apple.quarantine VanguardPrincess
+xattr -dr com.apple.quarantine VanguardPrincessM
 ```
 
 その後、そのターミナルで
 
 ```sh
-./VanguardPrincess.command
+./VanguardPrincessM.command
 ```
 
-と打つか、 `VanguardPrincess.command` をダブルクリックするとゲームが始まるはずです。
+と打つか、 `VanguardPrincessM.command` をダブルクリックするとゲームが始まるはずです。
 
 > ![Note]  
 > 手元にMacがないので動作の確認もできていませんし、通常のMacアプリ（*.app 形式）の形に
@@ -63,7 +63,7 @@ xattr -dr com.apple.quarantine VanguardPrincess
 
 ### Linuxの場合
 
-配布物を解凍したフォルダ(`BuildAssets` `VanguradPrincess`などがあるフォルダ)でターミナルを開き、
+配布物を解凍したフォルダ(`BuildAssets` `VanguardPrincessM`などがあるフォルダ)でターミナルを開き、
 次を実行します。
 
 ```sh
@@ -77,7 +77,88 @@ xattr -dr com.apple.quarantine VanguardPrincess
 その後、そのターミナルで
 
 ```sh
-./VanguardPrincess
+./VanguardPrincessM
 ```
 
 と打てば、ゲームが始まるはずです。
+
+### キーコンフィグの仕方
+
+残念ながらまだゲーム内のUIでキーコンフィグ可能にできていません。
+
+VanguardPrincessM の設定は
+
+- Windows  
+  `%APPDATA%\vanguard-princess-m\settings.json`
+- MacOS  
+  `~/Library/Application Support/vanguard-princess-m/settings.json`
+- Linux  
+  `~/.local/share/vanguard-princess-m/settings.json`
+
+に存在しています。
+
+これをテキストエディターで開いて、
+
+```json
+    "input": {
+        "gamepad1": {
+            "a": "a",
+            "b": "x",
+            "back": "back",
+            "c": "y",
+            "d": "b",
+            "down": "dpdown",
+            "e": "rightshoulder",
+            "f": "leftshoulder",
+            "left": "dpleft",
+            "right": "dpright",
+            "start": "start",
+            "up": "dpup"
+        },
+        "gamepad2": {
+            "a": "a",
+            "b": "x",
+            "back": "back",
+            "c": "y",
+            "d": "b",
+            "down": "dpdown",
+            "e": "rightshoulder",
+            "f": "leftshoulder",
+            "left": "dpleft",
+            "right": "dpright",
+            "start": "start",
+            "up": "dpup"
+        },
+        "keyboard1": {
+            "a": "z",
+            "b": "x",
+            "c": "c",
+            "d": "a",
+            "down": "down",
+            "e": "s",
+            "f": "d",
+            "left": "left",
+            "right": "right",
+            "up": "up"
+        },
+        "keyboard2": {
+            "a": "l",
+            "b": "semicolon",
+            "c": "quote",
+            "d": "o",
+            "down": "j",
+            "e": "p",
+            "f": "leftbracket",
+            "left": "h",
+            "right": "k",
+            "up": "u"
+        },
+        "shortcuts": {
+            "back": "escape",
+            "reload": "f8",
+            "start": "return"
+        }
+    }, 
+```
+
+の部分を編集することで一応キーコンフィグが可能です。

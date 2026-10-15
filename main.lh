@@ -50,6 +50,7 @@ require^"src/rng.lh"
 require^"src/snapshot.lh"
 require^"src/net.lh"
 require^"src/lanmenu.lh"
+require^"src/roommenu.lh"
 require^"src/online.lh"
 require^"src/cpu.lh"
 require^"src/input.lh"
@@ -1199,6 +1200,7 @@ let^debugReload = p^{
     vp.arena.popToRoot()
     vp.arena.pop()
     vp.locale.reload()
+    vp.input.reload()
     # Also clear references for the remaining frame and for test/tool entries
     # that call this module without being this game's reload root.
     campaign := nil^
@@ -1683,7 +1685,7 @@ public^let^update = p^dt:number^{
         collectSceneGarbage := false^
         L^.gc.collect()
     }
-    for^key in^vp.input.poll() { keypressed(key, love.keyboard.Scancode.unknown, false^) }
+    for^key in^vp.input.poll() { logicalKeypressed(key, false^) }
     vp.net.poll()
     if^netplay and^!vp.net.active() { endNet(vp.net.problemText()) }
     # The host stops the pool at the reload boundary. Do not start it again
@@ -2091,6 +2093,12 @@ let^addButton = f^mask:number^, bit:number^-> number^{
 public^let^textinput = p^text:string^{ vp.lanmenu.textinput(text) }
 
 public^let^keypressed = p^key:love.keyboard.Key, scancode:love.keyboard.Scancode, isrepeat:bool^{
+    # Text forms consume physical keys before game bindings are translated.
+    if^scene != nil^ and^vp.roommenu.editing() and^vp.lanmenu.keypressed(key) { return^ }
+    for^logical in^vp.input.translate(key) { logicalKeypressed(logical, isrepeat) }
+}
+
+let^logicalKeypressed = p^key:love.keyboard.Key, isrepeat:bool^{
     if^scene != nil^ and^vp.lanmenu.keypressed(key) { return^ }
     # Alt+Enter: fullscreen (a borderless window over the desktop) or not,
     # kept in settings.json. The Enter is not Start.
@@ -2214,7 +2222,9 @@ public^let^keypressed = p^key:love.keyboard.Key, scancode:love.keyboard.Scancode
             print($"2P: {who}")
         }
     }
-    for^v in^PALETTE_KEYS {
-        if^key = v { me.palette := index^ }
+    if^!love.filesystem.isFused() {
+        for^v in^PALETTE_KEYS {
+            if^key = v { me.palette := index^ }
+        }
     }
 }

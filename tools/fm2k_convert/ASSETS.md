@@ -18,15 +18,15 @@ macOS/Linuxでは配布フォルダでターミナルを開き、次を実行し
 コマンドで実行する場合、2つ目の引数で出力先を指定できます（省略時は `BuildAssets` の隣の `assets.zip`）。
 `.7z` も指定できます。フォルダは原作 `.kgt` が一つだけ含まれるものを指定してください。
 
-完了後はゲームを起動できます。Windowsは `VanguardPrincess.exe`、Linuxは `VanguardPrincess`、
-macOSは `VanguardPrincess.command` を実行します。macOS版はゲーム本体
-`VanguardPrincess.love` とエンジン `lhat-love.app` を同じフォルダに置いたまま使ってください。
+完了後はゲームを起動できます。Windowsは `VanguardPrincessM.exe`、Linuxは `VanguardPrincessM`、
+macOSは `VanguardPrincessM.command` を実行します。macOS版はゲーム本体
+`VanguardPrincessM.love` とエンジン `lhat-love.app` を同じフォルダに置いたまま使ってください。
 
 macOS版は公証していません。ダウンロードした配布フォルダは、初回に次を実行して
 隔離属性を外してください（フォルダ名は展開先に合わせます）。
 
 ```sh
-xattr -dr com.apple.quarantine VanguardPrincess
+xattr -dr com.apple.quarantine VanguardPrincessM
 ```
 
 処理は原作exeを実行せず、画像・音声だけを取り出します。

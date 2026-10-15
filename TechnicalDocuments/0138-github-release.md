@@ -6,9 +6,9 @@
 ## 流れ
 
 - `v*` タグのpushで、各プラットフォームのbuildジョブが公開用アーカイブを `release-<platform>` として
-  別途アップロードする。通常のArtifact（`VanguardPrincess-<platform>`）は従来どおり。
-  - Windows: `Compress-Archive` で `VanguardPrincess-windows-x64.zip`（展開すると `VanguardPrincess/`）
-  - Linux/macOS: 既存の `VanguardPrincess-<platform>.tar.gz`（実行権限を保持）
+  別途アップロードする。通常のArtifact（`VanguardPrincessM-<platform>`）は従来どおり。
+  - Windows: `Compress-Archive` で `VanguardPrincessM-windows-x64.zip`（展開すると `VanguardPrincessM/`）
+  - Linux/macOS: 既存の `VanguardPrincessM-<platform>.tar.gz`（実行権限を保持）
 - `release` ジョブは4プラットフォームすべての成功後に実行する（`needs: build`）。1つでも失敗すれば公開しない。
   `contents: write` はこのジョブだけに付与。
 - `gh release create --verify-tag --generate-notes` で作成し、4ファイルを添付する。

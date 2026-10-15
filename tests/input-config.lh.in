@@ -1,0 +1,70 @@
+# Isolated settings/input test; generated next to module copies by test-input.ps1.
+module^vp.inputconfigtest
+import^love.event
+import^love.filesystem
+import^love.keyboard
+import^love.joystick
+import^std.json
+require^"src/input.lh"
+require^"src/settings.lh"
+let^Key = love.keyboard.Key
+let^Button = love.joystick.Button
+let^check = p^ok:bool^, why:string^{ if^!ok { panic^why } }
+let^has = f^keys:t^{love.keyboard.Key[]}, key:love.keyboard.Key-> bool^{
+    for^k in^keys { if^k = key { return^true^ } }
+    return^false^
+}
+let^fixture = p^text:string^{
+    let^_^ = love.filesystem.write("settings.json", text) catch^panic^it^
+    vp.settings.reload() vp.input.reload()
+}
+public^let^load = p^{
+    fixture("{\"fullscreen\":true,\"playerName\":\"Keep Me\",\"future\":123}")
+    check(has(vp.input.translate(Key.z), Key.z), "Default 1P keyboard")
+    check(has(vp.input.translate(Key.semicolon), Key.semicolon), "Default 2P keyboard")
+    let^text = love.filesystem.read("settings.json") catch^panic^it^
+    if^!(text fits^string^) { panic^"Missing settings" }
+    let^saved = std.json.decode(text) catch^panic^it^
+    if^!(saved fits^t^{fullscreen:bool^,playerName:string^,future:number^,input:t^{keyboard1:t^{a:string^},gamepad2:t^{start:string^}}}) { panic^"Defaults were not written" }
+    check(saved.fullscreen and^saved.playerName = "Keep Me" and^saved.future = 123, "Settings migration preserves other values")
+    check(saved.input.keyboard1.a = "z" and^saved.input.gamepad2.start = "start", "Missing binding fields are persisted")
+    fixture("{\"input\":{\"keyboard1\":{\"a\":\"q\",\"b\":\"z\",\"c\":\"\",\"d\":\"not-a-key\",\"e\":42,\"right\":\"space\"},\"shortcuts\":{\"back\":\"backspace\",\"start\":\"kpenter\",\"hitboxes\":\"f9\",\"palette1\":\"digit9\"},\"gamepad1\":{\"a\":\"y\",\"b\":\"a\",\"c\":\"\",\"d\":\"not-a-button\",\"back\":\"guide\"}}}")
+    check(has(vp.input.translate(Key.q), Key.z), "Custom attack edge")
+    check(!has(vp.input.translate(Key.z), Key.z) and^has(vp.input.translate(Key.z), Key.x), "Swapped key loses its old action")
+    check(!has(vp.input.translate(Key.c), Key.c), "Empty binding disables an action")
+    check(has(vp.input.translate(Key.a), Key.a) and^has(vp.input.translate(Key.s), Key.s), "Invalid name/type falls back")
+    check(has(vp.input.translate(Key.backspace), Key.escape) and^!has(vp.input.translate(Key.escape), Key.escape), "Back is configurable")
+    check(has(vp.input.translate(Key.kpenter), Key.return), "Start is configurable")
+    check(has(vp.input.translate(Key.f1), Key.f1) and^!has(vp.input.translate(Key.f9), Key.f1), "Debug keys remain fixed despite old settings")
+    check(has(vp.input.translate(Key.digit1), Key.digit1) and^!has(vp.input.translate(Key.digit9), Key.digit1), "Palette keys remain fixed")
+    let^migratedText = love.filesystem.read("settings.json") catch^panic^it^
+    if^!(migratedText fits^string^) { panic^"Missing migrated settings" }
+    let^migrated = std.json.decode(migratedText) catch^panic^it^
+    if^!(migrated fits^t^{input:t^{shortcuts:t^{[string^]:any^}}}) { panic^"Missing shortcuts" }
+    check(migrated.input.shortcuts["hitboxes"] is^nil^ and^migrated.input.shortcuts["palette1"] is^nil^, "Obsolete development bindings removed from settings")
+    vp.input.tap(Key.q) vp.input.tap(Key.space)
+    check(vp.input.heldButtons(0) = 1 and^vp.input.isDown(Key.right), "Held attacks and directions use the same bindings")
+    for^i from^0 to^2 { let^_^ = vp.input.poll() }
+    check(vp.input.heldButtons(0) = 0 and^!vp.input.isDown(Key.right), "Release clears held input")
+    let^pressY = p^b:love.joystick.Button-> bool^{ return^b = Button.y }
+    let^release = p^b:love.joystick.Button-> bool^{ return^false^ }
+    check(has(vp.input.samplePad(0, pressY, 0, 0), Key.z) and^vp.input.heldButtons(0) = 1, "Custom pad attack edge and held state")
+    check(vp.input.samplePad(0, pressY, 0, 0).length^ = 0, "Holding pad does not repeat edges")
+    let^_^ = vp.input.samplePad(0, release, 0, 0)
+    check(vp.input.heldButtons(0) = 0, "Pad release")
+    let^pressA = p^b:love.joystick.Button-> bool^{ return^b = Button.a }
+    check(has(vp.input.samplePad(0, pressA, 0, 0), Key.x) and^vp.input.heldButtons(0) = 2, "Pad B remapped independently")
+    check(has(vp.input.samplePad(1, pressA, 0, 0), Key.l) and^vp.input.heldButtons(1) = 1, "Second pad remains independent")
+    let^pressGuide = p^b:love.joystick.Button-> bool^{ return^b = Button.guide }
+    check(has(vp.input.samplePad(0, pressGuide, 0.6, 0), Key.escape) and^vp.input.isDown(Key.right), "Pad Back and analog directions")
+    let^_^ = vp.input.samplePad(0, release, 0, 0)
+    check(!vp.input.isDown(Key.right), "Analog release")
+    fixture("{\"input\":{\"keyboard1\":{\"a\":\";\"},\"shortcuts\":{\"reload\":\"9\"}}}")
+    check(has(vp.input.translate(Key.semicolon), Key.z) and^has(vp.input.translate(Key.digit9), Key.f8), "Conventional punctuation and digit names")
+    fixture("{broken JSON")
+    check(has(vp.input.translate(Key.z), Key.z), "Broken settings use defaults")
+    let^broken = love.filesystem.read("settings.json") catch^panic^it^
+    check(broken = "{broken JSON", "Migration does not overwrite malformed settings")
+    print("INPUT_CONFIG_OK: defaults, migration, remapping, disabled/invalid keys, held input, independent pads, edges and analog input")
+    love.event.quit()
+}

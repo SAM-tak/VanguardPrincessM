@@ -1,6 +1,6 @@
 # The player's settings: settings.json in the save directory (TechnicalDocuments/0147).
 # "lang" is the locale (src/locale.lh), "fullscreen" the window (Alt+Enter);
-# key configuration is to join them. Keys this version does not know are kept
+# key configuration lives under "input". Unknown settings are kept
 # when it writes the file back. JSON rather than LTON: a distributed engine
 # has no front end, and std.lton reads through one.
 module^vp.settings
@@ -12,8 +12,10 @@ let^FILE = "settings.json"
 
 var^data : t^{[string^]:any^} = {}
 var^loaded = false^
+var^writable = true^
 
 let^save = p^{
+    if^!writable { return^ }
     let^text = try^std.json.pretty(data, 4)
     try^love.filesystem.write(FILE, text)
 catch^:
@@ -41,8 +43,10 @@ let^load = p^{
             return^
         }
     }
+    writable := false^
     print($"Settings not read: {FILE} is not a valid setting JSON file")
 catch^:
+    writable := false^
     print($"Cannot read {FILE}")
 }
 
@@ -50,6 +54,7 @@ catch^:
 public^let^reload = p^{
     data := {}
     loaded := false^
+    writable := true^
 }
 
 # The locale's name, "" when none is set.
@@ -84,4 +89,30 @@ public^let^hasPlayerName = p^-> bool^{
     let^v = data["playerName"]
     # Older builds saved the fallback as though the player had chosen it.
     return^v fits^string^ and^v != "" and^(v != "Player" or^data["playerNameSource"] = "custom")
+}
+
+# Add only missing binding fields; preserve invalid values for manual correction.
+public^let^inputConfig = p^defaults:t^{[string^]:t^{[string^]:string^}}, removedShortcuts:t^{string^[]}-> t^{[string^]:any^} {
+    load()
+    var^changed = false^
+    var^config:t^{[string^]:any^} = {}
+    let^old = data["input"]
+    if^old fits^t^{[string^]:any^} { config := old else^: changed := true^ }
+    for^section, entries in^defaults {
+        var^group:t^{[string^]:any^} = {}
+        let^existing = config[section]
+        if^existing fits^t^{[string^]:any^} { group := existing else^: changed := true^ }
+        for^action, value in^entries {
+            if^group[action] is^nil^ { group[action] := value changed := true^ }
+        }
+        config[section] := group
+    }
+    let^shortcuts = config["shortcuts"]
+    if^shortcuts fits^t^{[string^]:any^} {
+        for^action in^removedShortcuts {
+            if^shortcuts[action] != nil^ { shortcuts[action] := nil^ changed := true^ }
+        }
+    }
+    if^changed { data["input"] := config save() }
+    return^config
 }

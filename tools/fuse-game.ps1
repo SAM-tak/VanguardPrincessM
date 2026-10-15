@@ -8,7 +8,7 @@ param(
     [Parameter(Mandatory)][string]$ShippingDirectory,
     [Parameter(Mandatory)][string]$Archive,
     [Parameter(Mandatory)][string]$OutputDirectory,
-    [string]$Name = 'VanguardPrincess'
+    [string]$Name = 'VanguardPrincessM'
 )
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'engine-platform.ps1')

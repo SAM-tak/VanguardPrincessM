@@ -3,7 +3,7 @@ param([string]$DistributionDirectory)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 Add-Type -AssemblyName System.IO.Compression.FileSystem
-$archive = [IO.Compression.ZipFile]::OpenRead((Join-Path $root 'build/VanguardPrincess.love'))
+$archive = [IO.Compression.ZipFile]::OpenRead((Join-Path $root 'build/VanguardPrincessM.love'))
 try {
     foreach ($entry in $archive.Entries) {
         if ($entry.FullName -match '(^assets/|(^|/)(_conversion|skills)/|(^|/)(data|support-source)\.lton$)') {
@@ -11,18 +11,18 @@ try {
         }
     }
 } finally { $archive.Dispose() }
-$out = if ($DistributionDirectory) { $DistributionDirectory } else { Join-Path $root 'dist/VanguardPrincess' }
+$out = if ($DistributionDirectory) { $DistributionDirectory } else { Join-Path $root 'dist/VanguardPrincessM' }
 foreach ($media in 'assets', 'assets.zip') {
     if (Test-Path -LiteralPath (Join-Path $out $media)) { throw 'Public distribution contains external assets' }
 }
 $builder = if ($IsWindows) { 'BuildAssets.exe' } else { 'BuildAssets' }
 $programs = @(
     $builder
-    if ($IsWindows) { 'VanguardPrincess.exe' }
-    elseif ($IsLinux) { 'VanguardPrincess', 'lib/liblove-12.0.so' }
-    else { 'VanguardPrincess.command', 'lhat-love.app/Contents/MacOS/love' }
+    if ($IsWindows) { 'VanguardPrincessM.exe' }
+    elseif ($IsLinux) { 'VanguardPrincessM', 'lib/liblove-12.0.so' }
+    else { 'VanguardPrincessM.command', 'lhat-love.app/Contents/MacOS/love' }
 )
-foreach ($name in @($programs) + @('ASSETS.md', 'README.md', 'README.ja.md', 'images/buildassets-console.png', 'LICENSE', 'lhat-love-license.txt') + @(if ($IsMacOS) { 'VanguardPrincess.love' })) {
+foreach ($name in @($programs) + @('ASSETS.md', 'README.md', 'README.ja.md', 'images/buildassets-console.png', 'LICENSE', 'lhat-love-license.txt') + @(if ($IsMacOS) { 'VanguardPrincessM.love' })) {
     if (-not (Test-Path -LiteralPath (Join-Path $out $name) -PathType Leaf)) { throw "Missing distribution file: $name" }
 }
 if (-not $IsWindows) {

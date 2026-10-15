@@ -11,7 +11,7 @@ foreach ($file in $Engine, $BootstrapperTool) {
 }
 $folder = Join-Path $root 'build/eos-launcher'
 New-Item -ItemType Directory -Force $folder | Out-Null
-$launcher = Join-Path $folder 'VanguardPrincessOnline.exe'
+$launcher = Join-Path $folder 'VanguardPrincessMOnline.exe'
 $runtime = Join-Path $folder 'engine'
 New-Item -ItemType Directory -Force $runtime | Out-Null
 Copy-Item -LiteralPath $Engine -Destination $runtime -Force

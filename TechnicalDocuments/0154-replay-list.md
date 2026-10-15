@@ -16,7 +16,7 @@
 - WATCH REPLAY で決定すると、画面遷移せずメニューの上に一覧を開く。練習メニュー（[0145](0145-practice-mode.md)）と同じ簡素な枠
 - 中身はセーブディレクトリの `replays/` のファイル（ディレクトリは除く）。名前の降順（日時の名前なら新しい順）。
   開くたびに読み直し、`replays/` が無ければ作る（プレイヤーが場所を見つけられるように）。
-  fused なら `%APPDATA%\vanguard-princess\replays`、ソース実行なら `%APPDATA%\LOVE\vanguard-princess\replays`（[0147](0147-settings-and-fullscreen.md)）
+  fused なら `%APPDATA%\vanguard-princess-m\replays`、ソース実行なら `%APPDATA%\LOVE\vanguard-princess-m\replays`（[0147](0147-settings-and-fullscreen.md)）
 - 上下で選択（10行を超えたらスクロール）、A / C / E / F で選んだリプレイを再生（[0155](0155-replay.md)。読めないファイルなら一覧のまま）、B / D または ESC で閉じる。
   開いている間はメニューのカーソルを動かさない。ESC は一覧を閉じるだけで、閉じた後の ESC は従来どおりメニューを離れる
 - 0件なら「リプレイがありません」／「No replays」

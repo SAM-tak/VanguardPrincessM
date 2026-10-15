@@ -11,7 +11,7 @@
 1. `main.lh`、`conf.lton` と `src`・`assets`・`data` 配下を列挙する。従来どおり `skills`・`_conversion` ディレクトリと `data.lton`・`support-source.lton` を除外する。
 2. `.lh`・`.lton` だけを `build/package/source` へコピーし、`--compile-game` で `build/package/compiled` へコンパイルする。
 3. ZIP内の `.lh`・`.lton` はコンパイル結果から、それ以外はプロジェクト内の元ファイルから直接格納する。空ディレクトリも維持する。
-4. 完成したZIPで `build/VanguardPrincess.love` を置換し、配布用VMと結合して `dist/VanguardPrincess/VanguardPrincess.exe` を作る。
+4. 完成したZIPで `build/VanguardPrincessM.love` を置換し、配布用VMと結合して `dist/VanguardPrincessM/VanguardPrincessM.exe` を作る。
 
 画像・音声の `元→stage→game` という2回のコピーがなくなる。エンジン本体の変更は不要。LTONコンパイルの並列化は今回の変更には含めない。VS Codeの既存の配布タスクもそのまま使える。
 

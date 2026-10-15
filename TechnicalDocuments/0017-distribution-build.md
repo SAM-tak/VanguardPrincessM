@@ -1,7 +1,7 @@
 # 0017: 配布ビルド（VM のみ・fused）
 
 - **日付**: 2026-09-30
-- **状態**: `tools/dist.ps1`（VS Code のビルドタスク）で `dist/VanguardPrincess/` に配布物ができ、起動する
+- **状態**: `tools/dist.ps1`（VS Code のビルドタスク）で `dist/VanguardPrincessM/` に配布物ができ、起動する
 
 ## 手順（`tools/dist.ps1`）
 
@@ -9,7 +9,7 @@
 2. ゲームが読むもの（`main.lh`・`conf.lton`・`src`・`assets`）だけを `build/stage` に集める。`tools/`・ドナー・メモは入れない。
    assets のうち変換の中間データ（`skills/*.lton`・`data.lton`、計 100MB 近く）も外す。ゲームが読む `.lton` は script・images・sounds・demos だけ
 3. フル版の `lovec --compile-game` で `build/game` に（ユニットはバイト列、他はそのまま複製）。`.lton` もバイナリになる（下記）
-4. zip して `.love`、VM 版の `love.exe` の後ろに連結 → `dist/VanguardPrincess/VanguardPrincess.exe`。隣に DLL（`love.dll`・`SDL3.dll`・`OpenAL32.dll`）
+4. zip して `.love`、VM 版の `love.exe` の後ろに連結 → `dist/VanguardPrincessM/VanguardPrincessM.exe`。隣に DLL（`love.dll`・`SDL3.dll`・`OpenAL32.dll`）
 
 VS Code: 「Build distribution (VM-only, fused)」（既定のビルドタスク）、「Build and run distribution」。
 

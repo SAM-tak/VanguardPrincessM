@@ -2,7 +2,7 @@ from pathlib import Path
 import zipfile, hashlib
 root=Path.cwd()
 compiled=root/'build/package/compiled'
-archive=root/'build/VanguardPrincess.love'
+archive=root/'build/VanguardPrincessM.love'
 with zipfile.ZipFile(archive) as z:
     names=z.namelist()
     assert len(names)==len(set(names))
@@ -21,7 +21,7 @@ with zipfile.ZipFile(archive) as z:
             assets+=1
         assert hashlib.sha256(z.read(n)).digest()==hashlib.sha256(expected.read_bytes()).digest(), n
     print(f'PASS: {units} compiled files, {assets} original assets; old file manifest matches; all ZIP bytes verified')
-exe=root/'dist/VanguardPrincess/VanguardPrincess.exe'
+exe=root/'dist/VanguardPrincessM/VanguardPrincessM.exe'
 engine=Path('C:/Users/Owner/source/repos/lhat-love/build-vmonly-shipping/love/Release/love.exe')
 with exe.open('rb') as f:
     assert f.read(engine.stat().st_size)==engine.read_bytes()

@@ -30,7 +30,7 @@
   リモートビルドで使うには、これを含む lhat-love のリリースへ `tools/engine-release.json` を上げる必要がある
 - **保存ディレクトリの場所**: LÖVE は fused（配布ビルドの exe）なら `%APPDATA%\<identity>`、
   ソースからの実行なら `%APPDATA%\LOVE\<identity>` を使う（lhat-love `physfs/Filesystem.cpp`）。
-  identity は `vanguard-princess`。開発時と配布版で設定ファイルは別になる
+  identity は `vanguard-princess-m`。開発時と配布版で設定ファイルは別になる
 
 ## フルスクリーン
 

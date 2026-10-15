@@ -1,4 +1,4 @@
-# Vanguard Princess
+# Vanguard Princess M
 
 プロジェクト指示は @AGENT.md を参照。
 

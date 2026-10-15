@@ -5,8 +5,8 @@
 既定の `tools/dist.ps1` はコードと実行用 data のみを Fuse する。assets、skills、_conversion、data.lton、support-source.lton は含めない。生成済みサポートパレットなど data 配下の実行用PNGは含める。
 
 ```text
-VanguardPrincess/
-  VanguardPrincess.exe
+VanguardPrincessM/
+  VanguardPrincessM.exe
   エンジンのDLL
   assets/  ← 利用者が原作から抽出・変換したもの
 ```

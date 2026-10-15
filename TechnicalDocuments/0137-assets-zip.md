@@ -10,8 +10,8 @@ zipをマウントすれば足りる。exeの作り直しが不要で、Mach-O�
 ## 構成
 
 ```text
-VanguardPrincess/
-  VanguardPrincess.exe
+VanguardPrincessM/
+  VanguardPrincessM.exe
   エンジンのDLL
   assets.zip  ← BuildAssets が原作から構築
 ```
@@ -24,7 +24,7 @@ VanguardPrincess/
   全エントリを読み戻して元ファイルとバイト比較してから公開する。生ファイルは一時ディレクトリごと削除される。
   `.zip` 以外はフォルダ出力（開発用）。
 - ドラッグ＆ドロップ: 引数が source だけなら、出力先は frozen exe の隣の `assets.zip`（開発時はカレントディレクトリ）。
-  配布フォルダでは `BuildAssets.exe` と `VanguardPrincess.exe` が並ぶので、ドロップ後そのままゲームを起動できる。
+  配布フォルダでは `BuildAssets.exe` と `VanguardPrincessM.exe` が並ぶので、ドロップ後そのままゲームを起動できる。
   D&D起動のコンソールは終了で閉じるため、引数0〜1個のfrozen実行では最後にEnter待ちを入れる（引数なしは使い方を表示）。
   利用者向けメッセージはOSの表示言語で日英を切替（Windowsは `GetUserDefaultUILanguage`、他は `LC_ALL`/`LC_MESSAGES`/`LANG`）。
 - 圧縮: DDSのみDeflate（レベル9）、他はSTORED。PNGは元々圧縮済みなので展開時間を払うだけになる。

@@ -2,7 +2,7 @@
 
 `.github/workflows/windows.yml`（現 distribution.yml、[0136](0136-unix-distribution.md)）はmainへのpush、vタグ、pull request、手動実行に対応。
 Windows 2022 x64とPython 3.11.9を使用する。成果物はActionsの
-`VanguardPrincess-windows-x64` ZIPから取得する。Releaseの自動公開は行わない。
+`VanguardPrincessM-windows-x64` ZIPから取得する。Releaseの自動公開は行わない。
 
 エンジンは `tools/engine-release.json` の指定に従い、lhat-love
 v12.0.0-alpha.2のrelwithdebinfo（コンパイル用）とvmonly-shipping（配布用）を取得。

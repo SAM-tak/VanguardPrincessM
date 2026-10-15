@@ -1,7 +1,8 @@
 # Exercise match completion and rematch through the real game, without EOS servers.
 param(
     [string]$Engine = 'C:/Users/Owner/source/repos/lhat-love/build/love/Release/lovec.exe',
-    [string]$Mock = "$PSScriptRoot/../build/eos/eos_lhat_mock.dll"
+    [string]$Mock = "$PSScriptRoot/../build/eos/eos_lhat_mock.dll",
+    [switch]$RemappedInput
 )
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
@@ -16,7 +17,9 @@ Copy-Item -LiteralPath $Mock -Destination "$stage/native/eos_lhat.dll"
 'identity = "vanguard-online-game-test", window = { width = 1280, height = 960 },' | Set-Content "$stage/conf.lton"
 'productId = "test", sandboxId = "test", deploymentId = "test", clientId = "test", clientSecret = "test",' | Set-Content "$stage/eosconfig.lton"
 Copy-Item -LiteralPath "$root/main.lh" -Destination "$stage/game.lh"
-Copy-Item -LiteralPath "$root/tests/online-game.lh.in" -Destination "$stage/main.lh"
+$entry = [IO.File]::ReadAllText("$root/tests/online-game.lh.in")
+if ($RemappedInput) { $entry = $entry.Replace('let^REMAPPED_INPUT = false^', 'let^REMAPPED_INPUT = true^') }
+[IO.File]::WriteAllText("$stage/main.lh", $entry)
 foreach ($name in 'net', 'online') {
     $source = [IO.File]::ReadAllText("$root/src/$name.lh").Replace('vp.net', 'vp.netguest').Replace('vp.online', 'vp.onlineguest').Replace('"online.lh"', '"onlineguest.lh"')
     [IO.File]::WriteAllText("$stage/src/${name}guest.lh", $source)
