@@ -1,0 +1,90 @@
+host> [host] hosting
+host> [host] linked: select
+host> [host] match
+host> [host] PROFILE correction.resim.ms n=319 avg=10.4841 p50=9.8314 p95=16.6408 p99=21.3716 max=43.8046 sum=3344.4327
+host> [host] PROFILE correction.other.ms n=319 avg=0.0745 p50=0.0738 p95=0.1074 p99=0.1350 max=0.1882 sum=23.7750
+host> [host] PROFILE snapshot.copy.ms n=846 avg=1.8275 p50=1.5292 p95=3.1354 p99=4.8804 max=29.7746 sum=1546.0859
+host> [host] PROFILE correction.4-frames.ms n=289 avg=15.2212 p50=14.0040 p95=24.0177 p99=39.9437 max=49.7118 sum=4398.9323
+host> [host] PROFILE snapshot.new.ms n=1 avg=4.7977 p50=4.7977 p95=4.7977 p99=4.7977 max=4.7977 sum=4.7977
+host> [host] PROFILE update.ordinary.ms n=1151 avg=3.1567 p50=2.8890 p95=7.3575 p99=10.3755 max=27.6876 sum=3633.3416
+host> [host] PROFILE snapshot.fighters n=846 avg=77.6548 p50=74.0000 p95=99.0000 p99=115.0000 max=120.0000 sum=65696.0000
+host> [host] PROFILE snapshot.reach.ms n=846 avg=0.3398 p50=0.3065 p95=0.5555 p99=0.8283 max=1.7672 sum=287.4314
+host> [host] PROFILE restore.ms n=319 avg=1.9728 p50=1.7717 p95=3.2874 p99=4.5845 max=23.1732 sum=629.3278
+host> [host] PROFILE correction.ms n=319 avg=14.7540 p50=13.7675 p95=23.9836 p99=35.8347 max=49.7118 sum=4706.5178
+host> [host] PROFILE correction.snapshot.ms n=319 avg=2.2225 p50=1.9885 p95=3.9710 p99=4.9278 max=27.3186 sum=708.9823
+host> [host] PROFILE correction.frames n=319 avg=3.8527 p50=4.0000 p95=4.0000 p99=4.0000 max=4.0000 sum=1229.0000
+host> [host] PROFILE correction.rebase.ms n=272 avg=15.3492 p50=14.1387 p95=24.4053 p99=39.9437 max=49.7118 sum=4174.9727
+host> [host] PROFILE resim.step.ms n=1229 avg=2.7213 p50=2.4992 p95=4.5740 p99=5.9014 max=38.5762 sum=3344.4327
+host> [host] PROFILE correction.1-frames.ms n=3 avg=4.6633 p50=5.4747 p95=5.8823 p99=5.8823 max=5.8823 sum=13.9899
+host> [host] PROFILE frame.with-correction.ms n=319 avg=25.4805 p50=23.6689 p95=41.2149 p99=57.7533 max=76.7604 sum=8128.2694
+host> [host] PROFILE normal.step.ms n=2420 avg=2.8163 p50=2.5866 p95=4.5644 p99=6.2513 max=38.0263 sum=6815.5642
+host> [host] PROFILE draw.ms n=2004 avg=6.0035 p50=5.5280 p95=8.7916 p99=14.9625 max=31.5714 sum=12030.9891
+host> [host] PROFILE correction.3-frames.ms n=16 avg=12.5624 p50=12.1849 p95=17.6097 p99=17.6097 max=17.6097 sum=200.9989
+host> [host] PROFILE update.with-snapshot.ms n=534 avg=7.5090 p50=6.6884 p95=13.1351 p99=20.1273 max=40.5882 sum=4009.7897
+host> [host] PROFILE frame.cpu-update-and-draw.ms n=2004 avg=12.9280 p50=10.3128 p95=28.7390 p99=40.3627 max=76.7604 sum=25907.6375
+host> [host] PROFILE correction.restore.ms n=319 avg=1.9728 p50=1.7717 p95=3.2874 p99=4.5845 max=23.1732 sum=629.3278
+host> [host] PROFILE correction.mismatch.ms n=47 avg=11.3095 p50=11.2347 p95=17.6097 p99=23.8578 max=23.8578 sum=531.5451
+host> [host] PROFILE update.frames n=2004 avg=1.2076 p50=1.0000 p95=2.0000 p99=2.0000 max=2.0000 sum=2420.0000
+host> [host] PROFILE snapshot.coroutines.ms n=846 avg=0.3629 p50=0.3012 p95=0.5829 p99=0.8624 max=25.5445 sum=307.0046
+host> [host] PROFILE snapshot.before-prediction.ms n=561 avg=2.7561 p50=2.3519 p95=4.4667 p99=7.0082 max=30.8213 sum=1546.1648
+host> [host] PROFILE update.with-correction.ms n=319 avg=19.5408 p50=18.2698 p95=31.2454 p99=43.9781 max=53.1331 sum=6233.5171
+host> [host] PROFILE correction.2-frames.ms n=11 avg=8.4179 p50=7.4504 p95=14.7579 p99=14.7579 max=14.7579 sum=92.5967
+host> [host] PROFILE snapshot.reused.ms n=845 avg=2.6631 p50=2.2497 p95=4.3016 p99=7.0082 max=30.8213 sum=2250.3494
+host> [host] PROFILE frame.interval.ms n=2004 avg=15.4184 p50=13.1427 p95=30.6918 p99=42.1649 max=78.7198 sum=30898.4003
+host> [host] PROFILE snapshot.in-correction.ms n=285 avg=2.4877 p50=2.0894 p95=3.9816 p99=23.8377 max=27.3186 sum=708.9823
+host> [host] PROFILE frame.with-snapshot.ms n=534 avg=13.6552 p50=12.6363 p95=21.9581 p99=35.8061 max=49.9527 sum=7291.8863
+host> [host] PROFILE frame.ordinary.ms n=1151 avg=9.1116 p50=8.4173 p95=15.0014 p99=26.4879 max=45.6622 sum=10487.4818
+host> [host] PROFILE snapshot.ms n=846 avg=2.6657 p50=2.2497 p95=4.3170 p99=7.0082 max=30.8213 sum=2255.1471
+host> [host] PROFILE update.ms n=2004 avg=6.9245 p50=4.3440 p95=21.4911 p99=30.9506 max=53.1331 sum=13876.6484
+host> [host] PROFILE snapshot.rest.ms n=846 avg=0.0657 p50=0.0359 p95=0.0667 p99=0.1029 max=22.1584 sum=55.6189
+host> RESULT frames 2420 wins 0-2 life 829 1000 seed 2059649559 inputs 70235634
+host> [host] PASS: 24 summaries matched, 47 corrections, 2006 predicted, 846 snapshots, 1229 replayed
+host> [host] depth 4, waits 207, correction average 14.75 ms, longest 49.71 ms
+host> Replay ended as recorded: frames 2420 / 2420, wins 0-2 / 0-2, life 829 1000 / 829 1000
+host> [host] PASS: rollback match also matches its forward-only replay
+guest> [guest] searching
+guest> [guest] found 172.28.224.1
+guest> [guest] linked: select
+guest> [guest] match
+guest> [guest] PROFILE correction.resim.ms n=334 avg=10.3947 p50=9.7106 p95=17.0340 p99=21.5414 max=29.9477 sum=3471.8137
+guest> [guest] PROFILE correction.other.ms n=334 avg=0.0734 p50=0.0717 p95=0.1080 p99=0.1345 max=0.2222 sum=24.5081
+guest> [guest] PROFILE snapshot.copy.ms n=872 avg=1.8842 p50=1.5418 p95=3.2099 p99=10.3599 max=25.2894 sum=1643.0016
+guest> [guest] PROFILE correction.4-frames.ms n=298 avg=15.5165 p50=14.1712 p95=23.7840 p99=44.7155 max=46.6524 sum=4623.9259
+guest> [guest] PROFILE snapshot.new.ms n=1 avg=11.6326 p50=11.6326 p95=11.6326 p99=11.6326 max=11.6326 sum=11.6326
+guest> [guest] PROFILE update.ordinary.ms n=1176 avg=3.1409 p50=2.8427 p95=7.1916 p99=9.8548 max=34.7448 sum=3693.6856
+guest> [guest] PROFILE snapshot.fighters n=872 avg=77.6846 p50=74.0000 p95=100.0000 p99=117.0000 max=121.0000 sum=67741.0000
+guest> [guest] PROFILE snapshot.reach.ms n=872 avg=0.3429 p50=0.3088 p95=0.5563 p99=0.7596 max=1.4890 sum=299.0263
+guest> [guest] PROFILE restore.ms n=334 avg=2.1504 p50=1.8145 p95=3.3454 p99=5.2296 max=27.2323 sum=718.2408
+guest> [guest] PROFILE correction.ms n=334 avg=14.8723 p50=13.8541 p95=23.6570 p99=37.3600 max=46.6524 sum=4967.3560
+guest> [guest] PROFILE correction.snapshot.ms n=334 avg=2.2539 p50=1.9999 p95=4.2871 p99=5.2663 max=25.5314 sum=752.7934
+guest> [guest] PROFILE correction.frames n=334 avg=3.8353 p50=4.0000 p95=4.0000 p99=4.0000 max=4.0000 sum=1281.0000
+guest> [guest] PROFILE correction.rebase.ms n=283 avg=15.5403 p50=14.1945 p95=23.7461 p99=44.7155 max=46.6524 sum=4397.8936
+guest> [guest] PROFILE resim.step.ms n=1281 avg=2.7102 p50=2.4510 p95=4.5425 p99=6.0486 max=23.6432 sum=3471.8137
+guest> [guest] PROFILE correction.1-frames.ms n=5 avg=3.9774 p50=3.9436 p95=5.4724 p99=5.4724 max=5.4724 sum=19.8872
+guest> [guest] PROFILE frame.with-correction.ms n=334 avg=25.0958 p50=23.1660 p95=40.5378 p99=53.1149 max=64.2414 sum=8381.9890
+guest> [guest] PROFILE normal.step.ms n=2420 avg=2.8187 p50=2.5856 p95=4.6087 p99=6.7444 max=34.3730 sum=6821.3426
+guest> [guest] PROFILE draw.ms n=2054 avg=5.7461 p50=5.3196 p95=8.2261 p99=12.7675 max=31.1054 sum=11802.4433
+guest> [guest] PROFILE correction.3-frames.ms n=22 avg=11.4130 p50=11.4746 p95=15.1648 p99=15.2882 max=15.2882 sum=251.0857
+guest> [guest] PROFILE update.with-snapshot.ms n=544 avg=7.3553 p50=6.5128 p95=12.9580 p99=26.7266 max=33.5571 sum=4001.3068
+guest> [guest] PROFILE frame.cpu-update-and-draw.ms n=2054 avg=12.6506 p50=10.1098 p95=28.6226 p99=39.5157 max=64.2414 sum=25984.3894
+guest> [guest] PROFILE correction.mismatch.ms n=51 avg=11.1659 p50=10.6283 p95=21.8031 p99=24.4882 max=24.4882 sum=569.4624
+guest> [guest] PROFILE correction.restore.ms n=334 avg=2.1504 p50=1.8145 p95=3.3454 p99=5.2296 max=27.2323 sum=718.2408
+guest> [guest] PROFILE update.frames n=2054 avg=1.1782 p50=1.0000 p95=2.0000 p99=2.0000 max=2.0000 sum=2420.0000
+guest> [guest] PROFILE snapshot.coroutines.ms n=872 avg=0.3332 p50=0.3002 p95=0.5941 p99=0.9168 max=1.4608 sum=290.5820
+guest> [guest] PROFILE snapshot.before-prediction.ms n=570 avg=2.7648 p50=2.3312 p95=4.3540 p99=23.8957 max=26.0391 sum=1575.9603
+guest> [guest] PROFILE update.with-correction.ms n=334 avg=19.4220 p50=17.6965 p95=31.1579 p99=46.4994 max=56.0007 sum=6486.9537
+guest> [guest] PROFILE correction.2-frames.ms n=9 avg=8.0508 p50=7.9311 p95=14.3324 p99=14.3324 max=14.3324 sum=72.4572
+guest> [guest] PROFILE snapshot.reused.ms n=871 avg=2.6603 p50=2.2680 p95=4.3486 p99=8.7612 max=26.0391 sum=2317.1211
+guest> [guest] PROFILE frame.interval.ms n=2054 avg=15.1095 p50=12.8671 p95=30.8570 p99=41.1612 max=66.0090 sum=31034.8866
+guest> [guest] PROFILE snapshot.in-correction.ms n=302 avg=2.4927 p50=2.0975 p95=4.3274 p99=5.2663 max=25.5314 sum=752.7934
+guest> [guest] PROFILE frame.with-snapshot.ms n=544 avg=13.3085 p50=11.9694 p95=20.8515 p99=38.5820 max=42.2832 sum=7239.8027
+guest> [guest] PROFILE frame.ordinary.ms n=1176 avg=8.8117 p50=8.2140 p95=14.0957 p99=22.2792 max=38.1912 sum=10362.5977
+guest> [guest] PROFILE snapshot.ms n=872 avg=2.6706 p50=2.2680 p95=4.3486 p99=11.6326 max=26.0391 sum=2328.7537
+guest> [guest] PROFILE update.ms n=2054 avg=6.9046 p50=4.4097 p95=21.1337 p99=30.8241 max=56.0007 sum=14181.9461
+guest> [guest] PROFILE snapshot.rest.ms n=872 avg=0.0422 p50=0.0362 p95=0.0705 p99=0.1543 max=0.8555 sum=36.8128
+guest> RESULT frames 2420 wins 0-2 life 829 1000 seed 2059649559 inputs 70235634
+guest> [guest] PASS: 24 summaries matched, 51 corrections, 2061 predicted, 872 snapshots, 1281 replayed
+guest> [guest] depth 4, waits 221, correction average 14.87 ms, longest 46.65 ms
+guest> Replay ended as recorded: frames 2420 / 2420, wins 0-2 / 0-2, life 829 1000 / 829 1000
+guest> [guest] PASS: rollback match also matches its forward-only replay
+PASS: host and guest played one match over the LAN link and recorded it alike: RESULT frames 2420 wins 0-2 life 829 1000 seed 2059649559 inputs 70235634

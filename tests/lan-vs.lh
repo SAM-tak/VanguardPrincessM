@@ -16,11 +16,13 @@ require^"../src/net.lh"
 require^"../src/replay.lh"
 require^"../src/replaylist.lh"
 require^"../src/lanmenu.lh"
+require^"../src/netprofile.lh"
 
 let^ROLE = "host"            # tools/test-lan.ps1 makes the guest's copy
 let^IMPAIRED = false^         # tools/test-lan.ps1 -Impaired
 let^REALTIME = false^         # tools/test-lan.ps1 -Realtime
 let^STAGE = 0                # 0 random, 1..7 fixed
+let^PROFILE = false^         # tools/test-lan.ps1 -Profile (real time)
 
 var^phase = 0
 var^wait = 0
@@ -30,6 +32,9 @@ var^downs = 0
 var^done = 0
 var^saved = ""
 var^original = ""
+var^profiled = false^
+var^frameUpdateMs = 0
+var^frameKind = "ordinary"
 var^expected : t^{[number^]:vp.net.Sum|nil^} = {}
 let^Key = love.keyboard.Key
 let^press = p^key:love.keyboard.Key{ vp.selectinput.press(key) }
@@ -44,6 +49,13 @@ public^let^load = p^{
 public^let^update = p^dt:number^{
     if^phase = 11 { return^ }
     let^s0 = vp.main.status()
+    if^PROFILE and^!profiled and^phase = 6 and^s0.introCatchup = 0 {
+        vp.netprofile.start()
+        profiled := true^
+    }
+    let^updateBefore = vp.netprofile.total("update.ms")
+    let^correctionBefore = vp.netprofile.total("correction.ms")
+    let^snapshotBefore = vp.netprofile.total("snapshot.ms")
     let^fast = s0.phase = "battle" or^s0.phase = "match-intro"
     for^i from^1 to^(if^fast and^!REALTIME: 4 el^: 1;) {
         vp.main.update(if^REALTIME and^fast: dt el^: 0.02;)
@@ -56,6 +68,9 @@ public^let^update = p^dt:number^{
             }
         }
     }
+    frameUpdateMs := vp.netprofile.total("update.ms") - updateBefore
+    frameKind := if^vp.netprofile.total("correction.ms") > correctionBefore: "with-correction"
+        el^vp.netprofile.total("snapshot.ms") > snapshotBefore: "with-snapshot" el^: "ordinary";
     if^ups > 0 { press(Key.up) ups -= 1 }
     if^downs > 0 { press(Key.down) downs -= 1 }
     let^s = vp.main.status()
@@ -90,6 +105,7 @@ public^let^update = p^dt:number^{
         if^wait = 30 { press(Key.z) }               # the support
         if^s.phase = "battle" { say("match") phase := 6 }
     elseif^phase = 6 and^s.phase = "select" and^s.netRound = 2:
+        if^PROFILE { vp.netprofile.stop() vp.netprofile.report(ROLE) }
         # Both sides may save under the same name in the same second (the
         # same match either way), so the file is removed only on the way out.
         saved := s.lastReplay
@@ -152,5 +168,13 @@ public^let^update = p^dt:number^{
     }
     if^love.timer.getTime() - began > 240 { panic^$"[{ROLE}] LAN test timeout at phase {phase} (link {s.link})" }
 }
-public^let^draw = p^{ vp.main.draw() }
+public^let^draw = p^{
+    let^before = vp.netprofile.total("draw.ms")
+    vp.main.draw()
+    if^vp.netprofile.enabled() {
+        let^elapsed = frameUpdateMs + vp.netprofile.total("draw.ms") - before
+        vp.netprofile.record("frame.cpu-update-and-draw.ms", elapsed)
+        vp.netprofile.record($"frame.{frameKind}.ms", elapsed)
+    }
+}
 public^let^quit = p^-> bool^{ return^vp.main.quit() }

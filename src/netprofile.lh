@@ -1,0 +1,69 @@
+# Opt-in wall-clock measurements. Enabled only by tools/test-lan.ps1 -Profile.
+# Samples are summarized after the match, outside the measured work.
+module^vp.netprofile
+import^love.timer
+import^std.math
+
+let^Metric = def^{
+    self^{ samples : t^{number^[]} = {}, total = 0, maximum = 0 },
+}
+var^active = false^
+var^metrics : t^{[string^]:Metric|nil^} = {}
+public^let^enabled = f^-> bool^{ active }
+public^let^start = p^{ metrics := {} active := true^ }
+public^let^stop = p^{ active := false^ }
+public^let^begin = p^-> number^{ if^active { return^love.timer.getTime() } return^0 }
+public^let^record = p^name:string^, value:number^{
+    if^!active { return^ }
+    let^metric = metrics[name] ?? Metric.new()
+    metrics[name] := metric
+    metric.samples.push^(value)
+    metric.total += value
+    metric.maximum := std.math.max(metric.maximum, value)
+}
+public^let^finish = p^name:string^, began:number^-> number^{
+    if^!active { return^0 }
+    let^elapsed = (love.timer.getTime() - began) * 1000
+    record(name, elapsed)
+    return^elapsed
+}
+public^let^total = f^name:string^-> number^{ metrics[name]?.total ?? 0 }
+
+# Quickselect: expected linear work, with no sorting during the match.
+let^percentile = p^samples:t^{number^[]}, fraction:number^-> number^{
+    let^xs = samples.clone^()
+    let^k = std.math.max(0, (xs.length^ * fraction).ceil() - 1)
+    var^left = 0
+    var^right = xs.length^ - 1
+    repeat^while^left < right {
+        let^pivot = xs[((left + right) / 2).floor()] ?? 0
+        var^i = left
+        var^j = right
+        repeat^while^i <= j {
+            repeat^while^(xs[i] ?? 0) < pivot { i += 1 }
+            repeat^while^(xs[j] ?? 0) > pivot { j -= 1 }
+            if^i <= j {
+                let^a = xs[i] ?? 0
+                xs[i] := xs[j] ?? 0
+                xs[j] := a
+                i += 1 j -= 1
+            }
+        }
+        if^k <= j { right := j elseif^k >= i: left := i else^: break^ }
+    }
+    return^xs[k] ?? 0
+}
+public^let^report = p^role:string^{
+    for^name, metric in^metrics {
+        if^metric != nil^ {
+            let^n = metric.samples.length^
+            if^n > 0 {
+                let^average = metric.total / n
+                let^p50 = percentile(metric.samples, 0.5)
+                let^p95 = percentile(metric.samples, 0.95)
+                let^p99 = percentile(metric.samples, 0.99)
+                print($"[{role}] PROFILE {name} n={n} avg={average:%.4f} p50={p50:%.4f} p95={p95:%.4f} p99={p99:%.4f} max={metric.maximum:%.4f} sum={metric.total:%.4f}")
+            }
+        }
+    }
+}
