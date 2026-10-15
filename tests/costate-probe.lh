@@ -7,6 +7,7 @@ import^love.event
 require^"../src/fighter.lh"
 require^"../src/script.lh"
 require^"../src/rng.lh"
+require^"../src/stage.lh"
 let^Fighter = vp.fighter.Fighter
 
 let^SAVE_AT = 7               # inside an image's hold
@@ -64,9 +65,57 @@ let^probe = p^n:number^{
     print($"skill #{n}: {changes} image changes in {AFTER} frames match after the restore")
 }
 
+let^probeBranches = p^{
+    vp.fighter.clearSystemVars()
+    vp.fighter.setRound(500, 1)
+    vp.rng.seed(42)
+    let^stage = vp.stage.load("assets/stages/ラスト")
+    for^i from^1 to^SAVE_AT { stage.step() }
+    let^random = vp.rng.get()
+    let^vars = vp.fighter.systemVarsCopy()
+    var^stores : t^{Fighter[]} = {}
+    var^states : t^{(costate^|nil^)[]} = {}
+    for^layer in^stage.layers {
+        let^store = Fighter.new(layer.dir, 0, 0)
+        layer.copyStateTo(store)
+        stores.push^(store)
+        let^co = layer.skill
+        var^state : costate^|nil^= nil^
+        if^co fits^c^{p^-> nil^} { state := co.save() elseif^co fits^c^{p^-> nil^ -> -}: state := co.save() }
+        states.push^(state)
+    }
+    let^trace = p^-> string^{
+        var^out = $"{vp.rng.get()}"
+        for^layer in^stage.layers { out := $"{out} {layer.skillNo}:{layer.image}:{layer.waitTimer}:{layer.v(0)}:{layer.v(1)}" }
+        return^out
+    }
+    var^first : t^{string^[]} = {}
+    for^i from^1 to^AFTER { stage.step() first.push^(trace()) }
+    for^pass from^1 to^2 {
+        vp.rng.set(random)
+        vp.fighter.setSystemVars(vars)
+        for^layer in^stage.layers {
+            let^store = stores[index^]
+            let^state = states[index^]
+            if^store != nil^ { store.copyStateTo(layer) }
+            let^co = layer.skill
+            if^state != nil^ {
+                if^co fits^c^{p^-> nil^} { co.load(state) elseif^co fits^c^{p^-> nil^ -> -}: co.load(state) }
+            }
+        }
+        for^i from^0 to^AFTER - 1 {
+            stage.step()
+            let^now = trace()
+            if^now != first[i] { panic^$"branching stage, restore {pass}, frame {i}: {now} / {first[i] ?? "-"}" }
+        }
+    }
+    print("branching stage: random state, images and variables match after two restores")
+}
+
 public^let^load = p^{
     probe(1)        # standing
     probe(2)        # walking forward
+    probeBranches()
     print("PASS: a running skill's coroutine (run / show / hold) goes back with save() / load()")
     love.event.quit()
 }

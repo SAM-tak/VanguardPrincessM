@@ -137,11 +137,28 @@ var^lastReplay = ""            # the last saved replay's file name
 var^matchSeed = 0              # the simulation's seed for the match being prepared
 # LAN VS (TechnicalDocuments/0157): a linked session's select screen and
 # matches. Each side plays its own; the other's input arrives over src/net.lh
-# INPUT_DELAY frames ahead, and a frame waits until it has.
+# INPUT_DELAY frames ahead; missing input is predicted within ROLLBACK_MAX.
 var^netplay = false^
 var^netRound = 0               # the select round (and match) of the session
 var^netFrame = 0               # the next battle frame of a LAN match
 var^netWaiting = 0             # frames in a row waited for the other side's input
+let^ROLLBACK_MAX = 4           # LAN: bound prediction and each correction's work
+let^Rollback = def^{
+    self^{
+        saved : Saved|nil^= nil^,
+        spare : Saved|nil^= nil^,
+        base = 0,
+        used : t^{[number^]:number^|nil^} = {},
+        ending = false^,
+        resimulating = false^,
+        corrections = 0, predicted = 0, snapshots = 0, replayed = 0,
+        maxDepth = 0, waits = 0, maxCorrectionMs = 0,
+        correctionMs = 0, correctionRuns = 0,
+        sums : t^{[number^]:vp.net.Sum|nil^} = {},
+        sentSum = 0,
+    },
+}
+var^rollback = Rollback.new()
 var^netFont : love.graphics.Font|nil^= nil^
 var^cpuFirst = false^          # F3 / F4 in VS: the CPU drives 1P / 2P (in LAN VS, F3 this side)
 var^cpuSecond = false^
@@ -410,6 +427,7 @@ let^followCamera = p^{
 
 # Shared fixed-step simulation also catches up newly loaded entrants, hidden.
 let^stepFighters = p^{
+    vp.fighter.setView(camX, camY)
     # The stage's walls, and the camera's: nobody leaves the view.
     for^p in^{ me, foe } {
         p.minX := std.math.max(WALL_GROUND, camX + VIEW_EDGE)
@@ -574,6 +592,7 @@ let^beginPresentation = p^name1:string^, colour1:number^, name2:string^, colour2
     for^layer in^stage.layers { layer.mutedSounds[1] := true^ }
     camX := (WORLD_W - VIEW_W) / 2
     camY := WORLD_H - VIEW_H
+    vp.fighter.setView(camX, camY)
     stage.step()
     let^music = vp.arena.sound($"assets/stages/{stageName}/sounds/0001.wav", true^)
     flow.music := music
@@ -632,6 +651,22 @@ let^startBattle = p^{
         vp.net.resetMatch(netRound)
         netFrame := 0
         netWaiting := 0
+        rollback.saved := nil^
+        rollback.spare := nil^
+        rollback.base := 0
+        rollback.used := {}
+        rollback.ending := false^
+        rollback.corrections := 0
+        rollback.predicted := 0
+        rollback.snapshots := 0
+        rollback.replayed := 0
+        rollback.maxDepth := 0
+        rollback.waits := 0
+        rollback.maxCorrectionMs := 0
+        rollback.correctionMs := 0
+        rollback.correctionRuns := 0
+        rollback.sums := {}
+        rollback.sentSum := 0
         flow.toWin := vp.net.hostSetup().toWin
     }
     let^tape = playing
@@ -751,6 +786,10 @@ let^startNetSelect = p^{
 let^endNet = p^why:string^{
     vp.net.leave()
     netplay := false^
+    rollback.saved := nil^
+    rollback.spare := nil^
+    rollback.used := {}
+    rollback.sums := {}
     let^l = pending
     if^l != nil^ { l.batch.cancel() pending := nil^ }
     love.audio.stop()
@@ -994,6 +1033,9 @@ let^completeLoad = p^{
                 scene := nil^
             }
             me.setv(140, if^practiceMode: 500 el^: 0;)
+            # The two-player select screen leaves V139 at 502. Replays skip
+            # select, but stage scripts (notably Last) must see the same mode.
+            if^!practiceMode { me.setv(139, 502) }
             beginPresentation(name1, setup.colour1, name2, setup.colour2, STAGES[matchStage] ?? "スクール", vsRoundSeconds())
             fighters.character($"assets/characters/{name1}", me.v(142))
             fighters.character($"assets/characters/{name2}", me.v(143))
@@ -1220,7 +1262,7 @@ public^let^status = f^{
         matchMusicPlaying = matchArena != nil^ and^flow.music != nil^ and^flow.music.isPlaying(),
         loading = pending != nil^, loadingKind = pendingKind, stagePrepared = matchArena != nil^ and^stage.layers.length^ > 0,
         story = storyMode, practice = practiceMode, modeVariable = me.v(140), cpuActions = if^cpu != nil^: cpu.actions el^: 0;,
-        enemyX = foe.x, enemyLife = foe.life, playerLife = me.life, enemySkill = foe.skillNo,
+        enemyX = foe.x, playerX = me.x, randomState = vp.rng.get(), enemyLife = foe.life, playerLife = me.life, enemySkill = foe.skillNo,
         paused = paused, practiceMenu = vp.practicemenu.isOpen(), guard = dummyGuard, boxes = showBoxes, roundFrames = roundFrames,
         battleResourcesHeld = me.skills[1] != nil^ or^foe.skills[1] != nil^ or^stage.layers.length^ > 0,
         modeExitFrames = if^sc != nil^: sc.exitFrames el^: -1;,
@@ -1237,6 +1279,10 @@ public^let^status = f^{
         event = if^st != nil^: st.at el^: -1;,
         recording = recording != nil^, replaying = playing != nil^, replayFrame = replayFrame,
         netplay = netplay, netFrame = netFrame, netRound = netRound, netWaiting = netWaiting,
+        netRollbacks = rollback.corrections, netPredicted = rollback.predicted, netSnapshots = rollback.snapshots, netReplayed = rollback.replayed,
+        netMaxDepth = rollback.maxDepth, netWaits = rollback.waits, netMaxCorrectionMs = rollback.maxCorrectionMs,
+        netPredictionLimit = ROLLBACK_MAX,
+        netCorrectionMs = rollback.correctionMs, netCorrectionRuns = rollback.correctionRuns,
         netDesync = vp.net.desyncFrame(), netChecked = vp.net.sumsChecked(), link = vp.net.status(),
         replayMatched = replayMatched, lastReplay = lastReplay, replaySnapshots = snapshotCount(), fastForward = fastForward, cpuFirst = cpuFirst, cpuSecond = cpuSecond,
     }
@@ -1285,6 +1331,7 @@ public^let^snapshot = p^reuse:Saved|nil^-> Saved {
 public^let^restore = p^s:Saved{
     vp.snapshot.restore(s.state)
     camX := s.camX camY := s.camY aimX := s.aimX aimY := s.aimY
+    vp.fighter.setView(camX, camY)
     roundFrames := s.roundFrames frame := s.frame wasTiming := s.wasTiming
     matchSeconds := s.matchSeconds replayFrame := s.replayFrame
     vp.fighter.setRound(roundFrames, flow.number)
@@ -1354,86 +1401,10 @@ let^syncCPU = p^one:number^, two:number^{
     }
 }
 
-# One fixed simulation tick for the current scene.
-let^tick = p^{
-    if^leavingReplay { return^ }
-    let^sc = scene
-    if^sc != nil^ {
-        sc.step(upPressed, downPressed, pressed)
-        upPressed := false^
-        downPressed := false^
-        pressed := 0
-        let^choice = vp.replaylist.takeChoice()
-        if^choice != "" and^pending is^nil^ { startReplay(choice) }
-        if^vp.lanmenu.linked() and^pending is^nil^ { startNetSelect() }
-        if^sc.done { sceneDone() }
-        return^
-    }
-    if^matchIntro {
-        let^before = flow.presentationFrames
-        flow.step(me, foe, false^, p^{}, p^{})
-        if^flow.presentationFrames != before { stage.step() }
-        clear2()
-        return^
-    }
-    let^s = selecting
-    if^s != nil^ {
-        let^dx = if^rightPressed or^vp.input.isDown(Key.right): 1 el^leftPressed or^vp.input.isDown(Key.left): -1 el^: 0;
-        let^dy = if^vp.input.isDown(Key.up): 1 el^vp.input.isDown(Key.down): -1 el^: 0;
-        let^dx2 = if^rightPressed2 or^vp.input.isDown(Key.k): 1 el^leftPressed2 or^vp.input.isDown(Key.h): -1 el^: 0;
-        let^dy2 = if^vp.input.isDown(Key.u): 1 el^vp.input.isDown(Key.j): -1 el^: 0;
-        if^netplay {
-            # This machine's 1P keys play its own side; the other side only
-            # takes the choice it confirmed over there.
-            let^local = vp.net.localSide()
-            let^remote = 1 - local
-            if^local = 0 {
-                s.step(upPressed, downPressed, 5 + dx + 3 * dy, pressed, false^, false^, 5, 0)
-            else^:
-                s.step(false^, false^, 5, 0, upPressed, downPressed, 5 + dx + 3 * dy, pressed)
-            }
-            let^mine = s.sides[local]
-            if^mine != nil^ {
-                vp.net.choose({ match = netRound, confirmed = mine.confirmed, row = mine.row, colour = mine.colour, support = mine.support })
-            }
-            let^c = vp.net.theirChoice()
-            if^c.match = netRound and^c.confirmed { s.applyChoice(remote, c.row, c.colour, c.support) }
-        else^:
-            s.step(upPressed, downPressed, 5 + dx + 3 * dy, pressed, upPressed2, downPressed2, 5 + dx2 + 3 * dy2, pressed2)
-        }
-        leftPressed := false^
-        rightPressed := false^
-        clear2()
-        upPressed := false^
-        downPressed := false^
-        pressed := 0
-        let^canLoad = if^s.story: s.bothChosen() and^s.wait >= LOAD_DELAY el^: s.done;
-        # A LAN guest loads the match the host set up for this round.
-        let^setUp = !netplay or^vp.net.hosting() or^vp.net.hostSetup().match = netRound
-        if^canLoad and^setUp and^!matchLoading and^pending is^nil^ { loadMatch(s) }
-        # The completed match continues the already-running VS presentation.
-        return^
-    }
+# A battle frame, shared by normal play and rollback resimulation.
+let^battleStep = p^one:number^, two:number^{
+    vp.fighter.setView(camX, camY)
     let^story = campaign
-    if^story != nil^ and^story.phase != "battle" { return^ }
-    # LAN VS: this side's input goes INPUT_DELAY frames ahead; the frame runs
-    # once the other side's input for it is in.
-    var^netMine = 0
-    var^netTheirs = 0
-    if^netplay {
-        let^ahead = netFrame + vp.net.INPUT_DELAY
-        if^vp.net.sampled() < ahead {
-            vp.net.sample(ahead, vp.replay.pack(heldDirs(Key.up, Key.down, Key.left, Key.right), vp.input.heldButtons(0), cpuFirst))
-        }
-        let^ready, m, t = vp.net.inputs(netFrame)
-        if^!ready {
-            netWaiting += 1
-            return^
-        }
-        netWaiting := 0
-        netMine := m
-        netTheirs := t
-    }
     # Refresh facing before converting physical directions and consuming
     # buffered commands, including the first frame after landing recovery.
     if^flow.fighting() { me.faceOpponent() foe.faceOpponent() }
@@ -1443,23 +1414,14 @@ let^tick = p^{
     if^tape != nil^ and^replayFrame % SNAPSHOT_EVERY = 0 and^replaySnapshots[replayFrame] is^nil^ {
         replaySnapshots[replayFrame] := snapshot(nil^)
     }
-    var^one = 0
-    var^two = 0
-    if^tape != nil^ {
-        one := tape.side1[replayFrame] ?? 0
-        two := tape.side2[replayFrame] ?? 0
-        replayFrame += 1
-    elseif^netplay:
-        let^hostSide = vp.net.localSide() = 0
-        one := if^hostSide: netMine el^: netTheirs;
-        two := if^hostSide: netTheirs el^: netMine;
-    else^:
-        let^vs = recording != nil^
-        one := vp.replay.pack(heldDirs(Key.up, Key.down, Key.left, Key.right), vp.input.heldButtons(0), vs and^cpuFirst)
-        two := vp.replay.pack(heldDirs(Key.u, Key.j, Key.h, Key.k), vp.input.heldButtons(1), vs and^cpuSecond)
-    }
+    if^tape != nil^ { replayFrame += 1 }
     let^rec = recording
-    if^rec != nil^ { rec.push(one, two) }
+    if^rec != nil^ {
+        if^netplay and^netFrame < rec.frames() {
+            rec.side1[netFrame] := one
+            rec.side2[netFrame] := two
+        else^: rec.push(one, two) }
+    }
     if^tape != nil^ or^rec != nil^ { syncCPU(one, two) }
     let^dirs1 = vp.replay.dirsOf(one)
     let^dirs2 = vp.replay.dirsOf(two)
@@ -1514,7 +1476,14 @@ let^tick = p^{
     let^timing = live and^me.v(128) <= 9999
     if^timing and^roundFrames > 0 and^matchSeconds > 0 { roundFrames -= 1 }
     vp.fighter.setRound(roundFrames, flow.number)
-    flow.step(me, foe, roundFrames <= 0, startRound, toSelect)
+    flow.step(me, foe, roundFrames <= 0, startRound, p^{
+        if^netplay { rollback.ending := true^ else^: toSelect() }
+    })
+    if^netplay and^rollback.ending {
+        netFrame += 1
+        rollback.sums[netFrame] := nil^
+        return^
+    }
     if^scene != nil^ or^selecting != nil^ or^(story != nil^ and^story.phase != "battle") { return^ }
     vp.shake.horizontal.step()
     vp.shake.vertical.step()
@@ -1530,13 +1499,178 @@ let^tick = p^{
     if^netplay {
         netFrame += 1
         if^netFrame % vp.net.SUM_EVERY = 0 {
-            vp.net.summarize({ match = netRound, frame = netFrame, random = vp.rng.get(), life1 = me.life, life2 = foe.life, x1 = me.x.floor(), x2 = foe.x.floor() })
+            rollback.sums[netFrame] := { match = netRound, frame = netFrame, random = vp.rng.get(), life1 = me.life, life2 = foe.life, x1 = me.x.floor(), x2 = foe.x.floor() }
         }
     }
-    if^me.skillName != lastSkill {
+    if^!rollback.resimulating and^me.skillName != lastSkill {
         print($"{frame}: {me.skillName}  x={me.x:%.0f} y={me.y:%.0f} facing={me.facing}")
         lastSkill := me.skillName
     }
+}
+
+# Keep only a confirmed checkpoint, and only while there is speculation.
+let^netCheckpoint = p^{
+    rollback.saved := snapshot(rollback.spare)
+    rollback.spare := rollback.saved
+    rollback.base := netFrame
+    rollback.snapshots += 1
+}
+
+let^netStep = p^{
+    let^known = vp.net.remote(netFrame)
+    let^other = known ?? rollback.used[netFrame - 1] ?? 0
+    rollback.used[netFrame] := other
+    let^own = vp.net.localInput(netFrame)
+    if^vp.net.localSide() = 0 { battleStep(own, other) else^: battleStep(other, own) }
+}
+
+let^netTick = p^{
+    let^ahead = netFrame + vp.net.INPUT_DELAY
+    if^vp.net.sampled() < ahead {
+        vp.net.sample(ahead, vp.replay.pack(heldDirs(Key.up, Key.down, Key.left, Key.right), vp.input.heldButtons(0), cpuFirst))
+    }
+    let^confirmed = vp.net.confirmed()
+    let^saved = rollback.saved
+    if^saved != nil^ {
+        let^target = netFrame
+        var^wrong = false^
+        for^f from^rollback.base to^std.math.min(target, confirmed) - 1 {
+            if^rollback.used[f] != vp.net.remote(f) { wrong := true^ break^ }
+        }
+        # A matching prediction needs no replay. Rebase only when the
+        # prediction window fills, or when a correction is necessary.
+        if^wrong or^(target - rollback.base >= ROLLBACK_MAX and^confirmed > rollback.base and^confirmed < target) {
+            let^began = love.timer.getTime()
+            if^wrong { rollback.corrections += 1 }
+            restore(saved)
+            netFrame := rollback.base
+            rollback.ending := false^
+            rollback.resimulating := true^
+            vp.fighter.setResimulating(true^)
+            repeat^while^netFrame < target and^!rollback.ending {
+                netStep()
+                rollback.replayed += 1
+                if^netFrame = confirmed and^netFrame < target and^!rollback.ending { netCheckpoint() }
+            }
+            vp.fighter.setResimulating(false^)
+            rollback.resimulating := false^
+            let^elapsed = (love.timer.getTime() - began) * 1000
+            rollback.maxCorrectionMs := std.math.max(rollback.maxCorrectionMs, elapsed)
+            rollback.correctionMs += elapsed
+            rollback.correctionRuns += 1
+        }
+        if^confirmed >= netFrame { rollback.saved := nil^ }
+    }
+    # Publish only confirmed states; speculative summaries are overwritten
+    # during correction before they can be compared with the peer's.
+    repeat^while^rollback.sentSum + vp.net.SUM_EVERY <= std.math.min(netFrame, confirmed) {
+        rollback.sentSum += vp.net.SUM_EVERY
+        let^sum = rollback.sums[rollback.sentSum]
+        if^sum != nil^ { vp.net.summarize(sum) rollback.sums[rollback.sentSum] := nil^ }
+    }
+    if^rollback.ending {
+        if^confirmed >= netFrame {
+            let^rec = recording
+            if^rec != nil^ {
+                rec.side1 := rec.side1.slice^(0, netFrame - 1)
+                rec.side2 := rec.side2.slice^(0, netFrame - 1)
+            }
+            rollback.saved := nil^
+            rollback.spare := nil^
+            toSelect()
+        }
+        return^
+    }
+    if^rollback.saved != nil^ and^netFrame - rollback.base >= ROLLBACK_MAX {
+        netWaiting += 1
+        rollback.waits += 1
+        return^
+    }
+    if^vp.net.remote(netFrame) is^nil^ {
+        if^rollback.saved is^nil^ { netCheckpoint() }
+        rollback.predicted += 1
+    }
+    netWaiting := 0
+    netStep()
+    if^rollback.saved != nil^ { rollback.maxDepth := std.math.max(rollback.maxDepth, netFrame - rollback.base) }
+}
+
+let^tick = p^{
+    if^leavingReplay { return^ }
+    let^sc = scene
+    if^sc != nil^ {
+        sc.step(upPressed, downPressed, pressed)
+        upPressed := false^
+        downPressed := false^
+        pressed := 0
+        let^choice = vp.replaylist.takeChoice()
+        if^choice != "" and^pending is^nil^ { startReplay(choice) }
+        if^vp.lanmenu.linked() and^pending is^nil^ { startNetSelect() }
+        if^sc.done { sceneDone() }
+        return^
+    }
+    if^matchIntro {
+        vp.fighter.setView(camX, camY)
+        let^before = flow.presentationFrames
+        flow.step(me, foe, false^, p^{}, p^{})
+        if^flow.presentationFrames != before { stage.step() }
+        clear2()
+        return^
+    }
+    let^s = selecting
+    if^s != nil^ {
+        let^dx = if^rightPressed or^vp.input.isDown(Key.right): 1 el^leftPressed or^vp.input.isDown(Key.left): -1 el^: 0;
+        let^dy = if^vp.input.isDown(Key.up): 1 el^vp.input.isDown(Key.down): -1 el^: 0;
+        let^dx2 = if^rightPressed2 or^vp.input.isDown(Key.k): 1 el^leftPressed2 or^vp.input.isDown(Key.h): -1 el^: 0;
+        let^dy2 = if^vp.input.isDown(Key.u): 1 el^vp.input.isDown(Key.j): -1 el^: 0;
+        if^netplay {
+            # This machine's 1P keys play its own side; the other side only
+            # takes the choice it confirmed over there.
+            let^local = vp.net.localSide()
+            let^remote = 1 - local
+            if^local = 0 {
+                s.step(upPressed, downPressed, 5 + dx + 3 * dy, pressed, false^, false^, 5, 0)
+            else^:
+                s.step(false^, false^, 5, 0, upPressed, downPressed, 5 + dx + 3 * dy, pressed)
+            }
+            let^mine = s.sides[local]
+            if^mine != nil^ {
+                vp.net.choose({ match = netRound, confirmed = mine.confirmed, row = mine.row, colour = mine.colour, support = mine.support })
+            }
+            let^c = vp.net.theirChoice()
+            if^c.match = netRound and^c.confirmed { s.applyChoice(remote, c.row, c.colour, c.support) }
+        else^:
+            s.step(upPressed, downPressed, 5 + dx + 3 * dy, pressed, upPressed2, downPressed2, 5 + dx2 + 3 * dy2, pressed2)
+        }
+        leftPressed := false^
+        rightPressed := false^
+        clear2()
+        upPressed := false^
+        downPressed := false^
+        pressed := 0
+        let^canLoad = if^s.story: s.bothChosen() and^s.wait >= LOAD_DELAY el^: s.done;
+        # A LAN guest loads the match the host set up for this round.
+        let^setUp = !netplay or^vp.net.hosting() or^vp.net.hostSetup().match = netRound
+        if^canLoad and^setUp and^!matchLoading and^pending is^nil^ { loadMatch(s) }
+        # The completed match continues the already-running VS presentation.
+        return^
+    }
+    let^story = campaign
+    if^story != nil^ and^story.phase != "battle" { return^ }
+    if^netplay { netTick() return^ }
+    let^tape = playing
+    var^one = 0
+    var^two = 0
+    if^tape != nil^ {
+        one := tape.side1[replayFrame] ?? 0
+        two := tape.side2[replayFrame] ?? 0
+        # battleStep takes the checkpoint before advancing the replay frame.
+    else^:
+        let^vs = recording != nil^
+        one := vp.replay.pack(heldDirs(Key.up, Key.down, Key.left, Key.right), vp.input.heldButtons(0), vs and^cpuFirst)
+        two := vp.replay.pack(heldDirs(Key.u, Key.j, Key.h, Key.k), vp.input.heldButtons(1), vs and^cpuSecond)
+    }
+    battleStep(one, two)
 }
 
 public^let^update = p^dt:number^{

@@ -241,3 +241,4 @@
 - [0155-replay.md](0155-replay.md) — VS の入力（方向ビット・ボタン・CPU フラグ）を std.binary で replays/ に記録し、WATCH REPLAY から入力だけで再生。シミュレーション専用乱数とシード、試合開始フレームの固定、CPU フレームは CPU を再実行。F3/F4 で VS の CPU 切替。
 - [0156-snapshot-rewind.md](0156-snapshot-rewind.md) — 試合のスナップショット（技コルーチンは L^ の save/load、Fighter 等は同じオブジェクトへ書き戻し、乱数は xorshift32）。リプレイの → 4倍速・← 直前のスナップショットへ巻き戻し。取得 7.3ms／復元 4.6ms。
 - [0157-lan-vs.md](0157-lan-vs.md) — LAN VS MODE を遅延方式（3フレーム先送り）で実装。ブロードキャストで探索、ホスト＝1P／ゲスト＝2P、選択は確定内容だけ送る、100フレームごとのずれ検出、F3 の CPU も同期。2プロセスのテスト tools/test-lan.ps1。
+- [0158-lan-rollback.md](0158-lan-rollback.md) — LAN 対戦に入力予測・確定状態のチェックポイント・不一致時の再計算を追加。8フレームの入力窓に受信確認を追加し、連続欠落から回復。通信障害と巻き戻しなしのリプレイで検証。

@@ -1276,6 +1276,7 @@ public^let^Fighter = def^{
     },
     # S — a sound by its FM2K number.
     sound = p^self^, n:number^{
+        if^resimulating { return^ }
         if^(self^.owner ?? self^).mutedSounds[n] = true^ { return^ }
         let^e = soundEntry(self^.dir, n)
         # Native type 0 stops every sound; it is not a missing WAV slot.
@@ -1307,6 +1308,7 @@ public^let^Fighter = def^{
     # Shared definitions have their own numbering. Cache playback by path on
     # the owner, keeping opponents independent without cloning on every play.
     soundFrom = p^self^, dir:string^, n:number^{
+        if^resimulating { return^ }
         let^e = soundEntry(dir, n)
         if^e fits^t^{type:number^} and^e.type = 0 { love.audio.stop() return^ }
         let^path = vp.sprite.assetPath(dir, e)
@@ -1665,6 +1667,8 @@ let^GRAVITY = 393 / 65536
 
 # Debugging: when on, every S block is printed with who played it.
 var^logSounds = false^
+var^resimulating = false^
+public^let^setResimulating = p^on:bool^{ resimulating := on }
 public^let^setSoundLog = p^on:bool^{ logSounds := on }
 
 # Sound n's entry in its folder's sounds.lton: whether it loops

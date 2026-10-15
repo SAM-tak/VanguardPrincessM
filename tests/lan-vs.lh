@@ -14,15 +14,23 @@ require^"../tests/select-input.lh"
 require^"../src/arena.lh"
 require^"../src/net.lh"
 require^"../src/replay.lh"
+require^"../src/replaylist.lh"
+require^"../src/lanmenu.lh"
 
 let^ROLE = "host"            # tools/test-lan.ps1 makes the guest's copy
+let^IMPAIRED = false^         # tools/test-lan.ps1 -Impaired
+let^REALTIME = false^         # tools/test-lan.ps1 -Realtime
+let^STAGE = 0                # 0 random, 1..7 fixed
 
 var^phase = 0
 var^wait = 0
 var^began = 0
 var^ups = 0
+var^downs = 0
 var^done = 0
 var^saved = ""
+var^original = ""
+var^expected : t^{[number^]:vp.net.Sum|nil^} = {}
 let^Key = love.keyboard.Key
 let^press = p^key:love.keyboard.Key{ vp.selectinput.press(key) }
 let^say = p^text:string^{ print($"[{ROLE}] {text}") }
@@ -31,12 +39,25 @@ public^let^load = p^{
     began := love.timer.getTime()
     vp.main.setVSSeconds(5)
     vp.main.load()
+    if^IMPAIRED { vp.net.testImpairment(0.018) }
 }
 public^let^update = p^dt:number^{
+    if^phase = 11 { return^ }
     let^s0 = vp.main.status()
     let^fast = s0.phase = "battle" or^s0.phase = "match-intro"
-    for^i from^1 to^(if^fast: 4 el^: 1;) { vp.main.update(0.02) }
+    for^i from^1 to^(if^fast and^!REALTIME: 4 el^: 1;) {
+        vp.main.update(if^REALTIME and^fast: dt el^: 0.02;)
+        let^now = vp.main.status()
+        let^ref = expected[now.replayFrame]
+        if^now.replaying and^ref != nil^ {
+            if^now.randomState != ref.random or^now.playerLife != ref.life1 or^now.enemyLife != ref.life2 or^now.playerX.floor() != ref.x1 or^now.enemyX.floor() != ref.x2 {
+                say(vp.main.signature())
+                panic^$"[{ROLE}] replay differs at {now.replayFrame}/{ref.frame}: rng {now.randomState}/{ref.random}, life {now.playerLife},{now.enemyLife}/{ref.life1},{ref.life2}, x {now.playerX},{now.enemyX}/{ref.x1},{ref.x2}"
+            }
+        }
+    }
     if^ups > 0 { press(Key.up) ups -= 1 }
+    if^downs > 0 { press(Key.down) downs -= 1 }
     let^s = vp.main.status()
     let^where = vp.arena.names()
     if^phase = 0 and^where = "system / opening" { press(Key.z) phase := 1
@@ -60,6 +81,7 @@ public^let^update = p^dt:number^{
     elseif^phase = 4 and^s.netplay and^s.phase = "select" and^!s.loading:
         say("linked: select")
         press(Key.f3)
+        for^i from^1 to^STAGE { press(Key.t) }
         wait := 0
         phase := 5
     elseif^phase = 5:
@@ -75,16 +97,58 @@ public^let^update = p^dt:number^{
         if^tape is^nil^ { panic^$"[{ROLE}] no replay of the match ({saved})" }
         if^s.netDesync >= 0 { panic^$"[{ROLE}] desync at frame {s.netDesync}" }
         if^s.netChecked < 3 { panic^$"[{ROLE}] only {s.netChecked} summaries compared" }
-        print($"RESULT frames {tape.frames()} wins {tape.wins1}-{tape.wins2} life {tape.life1} {tape.life2} seed {tape.seed}")
-        say($"PASS: {s.netChecked} summaries matched")
+        if^IMPAIRED and^(s.netRollbacks < 2 or^s.netPredicted < 12) { panic^$"[{ROLE}] rollback was not exercised" }
+        if^s.netMaxDepth > s.netPredictionLimit { panic^$"[{ROLE}] prediction exceeded the limit: {s.netMaxDepth}" }
+        if^IMPAIRED and^(s.netWaits = 0 or^s.netSnapshots >= s.netPredicted) { panic^$"[{ROLE}] bounded waiting or sparse snapshots were not exercised" }
+        var^digest = 0
+        for^one in^tape.side1 {
+            digest := (digest * 31 + one) % 2147483647
+            digest := (digest * 31 + (tape.side2[index^] ?? 0)) % 2147483647
+        }
+        print($"RESULT frames {tape.frames()} wins {tape.wins1}-{tape.wins2} life {tape.life1} {tape.life2} seed {tape.seed} inputs {digest}")
+        say($"PASS: {s.netChecked} summaries matched, {s.netRollbacks} corrections, {s.netPredicted} predicted, {s.netSnapshots} snapshots, {s.netReplayed} replayed")
+        let^average = s.netCorrectionMs / (if^s.netCorrectionRuns > 0: s.netCorrectionRuns el^: 1;)
+        say($"depth {s.netMaxDepth}, waits {s.netWaits}, correction average {average:%.2f} ms, longest {s.netMaxCorrectionMs:%.2f} ms")
+        # Each process replays its own copy, independent of the peer's cleanup.
+        original := saved
+        expected := vp.net.summaries().clone^()
+        let^bytes = tape.encode()
+        saved := $"lan-{ROLE}-{saved}"
+        let^_^ = love.filesystem.write($"replays/{saved}", bytes) catch^false^
+        if^love.filesystem.getInfo($"replays/{saved}") is^nil^ { panic^$"[{ROLE}] could not save the private replay" }
         phase := 7
     elseif^phase = 7:
         # Give the other side time to finish before this one goes silent.
         done += 1
         if^done = 60 {
-            let^_^ = love.filesystem.remove($"replays/{saved}")
-            love.event.quit()
+            press(Key.escape)
+            phase := 8
+            wait := 0
         }
+    elseif^phase = 8 and^where = "system / title":
+        wait += 1
+        if^wait = 20 {
+            # The peer may have left first, leaving its disconnect message
+            # over the title. This test checks the replay, not that menu.
+            vp.lanmenu.close()
+            vp.replaylist.open()
+        }
+        if^wait = 40 {
+            var^at = -1
+            for^name in^vp.replaylist.entries() { if^name = saved { at := index^ } }
+            if^at < 0 { panic^$"[{ROLE}] recorded replay not listed: {saved}" }
+            downs := at
+        }
+        if^wait >= 50 and^downs = 0 { press(Key.z) phase := 9 }
+    elseif^phase = 9 and^s.replaying and^s.phase = "battle":
+        phase := 10
+    elseif^phase = 10 and^!s.replaying and^where = "system / title":
+        if^!s.replayMatched { panic^$"[{ROLE}] rollback match differs from forward-only replay" }
+        say("PASS: rollback match also matches its forward-only replay")
+        let^_^ = love.filesystem.remove($"replays/{saved}")
+        let^_^ = love.filesystem.remove($"replays/{original}")
+        phase := 11
+        love.event.quit()
     }
     if^love.timer.getTime() - began > 240 { panic^$"[{ROLE}] LAN test timeout at phase {phase} (link {s.link})" }
 }

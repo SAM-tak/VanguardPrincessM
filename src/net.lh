@@ -5,8 +5,9 @@
 # who answers, so a host and a guest can also run on one machine. A session
 # then carries each side's select-screen choice (only once it is confirmed),
 # the host's match setup, and every frame's input: the input of a frame is
-# sent INPUT_DELAY frames ahead, with the INPUT_HISTORY before it, so a lost
-# datagram is made up by the next. Every SUM_EVERY frames each side sends a
+# sent INPUT_DELAY frames ahead. INPUT_HISTORY inputs are repeated in each
+# datagram, keeping the oldest unacknowledged frame in its window so even a
+# long loss burst can recover. Every SUM_EVERY frames each side sends a
 # summary of its state (the simulation's random state, lives, positions) to
 # catch a desync. Nothing is resent otherwise; what must arrive is repeated
 # until it is no longer needed.
@@ -15,12 +16,13 @@ module^vp.net
 import^love.timer
 import^std.net
 import^std.binary
+import^std.math
 
 public^let^PORT = 7650
 public^let^INPUT_DELAY = 3
 let^INPUT_HISTORY = 8
 public^let^SUM_EVERY = 100
-let^VERSION = 1                 # of this protocol and of the simulation it expects
+let^VERSION = 2                 # acknowledgements and rollback-capable simulation
 let^MAGIC = 22102               # "VP"
 let^QUERY_EVERY = 0.5
 let^HOST_EXPIRES = 2
@@ -53,9 +55,9 @@ public^let^Setup = t^{ match : number^, seed : number^, stage : number^, seconds
 let^SETUP = b.format(Setup, {
     { "match", b.uint(16) }, { "seed", b.uint(32) }, { "stage", b.uint(8) }, { "seconds", b.uint(16) }, { "toWin", b.uint(8) },
 })
-let^Inputs = t^{ match : number^, last : number^, sides : t^{number^[]} }
+let^Inputs = t^{ match : number^, last : number^, next : number^, sides : t^{number^[]} }
 let^INPUTS = b.format(Inputs, {
-    { "match", b.uint(16) }, { "last", b.uint(32) }, { "sides", b.array(INPUT_HISTORY, b.uint(11)) },
+    { "match", b.uint(16) }, { "last", b.uint(32) }, { "next", b.uint(32) }, { "sides", b.array(INPUT_HISTORY, b.uint(11)) },
 })
 public^let^Sum = t^{ match : number^, frame : number^, random : number^, life1 : number^, life2 : number^, x1 : number^, x2 : number^ }
 let^SUM_FORMAT = b.format(Sum, {
@@ -97,10 +99,22 @@ var^match = 0            # the match the inputs belong to
 var^theirs : t^{[number^]:number^|nil^} = {}
 var^mine : t^{[number^]:number^|nil^} = {}
 var^myLast = -1                 # the newest frame of mine sampled
+var^nextRemote = INPUT_DELAY    # first remote frame still missing
+var^peerNext = INPUT_DELAY      # first local frame the peer still needs
 var^mySums : t^{[number^]:Sum|nil^} = {}
 var^theirSums : t^{[number^]:Sum|nil^} = {}
 var^desync = -1          # the first frame whose summaries differed, -1 none
 var^checked = 0          # summaries compared
+
+# Deterministic receive impairment used by the two-process LAN test only.
+var^testDelay = 0
+var^testPackets = 0
+var^testPending : t^{t^{data:string^, address:string^, port:number^, due:number^}[]} = {}
+public^let^testImpairment = p^seconds:number^{
+    testDelay := seconds
+    testPackets := 0
+    testPending := {}
+}
 
 public^let^status = f^-> string^{ state }
 public^let^problemText = f^-> string^{ problem }
@@ -111,6 +125,7 @@ public^let^hostSetup = f^-> Setup { setup }
 public^let^matchNumber = f^-> number^{ match }
 public^let^desyncFrame = f^-> number^{ desync }
 public^let^sumsChecked = f^-> number^{ checked }
+public^let^summaries = f^-> t^{[number^]:Sum|nil^} { mySums }
 public^let^active = f^-> bool^{ state = "connected" }
 # The side this machine plays: the host 1P (0), the guest 2P (1).
 public^let^localSide = f^-> number^{ if^isHost: 0 el^: 1; }
@@ -211,6 +226,8 @@ public^let^resetMatch = p^n:number^{
     theirs := {}
     mine := {}
     myLast := -1
+    nextRemote := INPUT_DELAY
+    peerNext := INPUT_DELAY
     mySums := {}
     theirSums := {}
     desync := -1
@@ -228,10 +245,20 @@ public^let^offer = p^s:Setup{
 
 # This side's input of frame f (packed as src/replay.lh does).
 public^let^sample = p^f:number^, input:number^{
-    mine[f] := input
+    # Exercise changing human inputs as well as CPU decisions under prediction.
+    mine[f] := if^testDelay > 0 and^f % 80 < 10: 24 el^: input;
     if^f > myLast { myLast := f }
 }
 public^let^sampled = f^-> number^{ myLast }
+public^let^confirmed = f^-> number^{ std.math.min(myLast + 1, nextRemote) }
+public^let^remote = f^f:number^-> number^|nil^{
+    if^f < INPUT_DELAY { return^0 }
+    return^theirs[f]
+}
+public^let^localInput = f^f:number^-> number^{
+    if^f < INPUT_DELAY { return^0 }
+    return^mine[f] ?? 0
+}
 # Both sides' inputs of frame f, if this side has the other's; the first
 # INPUT_DELAY frames are neutral for both.
 public^let^inputs = f^f:number^-> bool^, number^, number^{
@@ -322,10 +349,12 @@ let^heard = p^data:string^, address:string^, port:number^{
     elseif^kind = INPUT:
         let^i, at = try^INPUTS.decode(data, 3)
         if^i.match = match {
+            peerNext := std.math.max(peerNext, i.next)
             for^v in^i.sides {
                 let^f = i.last - INPUT_HISTORY + 1 + index^
                 if^f >= INPUT_DELAY { theirs[f] := v }
             }
+            repeat^while^theirs[nextRemote] != nil^ { nextRemote += 1 }
         }
     elseif^kind = SUM:
         let^s, at = try^SUM_FORMAT.decode(data, 3)
@@ -343,11 +372,30 @@ public^let^poll = p^{
     let^s = sock
     if^s is^nil^ { return^ }
     let^now = love.timer.getTime()
+    if^testDelay > 0 {
+        var^waiting : t^{t^{data:string^, address:string^, port:number^, due:number^}[]} = {}
+        for^packet in^testPending {
+            if^packet.due <= now { heard(packet.data, packet.address, packet.port) else^: waiting.push^(packet) }
+        }
+        testPending := waiting
+    }
     repeat^while^true^ {
         let^data, address, port = try^s.receive()
         if^data is^nil^ { break^ }
         let^text : string^ = data
-        heard(text, address, port)
+        if^testDelay > 0 {
+            let^h, at = try^HEAD.decode(text, 0)
+            if^h.kind = INPUT {
+                testPackets += 1
+                # Include a loss burst longer than the eight-frame history,
+                # isolated loss, duplication and reordering through jitter.
+                if^!(testPackets >= 30 and^testPackets < 56) and^testPackets % 7 != 0 {
+                    let^packet = { data = text, address = address, port = port, due = now + testDelay + (testPackets % 3) * 0.006 }
+                    testPending.push^(packet)
+                    if^testPackets % 11 = 0 { testPending.push^(packet) }
+                }
+            else^: heard(text, address, port) }
+        else^: heard(text, address, port) }
         if^sock is^nil^ { return^ }
     }
     if^state = "searching" {
@@ -374,11 +422,12 @@ public^let^poll = p^{
             let^offered = mySetup
             if^offered != nil^ { sendPeer(head(START) .. SETUP.encode(offered)) }
         }
-        # Every poll: the newest INPUT_HISTORY inputs of mine.
+        # Repeat the oldest unacknowledged inputs, even after a long loss burst.
         if^myLast >= INPUT_DELAY {
+            let^last = std.math.min(myLast, peerNext + INPUT_HISTORY - 1)
             var^sides : t^{number^[]} = {}
-            for^i from^0 to^INPUT_HISTORY - 1 { sides.push^(mine[myLast - INPUT_HISTORY + 1 + i] ?? 0) }
-            sendPeer(head(INPUT) .. INPUTS.encode({ match = match, last = myLast, sides = sides }))
+            for^i from^0 to^INPUT_HISTORY - 1 { sides.push^(mine[last - INPUT_HISTORY + 1 + i] ?? 0) }
+            sendPeer(head(INPUT) .. INPUTS.encode({ match = match, last = last, next = nextRemote, sides = sides }))
         }
     }
 catch^:
