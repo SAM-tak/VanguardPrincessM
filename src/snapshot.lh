@@ -15,6 +15,7 @@ require^"hud.lh"
 require^"stage.lh"
 require^"shake.lh"
 require^"rng.lh"
+import^love.timer
 
 let^Fighter = vp.fighter.Fighter
 
@@ -29,6 +30,8 @@ let^loadSkill = p^co:vp.fighter.Skill|nil^, state:costate^|nil^{
     if^co fits^c^{p^-> nil^} { co.load(s) return^ }
     if^co fits^c^{p^-> nil^ -> -} { co.load(s) }
 }
+
+var^generation = 0             # which walk a Fighter's snapMark belongs to
 
 public^let^Snapshot = def^{
     self^{
@@ -58,7 +61,8 @@ public^let^Snapshot = def^{
     reach = p^self^, f:Fighter|nil^{
         if^f is^nil^ { return^ }
         let^one : Fighter = f
-        if^self^.fighters.contains^(one) { return^ }
+        if^one.snapMark = generation { return^ }
+        one.snapMark := generation
         self^.fighters.push^(one)
         for^o in^one.objects { self^.reach(o) }
         for^slot, o in^one.slots { self^.reach(o) }
@@ -75,8 +79,28 @@ let^setAxis = p^a:vp.shake.Axis, s:t^{number^[]}{
 }
 
 # The state of the match the given fighters, round, HUD and stage make up.
-public^let^take = p^fighters:t^{Fighter[]}, round:vp.round.Round, hud:vp.hud.Hud, stage:vp.stage.Stage-> Snapshot {
-    let^s = Snapshot.new(round, hud, stage)
+var^profile : t^{number^[]} = {}
+# The last take's fighters and milliseconds: reaching them, copying them,
+# saving their skills, the rest (for measuring).
+public^let^lastProfile = f^-> t^{number^[]} { profile }
+
+# The state of the match the given fighters, round, HUD and stage make up.
+# `reuse`, a snapshot no longer needed, lends its Fighter stores; it is the
+# one returned. Mutable tables and coroutine states are still copied.
+public^let^take = p^fighters:t^{Fighter[]}, round:vp.round.Round, hud:vp.hud.Hud, stage:vp.stage.Stage, reuse:Snapshot|nil^-> Snapshot {
+    let^t0 = love.timer.getTime()
+    generation += 1
+    let^s = reuse ?? Snapshot.new(round, hud, stage)
+    var^pool : t^{Fighter[]} = {}
+    if^reuse != nil^ {
+        pool := reuse.stores
+        s.round := round
+        s.hud := hud
+        s.stage := stage
+        s.fighters := {}
+        s.stores := {}
+        s.skills := {}
+    }
     for^f in^fighters { s.reach(f) }
     for^l in^round.layers { s.reach(l) }
     for^l in^round.portraits { s.reach(l) }
@@ -85,12 +109,15 @@ public^let^take = p^fighters:t^{Fighter[]}, round:vp.round.Round, hud:vp.hud.Hud
     for^l in^hud.layers { s.reach(l) }
     for^l in^{ hud.life1, hud.life2, hud.special1, hud.special2, hud.stock1, hud.stock2, hud.tens, hud.ones } { s.reach(l) }
     for^l in^stage.layers { s.reach(l) }
+    let^t1 = love.timer.getTime()
     for^f in^s.fighters {
-        let^store = Fighter.new(f.dir, 0, 0)
+        let^store = pool[index^] ?? Fighter.new(f.dir, 0, 0)
         f.copyStateTo(store)
         s.stores.push^(store)
-        s.skills.push^(saveSkill(f.skill))
     }
+    let^t2 = love.timer.getTime()
+    for^f in^s.fighters { s.skills.push^(saveSkill(f.skill)) }
+    let^t3 = love.timer.getTime()
     round.copyStateTo(s.roundStore)
     hud.copyStateTo(s.hudStore)
     s.stageLayers := stage.layers.clone^()
@@ -98,6 +125,8 @@ public^let^take = p^fighters:t^{Fighter[]}, round:vp.round.Round, hud:vp.hud.Hud
     s.shake := axisState(vp.shake.horizontal) .. axisState(vp.shake.vertical)
     s.random := vp.rng.get()
     s.systemVars := vp.fighter.systemVarsCopy()
+    let^t4 = love.timer.getTime()
+    profile := { s.fighters.length^, (t1 - t0) * 1000, (t2 - t1) * 1000, (t3 - t2) * 1000, (t4 - t3) * 1000 }
     return^s
 }
 

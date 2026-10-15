@@ -12,6 +12,7 @@ require^"../main.lh"
 require^"../tests/select-input.lh"
 require^"../src/arena.lh"
 require^"../src/replaylist.lh"
+require^"../src/snapshot.lh"
 
 var^phase = 0
 var^wait = 0
@@ -38,12 +39,23 @@ let^rewind = p^{
     if^!vp.main.status().replaying { return^ }
     if^snap is^nil^ and^at >= SNAP_AT {
         let^t0 = love.timer.getTime()
-        snap := vp.main.snapshot()
+        snap := vp.main.snapshot(nil^)
         let^t1 = love.timer.getTime()
         let^taken = snap
         if^taken != nil^ { vp.main.restore(taken) }
         let^t2 = love.timer.getTime()
         print($"snapshot at frame {at}: take {(t1 - t0) * 1000:%.2f} ms, put back {(t2 - t1) * 1000:%.2f} ms")
+        let^pr = vp.snapshot.lastProfile()
+        print($"  {pr[0] ?? 0} fighters: reach {pr[1] ?? 0:%.2f}, copy {pr[2] ?? 0:%.2f}, save() {pr[3] ?? 0:%.2f}, rest {pr[4] ?? 0:%.2f} ms")
+        # A ring's cost: taking again into the same storage.
+        var^spare = vp.main.snapshot(nil^)
+        let^t3 = love.timer.getTime()
+        for^i from^1 to^20 { spare := vp.main.snapshot(spare) }
+        let^t4 = love.timer.getTime()
+        let^pr2 = vp.snapshot.lastProfile()
+        print($"  reusing storage: take {(t4 - t3) * 1000 / 20:%.2f} ms (reach {pr2[1] ?? 0:%.2f}, copy {pr2[2] ?? 0:%.2f}, save() {pr2[3] ?? 0:%.2f}, rest {pr2[4] ?? 0:%.2f})")
+        # Restore the reused snapshot twice after the match advances, too.
+        snap := spare
         return^
     }
     let^s = snap

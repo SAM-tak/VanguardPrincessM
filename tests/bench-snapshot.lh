@@ -1,0 +1,50 @@
+# What a snapshot's parts cost per fighter (TechnicalDocuments/0156): the
+# store's creation, the state copy, and the pieces the copy is made of.
+module^vp.benchsnapshot
+import^love.event
+import^love.timer
+require^"../src/fighter.lh"
+require^"../src/script.lh"
+let^Fighter = vp.fighter.Fighter
+
+let^N = 2000
+
+let^time = p^what:string^, body:p^;{
+    let^t0 = love.timer.getTime()
+    body()
+    let^t = (love.timer.getTime() - t0) / N * 1000000
+    print($"{what}: {t:%.2f} us")
+}
+
+public^let^load = p^{
+    let^a = Fighter.new("assets/characters/ゆい", 500, 920)
+    let^sc = vp.script.load("assets/characters/ゆい/script.lton")
+    if^sc is^nil^ { panic^"Missing script" }
+    sc.install(a)
+    a.begin(1)
+    for^i from^1 to^10 { a.stepScript() }
+    let^store = Fighter.new(a.dir, 0, 0)
+    let^empty : t^{[number^]:number^|nil^} = {}
+    time("Fighter.new", p^{ for^i from^1 to^N { let^_^ = Fighter.new(a.dir, 0, 0) } })
+    time("copyStateTo (a character, 10 frames in)", p^{ for^i from^1 to^N { a.copyStateTo(store) } })
+    let^blank = Fighter.new(a.dir, 0, 0)
+    time("copyStateTo (a fresh fighter, empty tables)", p^{ for^i from^1 to^N { blank.copyStateTo(store) } })
+    time("empty clone^()", p^{ for^i from^1 to^N { let^_^ = empty.clone^() } })
+    time("{} literal", p^{ for^i from^1 to^N { let^_^ : t^{[number^]:number^|nil^} = {} } })
+    time("110 field writes", p^{
+        for^i from^1 to^N {
+            for^k from^1 to^11 {
+                store.x := a.x store.y := a.y store.vx := a.vx store.vy := a.vy store.ax := a.ax
+                store.ay := a.ay store.image := a.image store.ix := a.ix store.iy := a.iy store.life := a.life
+            }
+        }
+    })
+    time("save()", p^{
+        for^i from^1 to^N {
+            let^co = a.skill
+            if^co fits^c^{p^-> nil^} { let^_^ = co.save() }
+        }
+    })
+    love.event.quit()
+}
+public^let^draw = p^{}

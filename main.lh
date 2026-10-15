@@ -1260,23 +1260,24 @@ public^let^Saved = def^{
     override^new = p^state:vp.snapshot.Snapshot{ self^{ state = state } },
 }
 
-let^brainStore = p^b:vp.cpu.Brain|nil^, p:Fighter-> vp.cpu.Brain|nil^{
+let^brainStore = p^b:vp.cpu.Brain|nil^, p:Fighter, spare:vp.cpu.Brain|nil^-> vp.cpu.Brain|nil^{
     if^b is^nil^ { return^nil^ }
-    let^store = vp.cpu.Brain.new(nameOf(p), b.level)
+    let^store = spare ?? vp.cpu.Brain.new(nameOf(p), b.level)
     b.copyStateTo(store)
     return^store
 }
 
-# The running match's state, taken between frames.
-public^let^snapshot = p^-> Saved {
-    let^s = Saved.new(vp.snapshot.take({ me, foe }, flow, hud, stage))
+# The running match's state, taken between frames. `reuse`, a snapshot no
+# longer needed, lends its storage.
+public^let^snapshot = p^reuse:Saved|nil^-> Saved {
+    let^s = Saved.new(vp.snapshot.take({ me, foe }, flow, hud, stage, reuse?.state))
     s.camX := camX s.camY := camY s.aimX := aimX s.aimY := aimY
     s.roundFrames := roundFrames s.frame := frame s.wasTiming := wasTiming
     s.matchSeconds := matchSeconds s.replayFrame := replayFrame
     s.firstBrain := demoBrain
-    s.firstStore := brainStore(demoBrain, me)
+    s.firstStore := brainStore(demoBrain, me, reuse?.firstStore)
     s.secondBrain := brain
-    s.secondStore := brainStore(brain, foe)
+    s.secondStore := brainStore(brain, foe, reuse?.secondStore)
     return^s
 }
 
@@ -1440,7 +1441,7 @@ let^tick = p^{
     # (and F3 / F4's CPU in VS), recorded when VS records.
     let^tape = playing
     if^tape != nil^ and^replayFrame % SNAPSHOT_EVERY = 0 and^replaySnapshots[replayFrame] is^nil^ {
-        replaySnapshots[replayFrame] := snapshot()
+        replaySnapshots[replayFrame] := snapshot(nil^)
     }
     var^one = 0
     var^two = 0
