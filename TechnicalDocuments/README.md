@@ -250,3 +250,4 @@
 - [0164-persistent-online-rooms.md](0164-persistent-online-rooms.md) — 名前・暗証番号・16人の参加者一覧・4台の対戦台を持つ常設ルーム。着席と双方READYで対戦し、試合後は席を維持してルームへ戻る。
 - [0165-account-display-name.md](0165-account-display-name.md) — 未設定のプレイヤー名にEpic表示名を使用。保存済みの独自名を優先し、プロフィール取得失敗でもログインを継続。
 - [0166-input-configuration.md](0166-input-configuration.md) — settings.jsonからキーボード・ゲームパッド・ショートカットを設定。既定値の補完、物理入力と論理入力の分離、ソースと配布用VM・実ゲームで検証。
+- [0167-engine-release-update.md](0167-engine-release-update.md) — 配布エンジンのタグ・全アセットのSHA-256更新と、VS Codeからの最新版／指定タグ更新タスク。

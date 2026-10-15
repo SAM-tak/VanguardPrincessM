@@ -1,45 +1,45 @@
 {
   "repository": "SAM-tak/lhat-love",
-  "tag": "v12.0.0-alpha.8",
+  "tag": "v12.0.0-alpha.9",
   "platforms": {
     "windows-x64": {
       "compiler": {
-        "asset": "lhat-love-v12.0.0-alpha.8-win-x64-relwithdebinfo.zip",
-        "sha256": "f8d669338f9524a6a66b7e9041dabe78c7fcd86a119f16811c304bf97bde8f64"
+        "asset": "lhat-love-v12.0.0-alpha.9-win-x64-relwithdebinfo.zip",
+        "sha256": "a9460e2b64534a552e2c67af89e44c627aa9ecfe3dff0bc1ef4b888eb500f09c"
       },
       "runtime": {
-        "asset": "lhat-love-v12.0.0-alpha.8-win-x64-vmonly-shipping.zip",
-        "sha256": "68b74ed946fdc5910e4901ad62915efe73f71b5d2c11832b99b9cd5953806b16"
+        "asset": "lhat-love-v12.0.0-alpha.9-win-x64-vmonly-shipping.zip",
+        "sha256": "32bf573ca5352d926b6a8b250ee82875432fb1b1cc5c9b55864f18798574931e"
       }
     },
     "linux-x64": {
       "compiler": {
-        "asset": "lhat-love-v12.0.0-alpha.8-linux-x64-relwithdebinfo.tar.gz",
-        "sha256": "0daf7cba468cc415432abd5b7945e3b1c4e0fac77e1fafc4bda50546e5c7d7bf"
+        "asset": "lhat-love-v12.0.0-alpha.9-linux-x64-relwithdebinfo.tar.gz",
+        "sha256": "099ba74b90cd3a1ccc6014ec0546e6e7e634ced3646a0d7dffe7c02b7d3b7384"
       },
       "runtime": {
-        "asset": "lhat-love-v12.0.0-alpha.8-linux-x64-vmonly-shipping.tar.gz",
-        "sha256": "a68f142f3e8fb63917441a243a312384e1211e0c3df5b112ddc6bc624618d0a2"
+        "asset": "lhat-love-v12.0.0-alpha.9-linux-x64-vmonly-shipping.tar.gz",
+        "sha256": "6abe0a5017d50e778ad9e9da070f67d02735585e0b77445a54c2610165f1dfdf"
       }
     },
     "macos-arm64": {
       "compiler": {
-        "asset": "lhat-love-v12.0.0-alpha.8-macos-arm64-relwithdebinfo.tar.gz",
-        "sha256": "bfeee746c2ba0497e9220e0e7d4b34af354c157b40a172befcf6fce8070907dc"
+        "asset": "lhat-love-v12.0.0-alpha.9-macos-arm64-relwithdebinfo.tar.gz",
+        "sha256": "99b1a6924ab6e7892bd2aeb8681ed30ec5db4f9a304292ec447ef66713812d24"
       },
       "runtime": {
-        "asset": "lhat-love-v12.0.0-alpha.8-macos-arm64-vmonly-shipping.tar.gz",
-        "sha256": "5e48decbc1a7c9519117ff17ccc94aa08ff876439864a1f6ba6e961e273733db"
+        "asset": "lhat-love-v12.0.0-alpha.9-macos-arm64-vmonly-shipping.tar.gz",
+        "sha256": "a4b708144b60f82d49b500f672f3225dda6a9ebea84eafe2684f53f5385df2a5"
       }
     },
     "macos-x64": {
       "compiler": {
-        "asset": "lhat-love-v12.0.0-alpha.8-macos-x64-relwithdebinfo.tar.gz",
-        "sha256": "4e56ecc328cb5fc496bbd69e33397ff06f420912c691e626e0ebec46e499c2e6"
+        "asset": "lhat-love-v12.0.0-alpha.9-macos-x64-relwithdebinfo.tar.gz",
+        "sha256": "806239e4754b4642bcc709d46d67d8ed0604692154532e5f3340b614a18d25ab"
       },
       "runtime": {
-        "asset": "lhat-love-v12.0.0-alpha.8-macos-x64-vmonly-shipping.tar.gz",
-        "sha256": "41a6b73f00e0d188537ed6b63ad61c7fa9af9c6eab535d09948fee726c69fb1a"
+        "asset": "lhat-love-v12.0.0-alpha.9-macos-x64-vmonly-shipping.tar.gz",
+        "sha256": "e41b52435a1de59059c8bbbd2e23d5cf837a3a892ee02c407f7952ead6ce4698"
       }
     }
   }
