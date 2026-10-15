@@ -118,7 +118,17 @@ public^let^step = p^up:bool^, down:bool^, pressed:number^{
     if^editing() { return^ }
     let^cancel = (pressed / 2).floor() % 2 = 1 or^(pressed / 8).floor() % 2 = 1
     let^confirm = pressed != 0 and^!cancel
-    if^cancel { if^mode != "room" { back() } return^ }
+    if^cancel {
+        if^mode != "room" { back()
+        else^:
+            # B/D can undo READY or seating, but never leave the room.
+            let^p = vp.online.localPlayer()
+            if^p != nil^ and^p.seat > 0 {
+                if^p.ready and^p.battle = 0 { vp.online.sit(p.seat) else^: back() }
+            }
+        }
+        return^
+    }
     if^vp.online.inRoom() and^(mode = "hosting" or^mode = "joining") { openRoom() }
     if^mode = "login" and^link = "ready" {
         if^!vp.settings.hasPlayerName() {
@@ -224,7 +234,7 @@ public^let^draw = p^{
         }
         love.graphics.setColor(0.9, 0.87, 0.98, 1)
         label(word("↑↓ 対戦台  ←→ 1P/2P  A 着席・READY切替", "Up/Down: table  Left/Right: side  A: sit / READY"), x + 28, y + 716, 20)
-        label(word("Esc / Back 離席（待機中はルーム退出）", "Esc / Back: stand / leave room when idle"), x + 28, y + 750, 20)
+        label(word("B / D READY解除・離席   Esc / Back 離席（待機中はルーム退出）", "B / D: cancel READY / stand   Esc / Back: stand / leave room when idle"), x + 28, y + 750, 20)
     else^:
         var^lines:t^{string^[]} = {}
         if^mode = "auth" { lines := { word("アカウントなしで接続", "Connect without an account"), word("Epic アカウントで接続", "Sign in with Epic Games"), word("戻る", "Back") }

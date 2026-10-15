@@ -2,7 +2,8 @@
 # std.binary into the save directory's replays/ (TechnicalDocuments/0155).
 # Playing one feeds the same inputs to the same match, which then plays out
 # the same: the setup and the simulation's random seed (src/rng.lh) are in
-# the header, the rest is the inputs.
+# the match header. Version 2 stores a boundary header and input block for
+# each round; version 1's single input block is still readable.
 #
 # A side's frame: its directions held (up 1, down 2, left 4, right 8: both
 # of a pair may be held, and the game reads them separately), its buttons
@@ -14,12 +15,13 @@ module^vp.replay
 
 import^love.filesystem
 import^std.binary
+import^std.math
 require^"locale.lh"
 
 public^let^DIR = "replays"
 public^let^EXTENSION = ".replay"
 let^MAGIC = 1347571798          # "VPRP" read as a little-endian uint32
-let^VERSION = 1
+let^VERSION = 2
 
 let^Header = t^{
     magic : number^, version : number^, seed : number^,
@@ -44,6 +46,15 @@ let^FRAME = b.format(Frame, {
     { "dirs1", b.uint(4) }, { "buttons1", b.uint(6) }, { "cpu1", b.bool() },
     { "dirs2", b.uint(4) }, { "buttons2", b.uint(6) }, { "cpu2", b.bool() },
 })
+public^let^Round = t^{ first:number^, number:number^, wins1:number^, wins2:number^, random:number^, special1:number^, special2:number^ }
+let^RoundHeader = t^{ first:number^, number:number^, wins1:number^, wins2:number^, random:number^, special1:number^, special2:number^, frames:number^ }
+let^COUNT = b.format(t^{count:number^}, { { "count", b.uint(32) } })
+let^ROUND = b.format(RoundHeader, {
+    { "first", b.uint(32) }, { "number", b.uint(16) },
+    { "wins1", b.uint(8) }, { "wins2", b.uint(8) },
+    { "random", b.uint(32) }, { "frames", b.uint(32) },
+    { "special1", b.int(32) }, { "special2", b.int(32) },
+})
 
 # One side's frame as a number: dirs + 16 * buttons + 1024 * cpu.
 public^let^pack = f^dirs:number^, buttons:number^, cpu:bool^-> number^{
@@ -62,6 +73,53 @@ public^let^Tape = def^{
         wins1 = 0, wins2 = 0, life1 = 0, life2 = 0,
         side1 : t^{number^[]} = {},
         side2 : t^{number^[]} = {},
+        rounds : t^{Round[]} = {},
+        legacy = false^,
+    },
+    # Called before a frame is simulated, including rollback resimulation.
+    # Discard speculative boundaries at/after this frame, then establish the
+    # boundary again if this is the first frame of a different round.
+    markRound = p^self^, first:number^, number:number^, wins1:number^, wins2:number^, random:number^, special1:number^, special2:number^{
+        let^current = self^.rounds[self^.rounds.length^ - 1]
+        if^current != nil^ and^current.first < first and^current.number = number { return^ }
+        var^kept : t^{Round[]} = {}
+        for^r in^self^.rounds { if^r.first < first { kept.push^(r) } }
+        let^last = kept[kept.length^ - 1]
+        if^last is^nil^ or^last.number != number {
+            kept.push^({ first = first, number = number, wins1 = wins1, wins2 = wins2, random = random, special1 = special1, special2 = special2 })
+        }
+        self^.rounds := kept
+    },
+    truncate = p^self^, frames:number^{
+        if^frames <= 0 { self^.side1 := {} self^.side2 := {}
+        else^:
+            self^.side1 := self^.side1.slice^(0, frames - 1)
+            self^.side2 := self^.side2.slice^(0, frames - 1)
+        }
+        var^kept : t^{Round[]} = {}
+        for^r in^self^.rounds { if^r.first < frames { kept.push^(r) } }
+        self^.rounds := kept
+    },
+    roundFrames = f^self^, index:number^-> number^{
+        let^r = self^.rounds[index]
+        if^r is^nil^ { return^0 }
+        return^(self^.rounds[index + 1]?.first ?? self^.frames()) - r.first
+    },
+    # A block is independently decodable for storage/transport. Its boundary
+    # metadata is not a portable simulation snapshot.
+    encodeRound = p^self^, index:number^-> string^{
+        let^r = self^.rounds[index]
+        if^r is^nil^ { panic^"Unknown replay round" }
+        let^count = self^.roundFrames(index)
+        var^parts : t^{string^[]} = { ROUND.encode({ first = r.first, number = r.number,
+            wins1 = r.wins1, wins2 = r.wins2, random = r.random, special1 = r.special1, special2 = r.special2, frames = count }) }
+        for^i from^r.first to^r.first + count - 1 {
+            let^one = self^.side1[i] ?? 0
+            let^two = self^.side2[i] ?? 0
+            parts.push^(FRAME.encode({ dirs1 = dirsOf(one), buttons1 = buttonsOf(one), cpu1 = cpuOf(one),
+                dirs2 = dirsOf(two), buttons2 = buttonsOf(two), cpu2 = cpuOf(two) }))
+        }
+        return^parts.join^("")
     },
     push = p^self^, one:number^, two:number^{
         self^.side1.push^(one)
@@ -79,13 +137,9 @@ public^let^Tape = def^{
                 life1 = self^.life1, life2 = self^.life2,
             }),
         }
-        for^one in^self^.side1 {
-            let^two = self^.side2[index^] ?? 0
-            parts.push^(FRAME.encode({
-                dirs1 = dirsOf(one), buttons1 = buttonsOf(one), cpu1 = cpuOf(one),
-                dirs2 = dirsOf(two), buttons2 = buttonsOf(two), cpu2 = cpuOf(two),
-            }))
-        }
+        if^self^.rounds.length^ = 0 { self^.markRound(0, 1, 0, 0, 0, 0, 0) }
+        parts.push^(COUNT.encode({ count = self^.rounds.length^ }))
+        for^r in^self^.rounds { parts.push^(self^.encodeRound(index^)) }
         return^parts.join^("")
     },
 }
@@ -141,10 +195,11 @@ catch^:
 public^let^load = p^name:string^-> Tape|nil^{
     let^text = try^love.filesystem.read($"{DIR}/{name}")
     let^h, start = try^HEADER.decode(text, 0)
-    if^h.magic != MAGIC or^h.version != VERSION {
+    if^h.magic != MAGIC or^(h.version != 1 and^h.version != VERSION) {
         print($"Not a replay of this version: {name}")
         return^nil^
     }
+    if^h.frames > (text.size - start) / FRAME.size() { return^nil^ }
     let^tape = Tape.new()
     tape.seed := h.seed
     tape.char1 := h.char1 tape.char2 := h.char2
@@ -154,10 +209,32 @@ public^let^load = p^name:string^-> Tape|nil^{
     tape.wins1 := h.wins1 tape.wins2 := h.wins2 tape.life1 := h.life1 tape.life2 := h.life2
     var^f : Frame = { dirs1 = 0, buttons1 = 0, cpu1 = false^, dirs2 = 0, buttons2 = 0, cpu2 = false^ }
     var^at = start
-    for^i from^1 to^h.frames {
-        at := try^FRAME.decodeInto(text, at, f)
-        tape.push(pack(f.dirs1, f.buttons1, f.cpu1), pack(f.dirs2, f.buttons2, f.cpu2))
+    if^h.version = 1 {
+        tape.legacy := true^
+        tape.markRound(0, 1, 0, 0, 0, 0, 0)
+        for^i from^1 to^h.frames {
+            at := try^FRAME.decodeInto(text, at, f)
+            tape.push(pack(f.dirs1, f.buttons1, f.cpu1), pack(f.dirs2, f.buttons2, f.cpu2))
+        }
+    else^:
+        let^count, next = try^COUNT.decode(text, at)
+        at := next
+        if^count.count < 1 or^count.count > std.math.max(h.frames, 1) { return^nil^ }
+        for^i from^1 to^count.count {
+            let^r, nextRound = try^ROUND.decode(text, at)
+            at := nextRound
+            if^r.first != tape.frames() or^r.frames > h.frames - tape.frames() { return^nil^ }
+            if^(r.frames = 0 and^h.frames != 0) or^r.number < 1 { return^nil^ }
+            let^previous = tape.rounds[tape.rounds.length^ - 1]
+            if^previous != nil^ and^r.number != previous.number + 1 { return^nil^ }
+            tape.rounds.push^({ first = r.first, number = r.number, wins1 = r.wins1, wins2 = r.wins2, random = r.random, special1 = r.special1, special2 = r.special2 })
+            for^j from^1 to^r.frames {
+                at := try^FRAME.decodeInto(text, at, f)
+                tape.push(pack(f.dirs1, f.buttons1, f.cpu1), pack(f.dirs2, f.buttons2, f.cpu2))
+            }
+        }
     }
+    if^tape.frames() != h.frames or^at != text.size { return^nil^ }
     return^tape
 catch^:
     print($"Replay not read: {name}: {it^.message}")

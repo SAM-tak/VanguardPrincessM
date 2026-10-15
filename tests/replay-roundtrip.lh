@@ -10,6 +10,7 @@ require^"../main.lh"
 require^"../tests/select-input.lh"
 require^"../src/arena.lh"
 require^"../src/replaylist.lh"
+require^"../src/replay.lh"
 
 var^phase = 0
 var^wait = 0
@@ -56,6 +57,18 @@ public^let^update = p^dt:number^{
     elseif^phase = 6 and^s.phase = "select":
         saved := s.lastReplay
         if^saved = "" or^love.filesystem.getInfo($"replays/{saved}") is^nil^ { fail("no replay was saved") }
+        let^tape = vp.replay.load(saved)
+        if^tape is^nil^ { fail("recorded replay could not be read") return^ }
+        if^tape.legacy or^tape.rounds.length^ < 2 { fail("match was not divided into rounds") }
+        var^total = 0
+        for^r in^tape.rounds {
+            if^r.number != index^ + 1 or^r.first != total or^r.random = 0 { fail("invalid recorded round boundary") }
+            let^length = tape.roundFrames(index^)
+            if^length <= 0 { fail("empty recorded round") }
+            total += length
+        }
+        if^total != tape.frames() { fail("round blocks do not cover the match") }
+        print($"round blocks: {tape.rounds.length^}, {total} total frames")
         print($"recorded {saved}: wins {s.wins}-{s.losses}")
         press(Key.escape)
         phase := 7

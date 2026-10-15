@@ -3,7 +3,18 @@
 module^vp.replayformattest
 import^love.event
 import^love.filesystem
+import^std.binary
 require^"../src/replay.lh"
+
+let^BYTE = std.binary.format(t^{value:number^}, { { "value", std.binary.uint(8) } })
+let^bytes = p^text:string^, first:number^, count:number^-> string^{
+    var^parts:t^{string^[]} = {}
+    for^i from^first to^first + count - 1 {
+        let^value, next = BYTE.decode(text, i) catch^panic^it^
+        parts.push^(BYTE.encode(value))
+    }
+    return^parts.join^("")
+}
 
 public^let^load = p^{
     let^tape = vp.replay.Tape.new()
@@ -14,6 +25,9 @@ public^let^load = p^{
     tape.stage := 6 tape.seconds := 60 tape.toWin := 2
     tape.wins1 := 1 tape.wins2 := 2 tape.life1 := -12 tape.life2 := 1000
     for^i from^0 to^999 {
+        if^i = 0 { tape.markRound(i, 1, 0, 0, 123456789, 0, 0) }
+        if^i = 400 { tape.markRound(i, 2, 1, 0, 4294967295, 345, 678) }
+        if^i = 750 { tape.markRound(i, 3, 1, 1, 987654321, 900, 1200) }
         tape.push(vp.replay.pack(i % 16, (i * 7) % 64, i % 3 = 0), vp.replay.pack((i * 5) % 16, (i * 11) % 64, i % 5 = 0))
     }
     let^name = vp.replay.save(tape, "ナタリア", "かえで")
@@ -30,7 +44,50 @@ public^let^load = p^{
     for^one in^tape.side1 {
         if^back.side1[index^] != one or^back.side2[index^] != tape.side2[index^] { panic^$"frame {index^} changed" }
     }
-    print($"PASS: a replay's header and 1000 frames read back as written ({name})")
+    if^back.legacy or^back.rounds.length^ != 3 { panic^"round blocks were lost" }
+    for^r in^tape.rounds {
+        let^other = back.rounds[index^]
+        if^other is^nil^ or^other.first != r.first or^other.number != r.number or^other.wins1 != r.wins1 or^other.wins2 != r.wins2 or^other.random != r.random or^other.special1 != r.special1 or^other.special2 != r.special2 {
+            panic^"round boundary metadata changed"
+        }
+        if^back.encodeRound(index^) != tape.encodeRound(index^) { panic^"round input block changed" }
+    }
+    if^back.roundFrames(0) != 400 or^back.roundFrames(1) != 350 or^back.roundFrames(2) != 250 { panic^"wrong round lengths" }
+    # A real version-1 byte stream: the old 36-byte header and flat inputs.
+    let^encoded = tape.encode()
+    let^version = std.binary.format(t^{version:number^}, { { "version", std.binary.uint(16) } })
+    var^old = bytes(encoded, 0, 4) .. version.encode({ version = 1 }) .. bytes(encoded, 6, 30)
+    for^r in^tape.rounds {
+        let^block = tape.encodeRound(index^)
+        old := old .. bytes(block, 24, block.size - 24)
+    }
+    let^fixture = "format-test-v1.replay"
+    let^_^ = love.filesystem.write($"replays/{fixture}", old) catch^false^
+    let^legacy = vp.replay.load(fixture)
+    let^_^ = love.filesystem.remove($"replays/{fixture}")
+    if^legacy is^nil^ or^!legacy.legacy or^legacy.frames() != 1000 { panic^"version 1 compatibility failed" }
+    for^one in^tape.side1 {
+        if^legacy.side1[index^] != one or^legacy.side2[index^] != tape.side2[index^] { panic^"legacy inputs changed" }
+    }
+    # Reject incomplete blocks, trailing bytes and non-contiguous offsets.
+    let^badOffset = bytes(encoded, 0, 40) .. BYTE.encode({ value = 1 }) .. bytes(encoded, 41, encoded.size - 41)
+    for^bad in^{ bytes(encoded, 0, encoded.size - 1), encoded .. "x", badOffset } {
+        let^_^ = love.filesystem.write($"replays/{fixture}", bad) catch^false^
+        let^broken = vp.replay.load(fixture)
+        let^_^ = love.filesystem.remove($"replays/{fixture}")
+        if^broken != nil^ { panic^"a malformed round block was accepted" }
+    }
+    # Resimulation must replace speculative future boundaries.
+    back.markRound(300, 1, 0, 0, 111, 0, 0)
+    if^back.rounds.length^ != 1 { panic^"speculative round boundaries survived rollback" }
+    back.markRound(420, 2, 1, 0, 222, 345, 678)
+    back.markRound(420, 2, 1, 0, 333, 345, 678)
+    if^back.rounds.length^ != 2 or^back.rounds[1]?.first != 420 or^back.rounds[1]?.random != 333 { panic^"resimulated boundary was duplicated or stale" }
+    back.truncate(420)
+    if^back.rounds.length^ != 1 or^back.frames() != 420 { panic^"truncation retained a speculative round" }
+    back.truncate(0)
+    if^back.rounds.length^ != 0 or^back.frames() != 0 { panic^"empty truncation retained input frames" }
+    print($"PASS: replay v2 header, three round blocks and 1000 frames; v1 compatibility; malformed blocks; rollback boundaries ({name})")
     love.event.quit()
 }
 public^let^draw = p^{}

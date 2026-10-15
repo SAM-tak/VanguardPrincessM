@@ -1426,6 +1426,7 @@ let^battleStep = p^one:number^, two:number^{
     if^tape != nil^ { replayFrame += 1 }
     let^rec = recording
     if^rec != nil^ {
+        rec.markRound(if^netplay: netFrame el^: rec.frames();, flow.number, flow.wins1, flow.wins2, vp.rng.get(), me.special, foe.special)
         if^netplay and^netFrame < rec.frames() {
             rec.side1[netFrame] := one
             rec.side2[netFrame] := two
@@ -1576,8 +1577,7 @@ let^netTick = p^{
         if^confirmed >= netFrame {
             let^rec = recording
             if^rec != nil^ {
-                rec.side1 := rec.side1.slice^(0, netFrame - 1)
-                rec.side2 := rec.side2.slice^(0, netFrame - 1)
+                rec.truncate(netFrame)
             }
             rollback.saved := nil^
             rollback.spare := nil^

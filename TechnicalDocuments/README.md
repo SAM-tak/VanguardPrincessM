@@ -251,3 +251,5 @@
 - [0165-account-display-name.md](0165-account-display-name.md) — 未設定のプレイヤー名にEpic表示名を使用。保存済みの独自名を優先し、プロフィール取得失敗でもログインを継続。
 - [0166-input-configuration.md](0166-input-configuration.md) — settings.jsonからキーボード・ゲームパッド・ショートカットを設定。既定値の補完、物理入力と論理入力の分離、ソースと配布用VM・実ゲームで検証。
 - [0167-engine-release-update.md](0167-engine-release-update.md) — 配布エンジンのタグ・全アセットのSHA-256更新と、VS Codeからの最新版／指定タグ更新タスク。
+- [0168-room-cancel-controls.md](0168-room-cancel-controls.md) — ロビーのB/DでREADY解除・離席を一段ずつ行い、未着席からのルーム退出を防ぐ。
+- [0169-replay-round-blocks.md](0169-replay-round-blocks.md) — リプレイv2でラウンド別の入力と開始ゲージ・勝利数・乱数状態を記録。旧形式読込と通し再生を維持。
