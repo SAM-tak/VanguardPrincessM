@@ -10,12 +10,26 @@ try {
             throw "Unexpected distribution entry: $($entry.FullName)"
         }
     }
+    if (-not $archive.GetEntry('extensions.txt')) { throw 'Missing EOS extension manifest' }
 } finally { $archive.Dispose() }
 $out = if ($DistributionDirectory) { $DistributionDirectory } else { Join-Path $root 'dist/VanguardPrincessM' }
 foreach ($media in 'assets', 'assets.zip') {
     if (Test-Path -LiteralPath (Join-Path $out $media)) { throw 'Public distribution contains external assets' }
 }
 $builder = if ($IsWindows) { 'BuildAssets.exe' } else { 'BuildAssets' }
+$eosFiles = if ($IsWindows) { @('eos_lhat.dll', 'EOSSDK-Win64-Shipping.dll') }
+    elseif ($IsLinux) { @('eos_lhat.so', 'libEOSSDK-Linux-Shipping.so') }
+    else { @('eos_lhat.dylib', 'libEOSSDK-Mac-Shipping.dylib') }
+foreach ($name in $eosFiles) {
+    $file = Join-Path $out "native/$name"
+    if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { throw "Missing EOS distribution file: $name" }
+    if ((Get-FileHash -LiteralPath $file).Hash -ne (Get-FileHash -LiteralPath (Join-Path $root "native/$name")).Hash) {
+        throw "EOS distribution binary differs from the compiler's copy: $name"
+    }
+}
+if (-not (Test-Path -LiteralPath (Join-Path $out 'eos-ThirdPartySoftwareNotice.txt') -PathType Leaf)) {
+    throw 'Missing EOS third-party notice'
+}
 $programs = @(
     $builder
     if ($IsWindows) { 'VanguardPrincessM.exe' }

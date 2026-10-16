@@ -257,3 +257,4 @@
 - [0171-online-spectating.md](0171-online-spectating.md) — 各台の確定リプレイをホストへ蓄積し、最新ラウンドからの観戦と第三者へのストリーミングを追加。
 - [0172-local-mock-online-launcher.md](0172-local-mock-online-launcher.md) — Epicアカウント不要で独立した模擬ユーザーのゲーム画面を複数起動し、ローカルで対戦・観戦を試す開発用ランチャー。
 - [0173-combo-reset-gap.md](0173-combo-reset-gap.md) — 被弾・ダウン終了直後のコマンド入力でコンボ表示数が残る不具合を修正。復帰時のリセットと処理途中の継続を検証。
+- [0174-ci-eos-binaries.md](0174-ci-eos-binaries.md) — CIでOS別EOSを配置・読み込み検証し、配布物を検査。同梱拡張の不足APIと新リリース公開後の更新手順。

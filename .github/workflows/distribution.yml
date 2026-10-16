@@ -50,6 +50,11 @@ jobs:
           sudo apt-get install -y patchelf
       - name: Download pinned engine release
         run: ./tools/download-engine.ps1 -Platform ${{ matrix.platform }}
+      - name: Install and test bundled EOS binaries
+        run: |
+          ./tools/setup-eos.ps1 -Platform ${{ matrix.platform }}
+          . ./tools/engine-platform.ps1
+          ./tools/test-eos-runtime.ps1 -Lovec (Get-EngineExecutable build/release-engine/compiler -Compiler) -ShippingDirectory build/release-engine/runtime
       - name: Test external assets with the fused launcher
         run: |
           . ./tools/engine-platform.ps1

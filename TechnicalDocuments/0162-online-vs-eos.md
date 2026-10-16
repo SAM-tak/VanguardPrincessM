@@ -33,7 +33,7 @@ GitHub ActionsではRepository secretsの `EOS_PRODUCT_ID`、`EOS_SANDBOX_ID`、
 
 `tools/package-game.ps1` はネイティブ拡張をステージへ配置してコンパイルし、アーカイブにはmanifestを含める。設定テンプレートは開発用で、配布には含めない。ルートに `eosconfig.lton` があればコンパイル済み設定として含めるため、**ゲームクライアント用の設定だけ**を置く。管理者用の認証情報は使用しない。`tools/dist.ps1` は `native/` とEOSの第三者ライセンスを外部ファイルとして配布する。
 
-クリーンなCI環境にもABIが一致する拡張・対象OSのEOSランタイムとライセンスの供給が必要。既存のCIはこれらのダウンロードを設定していないため、その準備なしではOnline対応版をビルドできない。Windowsの配布版は、SDKのBootstrapperToolで `VanguardPrincessM.exe` 用の起動ファイルも用意する必要がある。
+クリーンなCI環境にもABIが一致する拡張・対象OSのEOSランタイムとライセンスの供給が必要。0174で同梱ファイルの配置と読み込み検証をCIへ追加し、現行ロビーAPIに対応するEOS拡張v0.1.4へ更新した。以降の更新手順も0174を参照。Windowsの配布版は、SDKのBootstrapperToolで `VanguardPrincessM.exe` 用の起動ファイルも用意する必要がある。
 
 ## 検証と限界
 
