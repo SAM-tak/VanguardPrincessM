@@ -253,3 +253,4 @@
 - [0167-engine-release-update.md](0167-engine-release-update.md) — 配布エンジンのタグ・全アセットのSHA-256更新と、VS Codeからの最新版／指定タグ更新タスク。
 - [0168-room-cancel-controls.md](0168-room-cancel-controls.md) — ロビーのB/DでREADY解除・離席を一段ずつ行い、未着席からのルーム退出を防ぐ。
 - [0169-replay-round-blocks.md](0169-replay-round-blocks.md) — リプレイv2でラウンド別の入力と開始ゲージ・勝利数・乱数状態を記録。旧形式読込と通し再生を維持。
+- [0170-replay-round-start.md](0170-replay-round-start.md) — リプレイv3の開始状態で再生中の上下キーからラウンド移動。ステージ演出の継続、開始前演出中の戻り判定、旧形式互換と検証。

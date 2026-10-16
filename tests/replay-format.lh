@@ -30,6 +30,8 @@ public^let^load = p^{
         if^i = 750 { tape.markRound(i, 3, 1, 1, 987654321, 900, 1200) }
         tape.push(vp.replay.pack(i % 16, (i * 7) % 64, i % 3 = 0), vp.replay.pack((i * 5) % 16, (i * 11) % 64, i % 5 = 0))
     }
+    let^secondRound = tape.rounds[1]
+    if^secondRound != nil^ { secondRound.checkpoint := "{\"note\":\"復元用データ\"}" }
     let^name = vp.replay.save(tape, "ナタリア", "かえで")
     if^name = "" { panic^"not saved" }
     if^name.find("natalia-vs-kaede-") != 0 { panic^$"the file is not named by the characters' ids: {name}" }
@@ -47,7 +49,7 @@ public^let^load = p^{
     if^back.legacy or^back.rounds.length^ != 3 { panic^"round blocks were lost" }
     for^r in^tape.rounds {
         let^other = back.rounds[index^]
-        if^other is^nil^ or^other.first != r.first or^other.number != r.number or^other.wins1 != r.wins1 or^other.wins2 != r.wins2 or^other.random != r.random or^other.special1 != r.special1 or^other.special2 != r.special2 {
+        if^other is^nil^ or^other.first != r.first or^other.number != r.number or^other.wins1 != r.wins1 or^other.wins2 != r.wins2 or^other.random != r.random or^other.special1 != r.special1 or^other.special2 != r.special2 or^other.checkpoint != r.checkpoint {
             panic^"round boundary metadata changed"
         }
         if^back.encodeRound(index^) != tape.encodeRound(index^) { panic^"round input block changed" }
@@ -57,9 +59,12 @@ public^let^load = p^{
     let^encoded = tape.encode()
     let^version = std.binary.format(t^{version:number^}, { { "version", std.binary.uint(16) } })
     var^old = bytes(encoded, 0, 4) .. version.encode({ version = 1 }) .. bytes(encoded, 6, 30)
+    var^v2 = bytes(encoded, 0, 4) .. version.encode({ version = 2 }) .. bytes(encoded, 6, 34)
     for^r in^tape.rounds {
         let^block = tape.encodeRound(index^)
-        old := old .. bytes(block, 24, block.size - 24)
+        let^inputs = bytes(block, 28 + r.checkpoint.size, block.size - 28 - r.checkpoint.size)
+        old := old .. inputs
+        v2 := v2 .. bytes(block, 0, 24) .. inputs
     }
     let^fixture = "format-test-v1.replay"
     let^_^ = love.filesystem.write($"replays/{fixture}", old) catch^false^
@@ -68,6 +73,13 @@ public^let^load = p^{
     if^legacy is^nil^ or^!legacy.legacy or^legacy.frames() != 1000 { panic^"version 1 compatibility failed" }
     for^one in^tape.side1 {
         if^legacy.side1[index^] != one or^legacy.side2[index^] != tape.side2[index^] { panic^"legacy inputs changed" }
+    }
+    let^_^ = love.filesystem.write($"replays/{fixture}", v2) catch^false^
+    let^back2 = vp.replay.load(fixture)
+    let^_^ = love.filesystem.remove($"replays/{fixture}")
+    if^back2 is^nil^ or^back2.legacy or^back2.rounds.length^ != 3 or^back2.frames() != 1000 { panic^"version 2 compatibility failed" }
+    for^one in^tape.side1 {
+        if^back2.side1[index^] != one or^back2.side2[index^] != tape.side2[index^] { panic^"version 2 inputs changed" }
     }
     # Reject incomplete blocks, trailing bytes and non-contiguous offsets.
     let^badOffset = bytes(encoded, 0, 40) .. BYTE.encode({ value = 1 }) .. bytes(encoded, 41, encoded.size - 41)
@@ -87,7 +99,7 @@ public^let^load = p^{
     if^back.rounds.length^ != 1 or^back.frames() != 420 { panic^"truncation retained a speculative round" }
     back.truncate(0)
     if^back.rounds.length^ != 0 or^back.frames() != 0 { panic^"empty truncation retained input frames" }
-    print($"PASS: replay v2 header, three round blocks and 1000 frames; v1 compatibility; malformed blocks; rollback boundaries ({name})")
+    print($"PASS: replay v3 checkpoints, three round blocks and 1000 frames; v1/v2 compatibility; malformed blocks; rollback boundaries ({name})")
     love.event.quit()
 }
 public^let^draw = p^{}

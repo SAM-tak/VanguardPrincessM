@@ -1,0 +1,196 @@
+# Portable data at startRound(), before the ordinary reset. Fighters restart
+# their start skill; only stage layers resume an interpreted script cursor.
+module^vp.roundstart
+import^std.json
+require^"fighter.lh"
+require^"stage.lh"
+require^"round.lh"
+require^"rng.lh"
+let^Fighter = vp.fighter.Fighter
+let^Pairs = t^{t^{number^[]}[]}
+public^let^Actor = t^{
+    values:t^{number^[]}, flags:t^{bool^[]}, vars:Pairs,
+    dirs:Pairs, press:Pairs, held:Pairs, buttons:Pairs,
+}
+public^let^State = t^{
+    version:number^, frame:number^, random:number^,
+    fighters:t^{Actor[]}, layers:t^{Actor[]}, system:Pairs,
+    flow:t^{number^[]}, flags:t^{bool^[]}, view:t^{number^[]},
+}
+let^pairs = p^table:t^{[number^]:number^|nil^}-> Pairs{
+    var^out:Pairs = {}
+    for^key, value in^table { if^value != nil^ { out.push^({key, value}) } }
+    return^out
+}
+let^table = p^pairs:Pairs-> t^{[number^]:number^|nil^}{
+    var^out:t^{[number^]:number^|nil^} = {}
+    for^pair in^pairs {
+        let^key = pair[0] let^value = pair[1]
+        if^key != nil^ and^value != nil^ { out[key] := value }
+    }
+    return^out
+}
+let^actor = p^p:Fighter-> Actor{
+    return^{
+        values = { p.palette, p.x, p.y, p.ground, p.vx, p.vy, p.ax, p.ay, p.facing, p.image, p.ix, p.iy, p.blend, p.alpha, p.tintR, p.tintG, p.tintB, p.scrollX, p.scrollY, p.level, p.skillNo, p.jumpSkill, p.jumpBlock, p.callReturn, p.callReturnBlock, p.repeatReturn, p.repeatReturnBlock, p.repeatTarget, p.repeatBlock, p.repeatLeft, p.inputFrame, p.consumedThrough, p.cpuHistorySpan, p.closeRange, p.cancelFrom, p.cancelTo, p.cancelSkill, p.life, p.lifeMax, p.guardDamageRate, p.lowLifeThreshold, p.lowLifeRate, p.comboRate, p.damageHits, p.special, p.specialPer, p.stockMax, p.combo, p.stop, p.cornerPush, p.baseDepth, p.depth, p.lastOwnerX, p.lastOwnerY, p.spins, p.waitTimer, p.scriptPC, p.scriptYield, p.minX, p.maxX, p.minXAir, p.maxXAir },
+        flags = { p.turnX, p.turnY, p.fixed, p.loopX, p.loopY, p.externalIntroPortrait, p.eventPending, p.hitConfirmed, p.cancelArmed, p.cancelByHit, p.guarding, p.blocking, p.receiving, p.guardCrouched, p.attackConnected, p.frameAttack, p.frameThrow, p.frameReceived, p.recoilReturns, p.guardEither, p.follow, p.shadowOf, p.system, p.onScreen, p.alive, p.scriptShown },
+        vars = pairs(p.vars), dirs = pairs(p.inDirs), press = pairs(p.inPress),
+        held = pairs(p.inHeld), buttons = pairs(p.lastButtonPress),
+    }
+}
+let^apply = p^p:Fighter, s:Actor-> bool^{
+    if^s.values.length^ != 62 or^s.flags.length^ != 26 { return^false^ }
+    p.palette := s.values[0] ?? 0
+    p.x := s.values[1] ?? 0
+    p.y := s.values[2] ?? 0
+    p.ground := s.values[3] ?? 0
+    p.vx := s.values[4] ?? 0
+    p.vy := s.values[5] ?? 0
+    p.ax := s.values[6] ?? 0
+    p.ay := s.values[7] ?? 0
+    p.facing := s.values[8] ?? 0
+    p.image := s.values[9] ?? 0
+    p.ix := s.values[10] ?? 0
+    p.iy := s.values[11] ?? 0
+    p.blend := s.values[12] ?? 0
+    p.alpha := s.values[13] ?? 0
+    p.tintR := s.values[14] ?? 0
+    p.tintG := s.values[15] ?? 0
+    p.tintB := s.values[16] ?? 0
+    p.scrollX := s.values[17] ?? 0
+    p.scrollY := s.values[18] ?? 0
+    p.level := s.values[19] ?? 0
+    p.skillNo := s.values[20] ?? 0
+    p.jumpSkill := s.values[21] ?? 0
+    p.jumpBlock := s.values[22] ?? 0
+    p.callReturn := s.values[23] ?? 0
+    p.callReturnBlock := s.values[24] ?? 0
+    p.repeatReturn := s.values[25] ?? 0
+    p.repeatReturnBlock := s.values[26] ?? 0
+    p.repeatTarget := s.values[27] ?? 0
+    p.repeatBlock := s.values[28] ?? 0
+    p.repeatLeft := s.values[29] ?? 0
+    p.inputFrame := s.values[30] ?? 0
+    p.consumedThrough := s.values[31] ?? 0
+    p.cpuHistorySpan := s.values[32] ?? 0
+    p.closeRange := s.values[33] ?? 0
+    p.cancelFrom := s.values[34] ?? 0
+    p.cancelTo := s.values[35] ?? 0
+    p.cancelSkill := s.values[36] ?? 0
+    p.life := s.values[37] ?? 0
+    p.lifeMax := s.values[38] ?? 0
+    p.guardDamageRate := s.values[39] ?? 0
+    p.lowLifeThreshold := s.values[40] ?? 0
+    p.lowLifeRate := s.values[41] ?? 0
+    p.comboRate := s.values[42] ?? 0
+    p.damageHits := s.values[43] ?? 0
+    p.special := s.values[44] ?? 0
+    p.specialPer := s.values[45] ?? 0
+    p.stockMax := s.values[46] ?? 0
+    p.combo := s.values[47] ?? 0
+    p.stop := s.values[48] ?? 0
+    p.cornerPush := s.values[49] ?? 0
+    p.baseDepth := s.values[50] ?? 0
+    p.depth := s.values[51] ?? 0
+    p.lastOwnerX := s.values[52] ?? 0
+    p.lastOwnerY := s.values[53] ?? 0
+    p.spins := s.values[54] ?? 0
+    p.waitTimer := s.values[55] ?? 0
+    p.scriptPC := s.values[56] ?? 0
+    p.scriptYield := s.values[57] ?? 0
+    p.minX := s.values[58] ?? 0
+    p.maxX := s.values[59] ?? 0
+    p.minXAir := s.values[60] ?? 0
+    p.maxXAir := s.values[61] ?? 0
+    p.turnX := s.flags[0] ?? false^
+    p.turnY := s.flags[1] ?? false^
+    p.fixed := s.flags[2] ?? false^
+    p.loopX := s.flags[3] ?? false^
+    p.loopY := s.flags[4] ?? false^
+    p.externalIntroPortrait := s.flags[5] ?? false^
+    p.eventPending := s.flags[6] ?? false^
+    p.hitConfirmed := s.flags[7] ?? false^
+    p.cancelArmed := s.flags[8] ?? false^
+    p.cancelByHit := s.flags[9] ?? false^
+    p.guarding := s.flags[10] ?? false^
+    p.blocking := s.flags[11] ?? false^
+    p.receiving := s.flags[12] ?? false^
+    p.guardCrouched := s.flags[13] ?? false^
+    p.attackConnected := s.flags[14] ?? false^
+    p.frameAttack := s.flags[15] ?? false^
+    p.frameThrow := s.flags[16] ?? false^
+    p.frameReceived := s.flags[17] ?? false^
+    p.recoilReturns := s.flags[18] ?? false^
+    p.guardEither := s.flags[19] ?? false^
+    p.follow := s.flags[20] ?? false^
+    p.shadowOf := s.flags[21] ?? false^
+    p.system := s.flags[22] ?? false^
+    p.onScreen := s.flags[23] ?? false^
+    p.alive := s.flags[24] ?? false^
+    p.scriptShown := s.flags[25] ?? false^
+    p.vars := table(s.vars)
+    p.inDirs := table(s.dirs) p.inPress := table(s.press)
+    p.inHeld := table(s.held) p.lastButtonPress := table(s.buttons)
+    return^true^
+}
+public^let^capture = p^one:Fighter, two:Fighter, stage:vp.stage.Stage, flow:vp.round.Round, frame:number^, viewX:number^, viewY:number^-> string^{
+    # Original stages have no spawned objects. Do not silently discard a
+    # future stage's graph or an unfinished VS portrait.
+    if^flow.portraits.length^ != 0 { return^"" }
+    var^layers:t^{Actor[]} = {}
+    for^p in^stage.layers {
+        if^p.objects.length^ != 0 { return^"" }
+        layers.push^(actor(p))
+    }
+    let^state:State = {
+        version = 1, frame = frame, random = vp.rng.get(), view = {viewX, viewY},
+        fighters = {actor(one), actor(two)}, layers = layers,
+        system = pairs(vp.fighter.systemVarsCopy()),
+        flow = { flow.presentationFrames, flow.waitingFrames, flow.resultFrames, flow.left, flow.number, flow.toWin, flow.wins1, flow.wins2, flow.winner },
+        flags = { flow.externalPresentation, flow.battleRevealed, flow.preparing, flow.awarded, flow.lossWithMark, flow.perfect },
+    }
+    return^std.json.encode(state) catch^""
+}
+# Applies plain data to freshly installed fighters and freshly loaded stage
+# layers. Returns the pre-reset global frame, or nil for unsupported data.
+public^let^restore = p^text:string^, one:Fighter, two:Fighter, stage:vp.stage.Stage, flow:vp.round.Round-> number^|nil^{
+    let^raw = std.json.decode(text) catch^nil^
+    if^!(raw fits^State) { return^nil^ }
+    if^raw.version != 1 or^raw.fighters.length^ != 2 or^raw.layers.length^ != stage.layers.length^ or^
+        raw.flow.length^ != 9 or^raw.flags.length^ != 6 or^raw.view.length^ != 2 { return^nil^ }
+    let^first = raw.fighters[0] let^second = raw.fighters[1]
+    if^first is^nil^ or^second is^nil^ { return^nil^ }
+    if^!apply(one, first) or^!apply(two, second) { return^nil^ }
+    for^p in^stage.layers {
+        let^s = raw.layers[index^]
+        if^s is^nil^ or^!apply(p, s) { return^nil^ }
+        if^p.scriptYield = -1 { p.skill := nil^ p.heldSkill := nil^
+        else^:
+            let^proc = p.skills[p.skillNo]
+            if^proc is^nil^ { return^nil^ }
+            p.skill := proc(p, p.scriptPC)
+            p.scriptRestore := p.scriptYield > 0
+            p.heldSkill := if^p.scriptYield = 1: p.skill el^: nil^;
+        }
+    }
+    flow.presentationFrames := raw.flow[0] ?? 0
+    flow.waitingFrames := raw.flow[1] ?? 0
+    flow.resultFrames := raw.flow[2] ?? 0
+    flow.left := raw.flow[3] ?? 0
+    flow.number := raw.flow[4] ?? 0
+    flow.toWin := raw.flow[5] ?? 0
+    flow.wins1 := raw.flow[6] ?? 0
+    flow.wins2 := raw.flow[7] ?? 0
+    flow.winner := raw.flow[8] ?? 0
+    flow.externalPresentation := raw.flags[0] ?? false^
+    flow.battleRevealed := raw.flags[1] ?? false^
+    flow.preparing := raw.flags[2] ?? false^
+    flow.awarded := raw.flags[3] ?? false^
+    flow.lossWithMark := raw.flags[4] ?? false^
+    flow.perfect := raw.flags[5] ?? false^
+    flow.portraits := {} flow.portraitLoops := {}
+    vp.fighter.setSystemVars(table(raw.system))
+    vp.fighter.setView(raw.view[0] ?? 0, raw.view[1] ?? 0)
+    vp.rng.set(raw.random)
+    return^raw.frame
+}

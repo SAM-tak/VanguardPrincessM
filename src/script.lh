@@ -52,6 +52,22 @@ public^let^Script = def^{
         let^count = bs.length^
         var^pc = at
         var^shown = false^              # an image was shown since the layer last started over
+        var^skipSpin = false^
+        if^me.scriptRestore {
+            me.scriptRestore := false^
+            pc := me.scriptPC shown := me.scriptShown
+            if^me.scriptYield = 1 {
+                # Resume just after hold's yield. advance() has already
+                # skipped whole waiting frames using the saved heldSkill.
+                me.heldSkill := nil^
+                if^me.waitTimer >= 0 { me.waitTimer -= 100 }
+            elseif^me.scriptYield = 2:
+                pc := 0 shown := false^
+            elseif^me.scriptYield = 3:
+                skipSpin := true^
+            }
+            me.scriptYield := 0
+        }
         # Where a jump goes: on in this skill, or into another (which ends this one).
         # false^ when the skill is over.
         let^go = p^s:number^, b:number^-> bool^{
@@ -78,11 +94,20 @@ public^let^Script = def^{
                 # A layer that showed nothing on its way round (only a Settings
                 # block, such as プレーヤー位置) waits a frame before it goes
                 # round again, instead of going round 300 times a frame.
-                if^!shown { yield^ }
+                if^!shown {
+                    me.scriptPC := pc me.scriptShown := shown me.scriptYield := 2
+                    yield^
+                    me.scriptYield := 0
+                }
                 shown := false^
                 pc := 0
             }
-            if^me.spin() { yield^ }
+            if^!skipSpin and^me.spin() {
+                me.scriptPC := pc me.scriptShown := shown me.scriptYield := 3
+                yield^
+                me.scriptYield := 0
+            }
+            skipSpin := false^
             let^b = bs[pc]
             if^b is^nil^ { return^}
             pc += 1
@@ -98,8 +123,10 @@ public^let^Script = def^{
             let^a7 = a[7] ?? 0
             if^op = "I" {
                 shown := true^
+                me.scriptPC := pc me.scriptShown := shown me.scriptYield := 1
                 me.sheet := vp.sprite.sheetFor(if^sk.media = "": me.dir el^: sk.media;)
                 if^b.s = "" { await^me.show(a0, a1, a2, a3) else^: await^me.showEx(a0, a1, a2, a3, b.s) }
+                me.scriptYield := 0
             elseif^op = "FD":
                 # number, x, y, w, h, rate
                 if^a3 = 0 and^a4 = 0 {
@@ -191,7 +218,7 @@ public^let^Script = def^{
     },
     # Skill n of the script as an entry for the fighter's skill table.
     entry = p^self^, n:number^-> (p^Fighter, number^ -> c^{p^-> nil^};){
-        return^p^me:Fighter, at:number^{ await^self^.run(me, n, at) }
+        return^p^me:Fighter, at:number^{ await^self^.run(me, n, at) me.scriptYield := -1 }
     },
     # Puts every skill of the script into the fighter's table, with the levels
     # (what C blocks cancel against); a character's script also brings its hit

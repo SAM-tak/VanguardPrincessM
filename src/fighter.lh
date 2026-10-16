@@ -176,6 +176,9 @@ public^let^Fighter = def^{
         spins = 0,
         waitTimer = 0,              # FM2K's I-block timer (see `hold`)
         heldSkill : Skill|nil^= nil^, # coroutine currently suspended in hold
+        # Portable cursor for data-driven stage scripts. This is not a VM
+        # coroutine store; round replay rebuilds a new script at this cursor.
+        scriptPC = 0, scriptYield = 0, scriptShown = false^, scriptRestore = false^,
         # Where x may go, on the ground and in the air (the stage's walls and
         # the view's edges; the controller sets them each frame).
         minX = -1000000, maxX = 1000000, minXAir = -1000000, maxXAir = 1000000,
@@ -369,6 +372,7 @@ public^let^Fighter = def^{
     # boxes and event handlers go, and on the ground so does motion.
     # Task variables belong to the object, not to an individual animation.
     play = p^self^, name:string^, co:Skill {
+        self^.scriptYield := 0 self^.scriptRestore := false^
         self^.jumpSkill := -1
         self^.eventPending := false^
         self^.clearCalls()
@@ -447,6 +451,7 @@ public^let^Fighter = def^{
     # Continues in generated skill n at block b, as a script jump does:
     # boxes, motion, variables and handlers carry over.
     start = p^self^, n:number^, b:number^{
+        self^.scriptYield := 0 self^.scriptRestore := false^
         let^proc = self^.skills[n]
         if^proc != nil^ {
             self^.skillName := $"#{n}"

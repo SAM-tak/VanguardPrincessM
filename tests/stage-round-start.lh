@@ -1,0 +1,76 @@
+# Every original stage must continue from portable data, including empty
+# looping layers, moving layers, long image holds, jumps and random branches.
+module^vp.stageroundstarttest
+import^love.event
+import^love.timer
+require^"../src/preload.lh"
+require^"../src/resource.lh"
+require^"../src/roundstart.lh"
+require^"../src/fighter.lh"
+require^"../src/stage.lh"
+require^"../src/round.lh"
+require^"../src/rng.lh"
+let^NAMES = {"スクール", "プール", "神社", "瓦礫", "夜", "丘", "ラスト"}
+let^loadout = vp.preload.Load.new("stage-round-start")
+var^began = 0
+var^complete = false^
+let^advance = p^stage:vp.stage.Stage, frame:number^{
+    vp.fighter.setRound(6000 - frame, 2)
+    vp.fighter.setView((frame % 17) * 3, 480)
+    let^_^ = vp.rng.int(0, 32767)  # other simulation work shares the generator
+    stage.step()
+}
+let^sample = p^stage:vp.stage.Stage-> string^{
+    var^out = $"{vp.rng.get()}"
+    for^p in^stage.layers {
+        out := $"{out}|{p.skillNo}:{p.scriptPC}:{p.scriptYield}:{p.waitTimer}:{p.image}:{p.alive}:{p.x:%.17g},{p.y:%.17g}:{p.vx:%.17g},{p.vy:%.17g}:{p.blend}:{p.alpha:%.17g}"
+        for^k from^0 to^127 {
+            let^value = p.vars[k] ?? 0
+            if^value != 0 { out := $"{out},{k}={value:%.17g}" }
+        }
+    }
+    return^out
+}
+public^let^load = p^{
+    began := love.timer.getTime()
+    for^name in^NAMES { loadout.add($"assets/stages/{name}", false^) }
+}
+public^let^update = p^dt:number^{
+    vp.resource.pump(0.01)
+    if^!complete and^loadout.ready() {
+        complete := true^
+        loadout.batch.arena.attach()
+        for^name in^NAMES {
+            let^dir = $"assets/stages/{name}"
+            for^point in^{1, 2, 99, 320, 799} {
+                vp.rng.seed(123456 + point)
+                vp.fighter.clearSystemVars()
+                let^one = vp.fighter.Fighter.new(dir, 0, 0)
+                let^two = vp.fighter.Fighter.new(dir, 0, 0)
+                one.setv(139, 502)
+                let^flow = vp.round.Round.new()
+                flow.number := 2
+                let^original = vp.stage.load(dir)
+                for^p in^original.layers { p.mutedSounds[1] := true^ }
+                for^n from^1 to^point { advance(original, n) }
+                let^state = vp.roundstart.capture(one, two, original, flow, point, (point % 17) * 3, 480)
+                if^state = "" { panic^$"stage checkpoint unavailable: {name}" }
+                var^expected:t^{string^[]} = {}
+                for^n from^point + 1 to^point + 100 { advance(original, n) expected.push^(sample(original)) }
+                let^copy = vp.stage.load(dir)
+                for^p in^copy.layers { p.mutedSounds[1] := true^ }
+                let^restored = vp.roundstart.restore(state, one, two, copy, flow)
+                if^restored != point { panic^$"stage checkpoint rejected: {name}" }
+                for^n from^point + 1 to^point + 100 {
+                    advance(copy, n)
+                    if^sample(copy) != expected[n - point - 1] { panic^$"stage continuation differs: {name}, checkpoint {point}, frame {n}" }
+                }
+            }
+        }
+        print("PASS: all seven stages resume from five portable checkpoints and match 100 subsequent frames each")
+        love.event.quit()
+    }
+    if^love.timer.getTime() - began > 120 { panic^"stage round-start timeout" }
+}
+public^let^draw = p^{}
+public^let^quit = p^-> bool^{ vp.resource.stop() return^false^ }

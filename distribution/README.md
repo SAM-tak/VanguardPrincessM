@@ -158,3 +158,9 @@ Run the game once to create the file, then close the game before editing it. Ope
 ```
 
 `keyboard1` and `keyboard2` contain the keyboard bindings for each player, `gamepad1` and `gamepad2` contain their gamepad bindings, and `shortcuts` contains shared shortcuts. Change the values on the right to assign different keys or buttons, then save the file and restart the game.
+
+### Watching replays
+
+VS matches are saved automatically. Open **WATCH REPLAY**, use Up/Down to choose a file, and press a confirm button to play it from the beginning. Older recordings can still be played.
+
+During playback, Up jumps to the next round. Down jumps to the previous round's beginning during the opening presentation, or to the current round's beginning once fighting has started. Round jumping is available for newly recorded replays. Hold Right to fast-forward or Left to rewind, and press Esc to stop playback.

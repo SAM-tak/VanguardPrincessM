@@ -66,6 +66,7 @@ public^let^open = p^{
     shown := true^
     item := 0
     top := 0
+    choice := ""
 }
 public^let^close = p^{ shown := false^ }
 # The file chosen to play this frame, or "" (taken once).

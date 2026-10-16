@@ -46,6 +46,7 @@ require^"src/story.lh"
 require^"src/practicemenu.lh"
 require^"src/replaylist.lh"
 require^"src/replay.lh"
+require^"src/roundstart.lh"
 require^"src/rng.lh"
 require^"src/snapshot.lh"
 require^"src/net.lh"
@@ -119,11 +120,9 @@ var^attractNames : t^{string^[]} = {}
 var^attractSupports : t^{number^[]} = {}
 var^matchSeconds = 60
 var^paused = false^
+let^replayState = vp.replay.Runtime.new()
 # Replays (TechnicalDocuments/0155): VS matches are recorded, and one chosen
 # from WATCH REPLAY is played from its inputs.
-var^recording : vp.replay.Tape|nil^= nil^
-var^playing : vp.replay.Tape|nil^= nil^
-var^replayFrame = 0            # the next of the played replay's frames
 # Playing a replay keeps a snapshot every second (TechnicalDocuments/0156):
 # left goes back to the last one before now, right holds fast forward.
 var^replaySnapshots : t^{[number^]:Saved|nil^} = {}
@@ -134,8 +133,6 @@ let^REWIND_MARGIN = 30         # a step back from just past a snapshot goes to t
 var^rewindTimer = 0
 var^fastForward = false^
 var^leavingReplay = false^     # a played replay has ended; the mode menu is loading
-var^replayMatched = false^     # the last replay ended as it was recorded
-var^lastReplay = ""            # the last saved replay's file name
 var^matchSeed = 0              # the simulation's seed for the match being prepared
 # LAN VS (TechnicalDocuments/0157): a linked session's select screen and
 # matches. Each side plays its own; the other's input arrives over src/net.lh
@@ -470,6 +467,9 @@ let^stepFighters = p^{
 }
 
 let^startRound = p^{
+    if^replayState.recording != nil^ and^flow.number > 1 {
+        replayState.roundCheckpoint := vp.roundstart.capture(me, foe, stage, flow, frame, camX, camY)
+    }
     vp.shake.horizontal.reset()
     vp.shake.vertical.reset()
     # The demo bypasses portrait #25, which normally initializes variable 129.
@@ -529,7 +529,7 @@ let^endAttract = p^animate:bool^{
 # The match arena goes; the select arena remains (TechnicalDocuments/0023).
 let^toSelect = p^{
     if^attract { endAttract(true^) return^ }
-    if^playing != nil^ { endReplay(true^) return^ }
+    if^replayState.playing != nil^ { endReplay(true^) return^ }
     if^netplay and^vp.net.isOnline() {
         saveRecording() vp.net.finishOnline() endNet("") return^
     }
@@ -643,6 +643,7 @@ let^loadMatch = p^s:vp.select.Select {
 let^startBattle = p^{
     brain := nil^
     demoBrain := nil^
+    replayState.roundCheckpoint := ""
     matchSeconds := vsRoundSeconds()
     let^name1 = setup.name1
     let^colour1 = setup.colour1
@@ -671,7 +672,7 @@ let^startBattle = p^{
         rollback.sentSum := 0
         flow.toWin := vp.net.hostSetup().toWin
     }
-    let^tape = playing
+    let^tape = replayState.playing
     if^tape != nil^ {
         flow.toWin := tape.toWin
     elseif^!practiceMode:
@@ -686,7 +687,7 @@ let^startBattle = p^{
         rec.stage := matchStage
         rec.seconds := matchSeconds
         rec.toWin := flow.toWin
-        recording := rec
+        replayState.recording := rec
     }
     if^!matchIntro { love.audio.stop() }
     me := Fighter.new($"assets/characters/{name1}", WORLD_W / 2 - START_X, GROUND)
@@ -703,12 +704,47 @@ let^startBattle = p^{
     matchIntro := false^
     selecting := nil^
     startRound()
+    if^tape != nil^ and^replayState.replayStartRound > 1 {
+        if^!restoreReplayRound(tape, replayState.replayStartRound) {
+            print("Replay round could not be restored") endReplay(false^) return^
+        }
+        introCatchup := 0
+        return^
+    }
     introCatchup := flow.presentationFrames
+}
+
+# Rebuild a round using its pre-reset data and the same reset/transition tail
+# as live play. No input or simulation from an earlier round is consumed.
+let^restoreReplayRound = p^tape:vp.replay.Tape, number:number^-> bool^{
+    let^r = tape.rounds[number - 1]
+    if^r is^nil^ or^r.number != number or^r.checkpoint = "" { return^false^ }
+    stage := vp.stage.load($"assets/stages/{STAGES[matchStage] ?? "スクール"}")
+    for^layer in^stage.layers { layer.mutedSounds[1] := true^ }
+    let^savedFrame = vp.roundstart.restore(r.checkpoint, me, foe, stage, flow)
+    if^savedFrame is^nil^ { return^false^ }
+    frame := savedFrame
+    startRound()
+    flow.layers := {} flow.combos := {}
+    flow.enter("start", 13)
+    for^l in^flow.layers { l.stepScript() }
+    flow.placeMarks()
+    vp.shake.horizontal.step() vp.shake.vertical.step()
+    stage.step()
+    wasTiming := false^
+    hud.step(me, foe, if^matchSeconds = 0: -1 el^: (std.math.max(roundFrames - 1, 0) / 100).floor();)
+    stepFighters()
+    frame += 1
+    replayState.replayFrame := r.first replayState.replayFirstFrame := r.first
+    if^flow.number != r.number or^flow.wins1 != r.wins1 or^flow.wins2 != r.wins2 or^
+        vp.rng.get() != r.random or^me.special != r.special1 or^foe.special != r.special2 { return^false^ }
+    replaySnapshots[replayState.replayFrame] := snapshot(nil^)
+    return^true^
 }
 
 # A VS round's length: none in practice, the replay's when playing one.
 let^vsRoundSeconds = f^-> number^{
-    let^tape = playing
+    let^tape = replayState.playing
     return^if^practiceMode: 0 el^tape != nil^: tape.seconds el^: vsSeconds;
 }
 
@@ -725,15 +761,25 @@ let^nameOf = f^p:Fighter-> string^{
 # Plays replays/<name> (WATCH REPLAY): the recorded match's setup, loaded the
 # way VS loads its own, over the mode menu until its presentation starts.
 let^startReplay = p^name:string^{
+    playReplay(name, 1)
+}
+public^let^playReplay = p^name:string^, number:number^{
+    if^pending != nil^ or^replayState.playing != nil^ or^netplay or^scene is^nil^ { return^ }
     let^tape = vp.replay.load(name)
     if^tape is^nil^ { return^ }
+    if^number < 1 or^number != number.floor() { return^ }
+    if^number > 1 {
+        let^r = tape.rounds[number - 1]
+        if^r is^nil^ or^r.number != number or^r.checkpoint = "" { print("No starting data for that replay round") return^ }
+    }
     let^name1 = vp.select.CHARACTERS[tape.char1]
     let^name2 = vp.select.CHARACTERS[tape.char2]
     if^name1 is^nil^ or^name2 is^nil^ { print($"Replay of unknown characters: {name}") return^ }
-    playing := tape
-    replayFrame := 0
+    replayState.playing := tape
+    replayState.replayFrame := 0
+    replayState.replayStartRound := number replayState.replayFirstFrame := 0
     replaySnapshots := {}
-    replayMatched := false^
+    replayState.replayMatched := false^
     storyMode := false^
     practiceMode := false^
     setup := { name1 = name1, colour1 = tape.colour1, name2 = name2, colour2 = tape.colour2 }
@@ -750,16 +796,16 @@ let^startReplay = p^name:string^{
 
 # The played replay is over (or ESC stopped it): back to the mode menu.
 let^endReplay = p^finished:bool^{
-    let^tape = playing
+    let^tape = replayState.playing
     if^tape != nil^ {
-        replayMatched := finished and^replayFrame = tape.frames() and^flow.wins1 = tape.wins1 and^flow.wins2 = tape.wins2 and^
+        replayState.replayMatched := finished and^replayState.replayFrame = tape.frames() and^flow.wins1 = tape.wins1 and^flow.wins2 = tape.wins2 and^
             me.life = tape.life1 and^foe.life = tape.life2
         if^finished {
-            let^verdict = if^replayMatched: "as recorded" el^: "NOT as recorded";
-            print($"Replay ended {verdict}: frames {replayFrame} / {tape.frames()}, wins {flow.wins1}-{flow.wins2} / {tape.wins1}-{tape.wins2}, life {me.life} {foe.life} / {tape.life1} {tape.life2}")
+            let^verdict = if^replayState.replayMatched: "as recorded" el^: "NOT as recorded";
+            print($"Replay ended {verdict}: frames {replayState.replayFrame} / {tape.frames()}, wins {flow.wins1}-{flow.wins2} / {tape.wins1}-{tape.wins2}, life {me.life} {foe.life} / {tape.life1} {tape.life2}")
         }
     }
-    playing := nil^
+    replayState.playing := nil^
     replaySnapshots := {}
     fastForward := false^
     love.audio.stop()
@@ -805,7 +851,7 @@ let^endNet = p^why:string^{
     flow.preparing := false^
     flow.externalPresentation := false^
     paused := false^
-    recording := nil^
+    replayState.recording := nil^
     campaign := nil^
     releaseBattle()
     # From a match nothing is left to show while the menu loads.
@@ -817,14 +863,14 @@ let^endNet = p^why:string^{
 
 # Before releaseBattle: the finished VS match's result, and the file.
 let^saveRecording = p^{
-    let^rec = recording
-    recording := nil^
+    let^rec = replayState.recording
+    replayState.recording := nil^
     if^rec is^nil^ { return^ }
     rec.wins1 := flow.wins1
     rec.wins2 := flow.wins2
     rec.life1 := me.life
     rec.life2 := foe.life
-    lastReplay := vp.replay.save(rec, nameOf(me), nameOf(foe))
+    replayState.lastReplay := vp.replay.save(rec, nameOf(me), nameOf(foe))
 }
 
 let^queueAttract = p^{
@@ -995,7 +1041,7 @@ let^completeLoad = p^{
     let^kind = pendingKind
     let^st = campaign
     let^s = selecting
-    if^(kind = "match" or^kind = "match-stage") and^playing is^nil^ and^(s is^nil^ or^!s.done) { return^ }
+    if^(kind = "match" or^kind = "match-stage") and^replayState.playing is^nil^ and^(s is^nil^ or^!s.done) { return^ }
     # VS starts the match at the presentation's wait for assets, never before:
     # the fighters are hidden until then, and the match then always starts
     # from the same frame (replays, TechnicalDocuments/0155).
@@ -1030,11 +1076,11 @@ let^completeLoad = p^{
         l.batch.arena.attach()
         matchArena := l.batch.arena
         let^fighters = vp.preload.Load.new("match-characters")
-        if^kind = "match-stage" and^(s != nil^ or^playing != nil^) {
+        if^kind = "match-stage" and^(s != nil^ or^replayState.playing != nil^) {
             let^name1 = setup.name1
             let^name2 = setup.name2
             # A replay leaves the mode menu as its presentation starts.
-            if^playing != nil^ {
+            if^replayState.playing != nil^ {
                 vp.replaylist.close()
                 scene := nil^
             }
@@ -1095,7 +1141,7 @@ let^completeLoad = p^{
         let^arena = matchArena
         if^arena is^nil^ { panic^"Missing prepared stage arena" }
         arena.absorb(l.batch.arena)
-        if^s != nil^ or^playing != nil^ { startBattle() }
+        if^s != nil^ or^replayState.playing != nil^ { startBattle() }
     else^:
         vp.arena.pop()
         l.batch.arena.attach()
@@ -1185,8 +1231,8 @@ let^debugReload = p^{
     if^refused fits^love.event.Error { print(refused.message) return^ }
     reloadPending := true^
     leavePractice()
-    recording := nil^
-    playing := nil^
+    replayState.recording := nil^
+    replayState.playing := nil^
     replaySnapshots := {}
     leavingReplay := false^
     vp.net.leave()
@@ -1286,13 +1332,14 @@ public^let^status = f^{
         wins = flow.wins1, losses = flow.wins2,
         difficulty = if^st != nil^: st.difficulty el^: -1;,
         event = if^st != nil^: st.at el^: -1;,
-        recording = recording != nil^, replaying = playing != nil^, replayFrame = replayFrame,
+        recording = replayState.recording != nil^, replaying = replayState.playing != nil^, replayFrame = replayState.replayFrame,
+        replayStartRound = replayState.replayStartRound, replayFirstFrame = replayState.replayFirstFrame,
         netplay = netplay, netFrame = netFrame, netRound = netRound, netWaiting = netWaiting,
         netRollbacks = rollback.corrections, netPredicted = rollback.predicted, netSnapshots = rollback.snapshots, netReplayed = rollback.replayed,
         netMaxDepth = rollback.maxDepth, netWaits = rollback.waits,
         netPredictionLimit = ROLLBACK_MAX,
         netDesync = vp.net.desyncFrame(), netChecked = vp.net.sumsChecked(), link = vp.net.status(),
-        replayMatched = replayMatched, lastReplay = lastReplay, replaySnapshots = snapshotCount(), fastForward = fastForward, cpuFirst = cpuFirst, cpuSecond = cpuSecond,
+        replayMatched = replayState.replayMatched, lastReplay = replayState.lastReplay, replaySnapshots = snapshotCount(), fastForward = fastForward, cpuFirst = cpuFirst, cpuSecond = cpuSecond,
     }
 }
 
@@ -1307,6 +1354,7 @@ public^let^Saved = def^{
         abstract^state : vp.snapshot.Snapshot,
         camX = 0, camY = 0, aimX = 0, aimY = 0,
         roundFrames = 0, frame = 0, wasTiming = false^, matchSeconds = 0, replayFrame = 0,
+        roundCheckpoint = "",
         firstBrain : vp.cpu.Brain|nil^= nil^,
         firstStore : vp.cpu.Brain|nil^= nil^,
         secondBrain : vp.cpu.Brain|nil^= nil^,
@@ -1328,7 +1376,8 @@ public^let^snapshot = p^reuse:Saved|nil^-> Saved {
     let^s = Saved.new(vp.snapshot.take({ me, foe }, flow, hud, stage, reuse?.state))
     s.camX := camX s.camY := camY s.aimX := aimX s.aimY := aimY
     s.roundFrames := roundFrames s.frame := frame s.wasTiming := wasTiming
-    s.matchSeconds := matchSeconds s.replayFrame := replayFrame
+    s.matchSeconds := matchSeconds s.replayFrame := replayState.replayFrame
+    s.roundCheckpoint := replayState.roundCheckpoint
     s.firstBrain := demoBrain
     s.firstStore := brainStore(demoBrain, me, reuse?.firstStore)
     s.secondBrain := brain
@@ -1338,11 +1387,15 @@ public^let^snapshot = p^reuse:Saved|nil^-> Saved {
 
 # Puts the match back as the snapshot found it; the snapshot can be used again.
 public^let^restore = p^s:Saved{
+    # Round jumps can rebuild the stage. Older snapshots still own the stage
+    # they captured, so put those scene references back as well.
+    stage := s.state.stage flow := s.state.round hud := s.state.hud
     vp.snapshot.restore(s.state)
     camX := s.camX camY := s.camY aimX := s.aimX aimY := s.aimY
     vp.fighter.setView(camX, camY)
     roundFrames := s.roundFrames frame := s.frame wasTiming := s.wasTiming
-    matchSeconds := s.matchSeconds replayFrame := s.replayFrame
+    matchSeconds := s.matchSeconds replayState.replayFrame := s.replayFrame
+    replayState.roundCheckpoint := s.roundCheckpoint
     vp.fighter.setRound(roundFrames, flow.number)
     demoBrain := s.firstBrain
     let^first = s.firstBrain
@@ -1370,21 +1423,55 @@ let^snapshotCount = f^-> number^{
 
 # Back to the last snapshot at least REWIND_MARGIN frames before now.
 let^rewindReplay = p^{
-    var^at = ((replayFrame - REWIND_MARGIN) / SNAPSHOT_EVERY).floor() * SNAPSHOT_EVERY
-    if^at < 0 { at := 0 }
-    repeat^while^at > 0 and^replaySnapshots[at] is^nil^ { at -= SNAPSHOT_EVERY }
+    var^at = ((replayState.replayFrame - REWIND_MARGIN) / SNAPSHOT_EVERY).floor() * SNAPSHOT_EVERY
+    if^at < replayState.replayFirstFrame { at := replayState.replayFirstFrame }
+    repeat^while^at > replayState.replayFirstFrame and^replaySnapshots[at] is^nil^ {
+        at := std.math.max(at - SNAPSHOT_EVERY, replayState.replayFirstFrame)
+    }
     let^s = replaySnapshots[at]
     if^s is^nil^ { return^ }
     stopFighterSounds()
     restore(s)
 }
 
+# Up advances one round. During the opening presentation Down goes back one
+# round; after fighting starts it restarts this round. Bounds never wrap.
+public^let^jumpReplayRound = p^direction:number^{
+    let^tape = replayState.playing
+    if^tape is^nil^ or^!inBattle() { return^ }
+    if^replayState.replayFrame = 0 and^replaySnapshots[0] is^nil^ { replaySnapshots[0] := snapshot(nil^) }
+    var^current = 0
+    for^r in^tape.rounds { if^r.first <= replayState.replayFrame { current := index^ } }
+    let^r = tape.rounds[current]
+    if^r is^nil^ { return^ }
+    let^beforeFight = flow.phase = "start" or^flow.phase = "call" or^flow.phase = "ready"
+    let^target = if^direction > 0: current + 1
+        el^beforeFight: std.math.max(current - 1, 0)
+        el^: current;
+    let^next = tape.rounds[target]
+    if^next is^nil^ { return^ }
+    let^cached = replaySnapshots[next.first]
+    if^cached is^nil^ and^next.checkpoint = "" { return^ }
+    stopFighterSounds()
+    if^cached != nil^ { restore(cached)
+    elseif^!restoreReplayRound(tape, next.number):
+        print("Replay round could not be restored") endReplay(false^) return^
+    }
+    replayState.replayFirstFrame := 0
+    clock := 0 rewindTimer := REWIND_REPEAT
+    upPressed := false^ downPressed := false^
+    leftPressed := false^ rightPressed := false^
+}
+
 # What the match looks like this frame, to compare two runs of it (tests).
 public^let^signature = p^-> string^{
-    var^out = $"{frame} {replayFrame} {roundFrames} {flow.phase} {flow.wins1}-{flow.wins2} rng {vp.rng.get()} cam {camX},{camY}"
+    var^out = $"{frame} {replayState.replayFrame} {roundFrames} {flow.phase} {flow.wins1}-{flow.wins2} rng {vp.rng.get()} cam {camX},{camY}"
     for^p in^{ me, foe } {
         out := $"{out} | {p.x},{p.y} {p.life} {p.special} #{p.skillNo} i{p.image} o{p.objects.length^}"
         for^o in^p.objects { out := $"{out} {o.skillNo}:{o.image}@{o.x},{o.y}" }
+    }
+    for^l in^stage.layers {
+        out := $"{out} | stage {l.skillNo}:{l.scriptPC}:{l.scriptYield}:{l.waitTimer} i{l.image}@{l.x:%.17g},{l.y:%.17g}"
     }
     return^out
 }
@@ -1419,14 +1506,18 @@ let^battleStep = p^one:number^, two:number^{
     if^flow.fighting() { me.faceOpponent() foe.faceOpponent() }
     # The sides' input this frame: the played replay's, or the keys' and pads'
     # (and F3 / F4's CPU in VS), recorded when VS records.
-    let^tape = playing
-    if^tape != nil^ and^replayFrame % SNAPSHOT_EVERY = 0 and^replaySnapshots[replayFrame] is^nil^ {
-        replaySnapshots[replayFrame] := snapshot(nil^)
+    let^tape = replayState.playing
+    if^tape != nil^ and^replaySnapshots[replayState.replayFrame] is^nil^ {
+        var^boundary = replayState.replayFrame % SNAPSHOT_EVERY = 0
+        for^r in^tape.rounds { if^r.first = replayState.replayFrame { boundary := true^ break^ } }
+        if^boundary { replaySnapshots[replayState.replayFrame] := snapshot(nil^) }
     }
-    if^tape != nil^ { replayFrame += 1 }
-    let^rec = recording
+    if^tape != nil^ { replayState.replayFrame += 1 }
+    let^rec = replayState.recording
     if^rec != nil^ {
         rec.markRound(if^netplay: netFrame el^: rec.frames();, flow.number, flow.wins1, flow.wins2, vp.rng.get(), me.special, foe.special)
+        let^r = rec.rounds[rec.rounds.length^ - 1]
+        if^r != nil^ and^r.first = (if^netplay: netFrame el^: rec.frames();) { r.checkpoint := replayState.roundCheckpoint }
         if^netplay and^netFrame < rec.frames() {
             rec.side1[netFrame] := one
             rec.side2[netFrame] := two
@@ -1575,7 +1666,7 @@ let^netTick = p^{
     }
     if^rollback.ending {
         if^confirmed >= netFrame {
-            let^rec = recording
+            let^rec = replayState.recording
             if^rec != nil^ {
                 rec.truncate(netFrame)
             }
@@ -1662,15 +1753,15 @@ let^tick = p^{
     let^story = campaign
     if^story != nil^ and^story.phase != "battle" { return^ }
     if^netplay { netTick() return^ }
-    let^tape = playing
+    let^tape = replayState.playing
     var^one = 0
     var^two = 0
     if^tape != nil^ {
-        one := tape.side1[replayFrame] ?? 0
-        two := tape.side2[replayFrame] ?? 0
+        one := tape.side1[replayState.replayFrame] ?? 0
+        two := tape.side2[replayState.replayFrame] ?? 0
         # battleStep takes the checkpoint before advancing the replay frame.
     else^:
-        let^vs = recording != nil^
+        let^vs = replayState.recording != nil^
         one := vp.replay.pack(heldDirs(Key.up, Key.down, Key.left, Key.right), vp.input.heldButtons(0), vs and^cpuFirst)
         two := vp.replay.pack(heldDirs(Key.u, Key.j, Key.h, Key.k), vp.input.heldButtons(1), vs and^cpuSecond)
     }
@@ -1781,7 +1872,7 @@ public^let^update = p^dt:number^{
     }
     # A played replay: left steps back to a snapshot (again while held),
     # right holds fast forward.
-    let^watching = playing != nil^ and^inBattle()
+    let^watching = replayState.playing != nil^ and^inBattle()
     fastForward := watching and^vp.input.isDown(Key.right)
     if^watching and^vp.input.isDown(Key.left) {
         rewindTimer -= dt
@@ -1799,7 +1890,7 @@ public^let^update = p^dt:number^{
     repeat^while^clock >= FRAME {
         clock -= FRAME
         for^i from^1 to^(if^fastForward: FAST_FORWARD el^: 1;) {
-            if^i = 1 or^(playing != nil^ and^inBattle()) { tick() }
+            if^i = 1 or^(replayState.playing != nil^ and^inBattle()) { tick() }
         }
     }
 }
@@ -2052,12 +2143,12 @@ let^drawNet = p^{
 
 # A played replay's state, along the bottom of the window.
 let^drawReplayBar = p^{
-    let^tape = playing
+    let^tape = replayState.playing
     if^tape is^nil^ or^!inBattle() { return^ }
-    let^seconds = (replayFrame / 100).floor()
+    let^seconds = (replayState.replayFrame / 100).floor()
     let^total = (tape.frames() / 100).floor()
     let^mode = if^fastForward: ">> x4" el^vp.input.isDown(Key.left): "<<" el^: ">";
-    let^text = $"REPLAY  {mode}  {(seconds / 60).floor()}:{seconds % 60:%02d} / {(total / 60).floor()}:{total % 60:%02d}    LEFT: rewind   RIGHT: fast forward   ESC: stop"
+    let^text = $"REPLAY  {mode}  {(seconds / 60).floor()}:{seconds % 60:%02d} / {(total / 60).floor()}:{total % 60:%02d}    UP/DOWN: round   LEFT: rewind   RIGHT: fast forward   ESC: stop"
     love.graphics.setColor(0, 0, 0, 0.6)
     love.graphics.rectangle(love.graphics.DrawMode.fill, 0, WINDOW_H - 28, WINDOW_W, 28)
     love.graphics.setColor(1, 1, 1, 1)
@@ -2155,12 +2246,16 @@ let^logicalKeypressed = p^key:love.keyboard.Key, isrepeat:bool^{
         return^
     }
     # ESC stops a played replay; Start still pauses it.
-    if^key = Key.escape and^playing != nil^ and^inBattle() {
+    if^key = Key.escape and^replayState.playing != nil^ and^inBattle() {
         if^!isrepeat and^!paused { endReplay(false^) }
         return^
     }
     if^(key = Key.escape or^key = Key.return) and^inBattle() {
         if^!isrepeat { togglePause() }
+        return^
+    }
+    if^replayState.playing != nil^ and^inBattle() and^(key = Key.up or^key = Key.down) {
+        if^!isrepeat { jumpReplayRound(if^key = Key.up: 1 el^: -1;) }
         return^
     }
     if^paused { return^ }
@@ -2210,7 +2305,7 @@ let^logicalKeypressed = p^key:love.keyboard.Key, isrepeat:bool^{
         vp.fighter.setSoundLog(soundLog)
     }
     # VS only (development): the CPU drives 1P / 2P, from the next frame.
-    if^!isrepeat and^!storyMode and^!practiceMode and^campaign is^nil^ and^playing is^nil^ {
+    if^!isrepeat and^!storyMode and^!practiceMode and^campaign is^nil^ and^replayState.playing is^nil^ {
         if^key = Key.f3 {
             cpuFirst := !cpuFirst
             let^who = if^cpuFirst: "CPU" el^: "player";

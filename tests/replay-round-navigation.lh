@@ -1,0 +1,190 @@
+# Replay navigation follows the opening presentation rather than elapsed time.
+module^vp.replayroundnavigation
+import^love.keyboard
+import^love.event
+import^love.filesystem
+import^love.timer
+require^"../main.lh"
+require^"../tests/select-input.lh"
+require^"../src/arena.lh"
+require^"../src/replaylist.lh"
+require^"../src/replay.lh"
+
+var^phase = 0
+var^wait = 0
+var^began = 0
+var^saved = ""
+var^expected:t^{[number^]:string^|nil^} = {}
+var^checking = false^
+var^zeroChecked = false^
+var^compared = 0
+var^downs = 0                # down presses still to make, one a frame
+let^Key = love.keyboard.Key
+let^press = p^key:love.keyboard.Key{ vp.selectinput.press(key) }
+let^fail = p^why:string^{
+    if^saved != "" { let^_^ = love.filesystem.remove($"replays/{saved}") }
+    panic^why
+}
+
+let^assertAt = p^frame:number^{
+    let^s = vp.main.status()
+    if^!s.paused or^s.replayFrame != frame { fail($"round jump expected {frame}, got {s.replayFrame}") }
+    let^signature = vp.main.signature()
+    let^state = signature.substring(signature.find(" ") ?? 0)
+    let^before = expected[frame]
+    if^before != nil^ and^before != state { fail($"round boundary state mismatch at {frame}: {before} != {state}") }
+}
+let^advanceToPhase = p^phase:string^{
+    press(Key.return)
+    var^steps = 0
+    repeat^while^vp.main.status().roundPhase != phase {
+        vp.main.update(0.01) steps += 1
+        if^steps > 2000 { fail($"round never reached {phase}") }
+    }
+    press(Key.return)
+}
+
+public^let^load = p^{
+    began := love.timer.getTime()
+    vp.main.setVSSeed(123456)
+    vp.main.setVSSeconds(5)
+    vp.main.load()
+}
+public^let^update = p^dt:number^{
+    # Matches run several frames a frame; menus one.
+    let^s0 = vp.main.status()
+    let^fast = s0.phase = "battle" or^s0.phase = "match-intro"
+    for^i from^1 to^(if^fast: 16 el^: 1;) {
+        vp.main.update(0.01)
+        let^now = vp.main.status()
+        if^now.replaying and^now.phase = "battle" and^!now.loading and^now.introCatchup = 0 {
+            let^signature = vp.main.signature()
+            let^state = signature.substring(signature.find(" ") ?? 0)
+            if^!checking { expected[now.replayFrame] := state
+            else^:
+                let^before = expected[now.replayFrame]
+                if^before != nil^ and^before != state { fail($"navigation state mismatch at {now.replayFrame}: {before} != {state}") }
+                if^before != nil^ { compared += 1 }
+            }
+            if^checking and^phase = 10 and^!zeroChecked and^now.replayFrame = 0 {
+                let^tape = vp.replay.load(saved)
+                let^second = tape?.rounds[1]
+                if^second is^nil^ { fail("missing initial jump target") return^ }
+                press(Key.return)
+                press(Key.up) assertAt(second.first)
+                press(Key.down) assertAt(0)
+                press(Key.return)
+                zeroChecked := true^
+            }
+        }
+    }
+    if^downs > 0 { press(Key.down) downs -= 1 }
+    let^s = vp.main.status()
+    let^where = vp.arena.names()
+    if^phase = 0 and^where = "system / opening" { press(Key.z) phase := 1
+    elseif^phase = 1: press(Key.z) phase := 2
+    elseif^phase = 2 and^where = "system / title":
+        wait += 1
+        if^wait = 20 { press(Key.down) }
+        if^wait = 30 { press(Key.z) phase := 3 wait := 0 }
+    elseif^phase = 3 and^s.phase = "select" and^!s.loading:
+        press(Key.f3)
+        press(Key.f4)
+        press(Key.z)
+        phase := 4
+    elseif^phase = 4:
+        press(Key.l) phase := 5
+    elseif^phase = 5 and^s.phase = "battle":
+        if^!s.recording { fail("VS did not record") }
+        if^!s.cpuFirst or^!s.cpuSecond { fail("F3 / F4 did not hand both sides to the CPU") }
+        phase := 6
+    elseif^phase = 6 and^s.phase = "select":
+        saved := s.lastReplay
+        if^saved = "" or^love.filesystem.getInfo($"replays/{saved}") is^nil^ { fail("no replay was saved") }
+        let^tape = vp.replay.load(saved)
+        if^tape is^nil^ { fail("recorded replay could not be read") return^ }
+        if^tape.legacy or^tape.rounds.length^ < 2 { fail("match was not divided into rounds") }
+        var^total = 0
+        for^r in^tape.rounds {
+            if^r.number != index^ + 1 or^r.first != total or^r.random = 0 { fail("invalid recorded round boundary") }
+            let^length = tape.roundFrames(index^)
+            if^length <= 0 { fail("empty recorded round") }
+            total += length
+        }
+        if^total != tape.frames() { fail("round blocks do not cover the match") }
+        print($"round blocks: {tape.rounds.length^}, {total} total frames")
+        print($"recorded {saved}: wins {s.wins}-{s.losses}")
+        press(Key.escape)
+        phase := 7
+        wait := 0
+    elseif^phase = 7 and^where = "system / title":
+        wait += 1
+        if^wait = 20 { press(Key.up) }          # STORY wraps round to WATCH REPLAY
+        if^wait = 30 { press(Key.z) }
+        if^wait = 40 {
+            var^at = -1
+            for^name in^vp.replaylist.entries() { if^name = saved { at := index^ } }
+            if^at < 0 { fail($"{saved} is not listed") }
+            downs := at
+        }
+        if^wait = 50 { press(Key.z) phase := 8 }
+    elseif^phase = 8 and^s.replaying and^s.phase = "battle":
+        phase := 9
+    elseif^phase = 9 and^!s.replaying and^!s.loading and^where = "system / title":
+        if^!s.replayMatched { fail("full playback did not match") }
+        checking := true^
+        vp.main.playReplay(saved, 1)
+        phase := 10
+    elseif^phase = 10 and^s.replaying and^s.phase = "battle" and^!s.loading and^s.replayFrame >= 100:
+        if^s.replayStartRound != 1 { fail("playback did not start from the beginning") }
+        let^tape = vp.replay.load(saved)
+        if^tape is^nil^ { fail("missing replay") return^ }
+        let^second = tape.rounds[1]
+        if^second is^nil^ { fail("missing second round") return^ }
+        press(Key.return)
+        press(Key.up) assertAt(second.first)
+        press(Key.down) assertAt(0)
+        press(Key.down) assertAt(0)
+        vp.main.keypressed(Key.up, love.keyboard.Scancode.unknown, true^)
+        assertAt(0)
+        for^intro in^{"start", "call", "ready"} {
+            press(Key.up) assertAt(second.first)
+            advanceToPhase(intro)
+            if^intro = "ready" and^vp.main.status().replayFrame - second.first <= 50 { fail("READY was not tested beyond the old time threshold") }
+            press(Key.down) assertAt(0)
+        }
+        # The last READY frame still goes back; the first fight frame restarts.
+        press(Key.up) advanceToPhase("ready")
+        press(Key.return)
+        repeat^while^vp.main.status().presentationLeft > 0 { vp.main.update(0.01) }
+        press(Key.return)
+        if^vp.main.status().roundPhase != "ready" { fail("missed the final READY frame") }
+        press(Key.down) assertAt(0)
+        press(Key.up) advanceToPhase("fight")
+        press(Key.down) assertAt(second.first)
+        press(Key.down) assertAt(0)
+        # A result presentation is after the fight, so it restarts this round.
+        press(Key.up) advanceToPhase("end")
+        press(Key.down) assertAt(second.first)
+        press(Key.down) assertAt(0)
+        for^r in^tape.rounds {
+            if^index^ > 0 { press(Key.up) assertAt(r.first) }
+        }
+        let^last = tape.rounds[tape.rounds.length^ - 1]
+        if^last != nil^ { press(Key.up) assertAt(last.first) }
+        # Return through cached stage graphs, then finish a normal playback.
+        for^n from^1 to^tape.rounds.length^ { press(Key.down) }
+        assertAt(0)
+        press(Key.return)
+        phase := 11
+    elseif^phase = 11 and^!s.replaying and^where = "system / title":
+        let^_^ = love.filesystem.remove($"replays/{saved}")
+        if^!s.replayMatched { panic^"navigation changed the replay result" }
+        if^compared < 500 or^!zeroChecked { panic^"navigation coverage incomplete" }
+        print($"PASS: Up/Down round jumps, opening/fight/result phases, bounds, key repeat and paused controls; {compared} states and final result match")
+        love.event.quit()
+    }
+    if^love.timer.getTime() - began > 300 { fail($"replay round trip timeout at phase {phase}") }
+}
+public^let^draw = p^{ vp.main.draw() }
+public^let^quit = p^-> bool^{ return^vp.main.quit() }
