@@ -256,3 +256,4 @@
 - [0170-replay-round-start.md](0170-replay-round-start.md) — リプレイv3の開始状態で再生中の上下キーからラウンド移動。ステージ演出の継続、開始前演出中の戻り判定、旧形式互換と検証。
 - [0171-online-spectating.md](0171-online-spectating.md) — 各台の確定リプレイをホストへ蓄積し、最新ラウンドからの観戦と第三者へのストリーミングを追加。
 - [0172-local-mock-online-launcher.md](0172-local-mock-online-launcher.md) — Epicアカウント不要で独立した模擬ユーザーのゲーム画面を複数起動し、ローカルで対戦・観戦を試す開発用ランチャー。
+- [0173-combo-reset-gap.md](0173-combo-reset-gap.md) — 被弾・ダウン終了直後のコマンド入力でコンボ表示数が残る不具合を修正。復帰時のリセットと処理途中の継続を検証。

@@ -3,6 +3,7 @@
         "TechnicalDocuments/",
         "build/",
         "install/",
-        "out/"
+        "out/",
+        "tools/"
     ]
 }

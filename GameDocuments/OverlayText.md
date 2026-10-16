@@ -95,7 +95,6 @@ assets\characters\あやね\images\1978.png
 MIKO THROUGH
 突進技を華麗にスルー
 > あやね固有
-> 未使用（推定）: →+C の技 #251「投げ反対」の最初の攻撃判定が当たったときだけ出るが、その判定は y=5942 と画面外で、通常は当たらない（表示を見た覚えもない）
 
 ```text
 Slips past a rushing attack
@@ -105,7 +104,6 @@ assets\characters\はるか\images\1978.png
 MAGICAL THROUGH
 突進技を華麗にスルー
 > はるか固有
-> 未使用（推定）: →+C の技 #251「投げ反対」の最初の攻撃判定が当たったときだけ出るが、その判定は y=5942 と画面外で、通常は当たらない（表示を見た覚えもない）
 
 ```text
 Slips past a rushing attack

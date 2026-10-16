@@ -598,10 +598,13 @@ public^let^Fighter = def^{
         self^.finishDamageChain()
     },
 
-    # Native actor termination resets DF01; SG/DS and subroutine returns do not.
+    # End the displayed combo together with DF01 before recovery input can
+    # start an attack without passing through an idle skill. SG/DS and
+    # subroutine returns keep both counters until the actor actually ends.
     finishDamageChain = p^self^{
-        if^self^.damageHits > 0 and^self^.owner is^nil^ and^!self^.system and^self^.finished() {
+        if^self^.owner is^nil^ and^!self^.system and^self^.finished() {
             self^.damageHits := 0
+            self^.combo := 0
         }
     },
 

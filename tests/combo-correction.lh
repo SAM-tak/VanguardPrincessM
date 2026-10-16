@@ -39,13 +39,21 @@ public^let^load = p^{
  let^sc = vp.script.Script.new()
  for^sk in^data.skills { sc.byId[sk.id] := sk }
  sc.install(b)
- b.damageHits := 5 b.begin(9000) b.stepScript() equal(b.damageHits,5)
+ b.combo := 5 b.damageHits := 5 b.begin(9000) b.stepScript() equal(b.damageHits,5) equal(b.combo,5)
  for^i from^1 to^5 { b.stepScript() }
- equal(b.damageHits,0)
- b.damageHits := 5 b.begin(9002) b.stepScript() equal(b.damageHits,5)
- b.on("wallHitting",9003,0) b.fire("wallHitting") b.stepScript() equal(b.damageHits,5)
+ equal(b.damageHits,0) equal(b.combo,0)
+ b.combo := 5 b.damageHits := 5 b.begin(9002) b.stepScript() equal(b.damageHits,5) equal(b.combo,5)
+ b.on("wallHitting",9003,0) b.fire("wallHitting") b.stepScript() equal(b.damageHits,5) equal(b.combo,5)
  for^i from^1 to^5 { b.stepScript() }
- equal(b.damageHits,0)
+ equal(b.damageHits,0) equal(b.combo,0)
+ # Zero-power hits may have a display count without a damage-scaling count.
+ b.combo := 3 b.damageHits := 0 b.begin(9001) b.stepScript() equal(b.combo,0)
+ # Ending an effect or a system actor must not end its owner's combo.
+ for^child in^{o,target} {
+  sc.install(child) child.combo := 7 child.begin(9001) child.stepScript() equal(child.combo,7)
+ }
+ let^system = Fighter.new("",0,0) sc.install(system) system.system := true^
+ system.combo := 7 system.begin(9001) system.stepScript() equal(system.combo,7)
  print("PASS: linear combo scaling, floor at one, staged rounding, low-life order, guard/zero/object exclusions, projectile owner, E/SC/SG/DS lifetime")
  love.event.quit()
 }

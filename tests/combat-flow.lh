@@ -413,7 +413,11 @@ let^comboColour = p^{
     flow.showCombo(2, 600, 500, p.v(128))
     # The real falling reaction opens recovery and sets the red marker.
     p.start(163, 0)
-    p.advance()
+    p.combo := 5 p.damageHits := 5
+    for^i from^0 to^59 {
+        p.stepScript()
+        if^p.combo != 5 or^p.damageHits != 5 { panic^"Air recovery opportunity ended combo before landing" }
+    }
     if^p.v(128) != 1 { panic^"Recovery reaction did not set combo marker" }
     flow.showCombo(2, 600, 500, p.v(128))
     # The next tumble reaction clears it before either display's delayed V.
@@ -628,6 +632,69 @@ let^reactionFacing = p^{
     print("PASS: projectile hit/guard facing and recoil, both sides, front/back/same pivot, reversed actor")
 }
 
+let^comboRecovery = p^{
+    for^name in^{"ゆい","えり","はるか"} {
+        let^dir = $"assets/characters/{name}"
+        let^sc = vp.script.load($"{dir}/script.lton")
+        if^sc is^nil^ { panic^"Missing recovery script" }
+        for^reaction in^{88,164} {
+            let^d = Fighter.new(dir,590,920)
+            sc.install(d) d.begin(reaction)
+            d.combo := 5 d.damageHits := 5 d.receiving := true^
+            var^ended = false^
+            for^frame from^0 to^300 {
+                d.stepScript()
+                if^d.finished() { ended := true^ break^ }
+                if^d.combo != 5 { panic^$"Combo ended during {name} reaction {reaction}" }
+            }
+            if^!ended or^d.combo != 0 or^d.damageHits != 0 { panic^$"Combo survived {name} recovery {reaction}" }
+            # Recovery input starts C immediately, without an idle frame.
+            d.recordHeld(5,4)
+            if^!d.takeCommand(false^) or^d.combo != 0 or^d.receiving { panic^"Recovery command retained combo" }
+        }
+    }
+    print("PASS: hitstun/down recovery resets combo before immediate C input, three defenders")
+}
+
+let^comboStun = p^{
+    for^name in^{"ゆい","えり","はるか"} {
+        let^dir = $"assets/characters/{name}"
+        let^sc = vp.script.load($"{dir}/script.lton")
+        if^sc is^nil^ { panic^"Missing stun script" }
+        for^followup in^{false^,true^} {
+            let^d = Fighter.new(dir,590,920)
+            sc.install(d) d.begin(177)
+            d.combo := 5 d.damageHits := 5 d.receiving := true^
+            var^standingStun = false^
+            var^completed = false^
+            for^frame from^0 to^1500 {
+                d.step()
+                if^d.finished() {
+                    if^!standingStun or^d.combo != 0 { panic^"Stun recovery retained combo" }
+                    completed := true^ break^
+                }
+                if^d.combo != 5 { panic^$"Combo ended during {name} stun, skill={d.skillNo}" }
+                if^d.skillNo = 179 or^d.skillNo = 180 {
+                    standingStun := true^
+                    if^followup {
+                        let^a = Fighter.new(dir,450,920) sc.install(a)
+                        a.reactions(22,23,24,87,88,24)
+                        let^box = vp.fighter.Box.new(0,0,10,10) box.power := 100
+                        let^guarded, spark = a.struck(box,d,100,false^,"damaged")
+                        if^guarded or^d.combo != 5 { panic^"Stun followup lost previous hits" }
+                        d.combo += 1
+                        d.stepScript()
+                        if^d.combo != 6 { panic^"Stun followup failed to continue combo" }
+                        completed := true^ break^
+                    }
+                }
+            }
+            if^!completed { panic^$"Stun test did not complete: {name}" }
+        }
+    }
+    print("PASS: stun launch/landing/standing keeps combo, followup is sixth hit, recovery resets, three defenders")
+}
+
 public^let^update = p^dt:number^{
     vp.resource.pump(0.006)
     if^!done and^loadout.ready() {
@@ -643,6 +710,8 @@ public^let^update = p^dt:number^{
         sweepSuper()
         shake()
         comboColour()
+        comboRecovery()
+        comboStun()
         cornerRecoil()
         yuiForwardB()
         print("PASS: combat regressions")
