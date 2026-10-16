@@ -1,0 +1,193 @@
+# A recorded CPU match supplies a live stream through mock EOS. Compare the
+# actual observer's fighter/stage state with ordinary playback, including a
+# network starvation interval. Run as the idle host or a third-party guest.
+module^vp.spectatorgametest
+import^love.keyboard
+import^love.event
+import^love.filesystem
+import^love.timer
+import^std.math
+require^"game.lh"
+require^"src/test-select-input.lh"
+require^"src/arena.lh"
+require^"src/replaylist.lh"
+require^"src/replay.lh"
+require^"src/net.lh"
+require^"src/online.lh"
+require^"src/netguest.lh"
+require^"src/onlineguest.lh"
+require^"src/netthird.lh"
+require^"src/onlinethird.lh"
+require^"src/lanmenu.lh"
+require^"src/roommenu.lh"
+
+var^phase = 0
+let^REMOTE_VIEWER = false^
+var^wait = 0
+var^began = 0
+var^saved = ""
+var^expected:t^{[number^]:string^|nil^} = {}
+var^partial = false^
+var^first = 0
+var^compared = 0
+var^source:vp.replay.Tape|nil^= nil^
+var^sent = 0
+var^stalled = 0
+var^stalledAt = 0
+let^Key = love.keyboard.Key
+let^press = p^key:love.keyboard.Key{ vp.selectinput.press(key) }
+let^fail = p^why:string^{
+    if^saved != "" { let^_^ = love.filesystem.remove($"replays/{saved}") }
+    panic^why
+}
+
+public^let^load = p^{
+    began := love.timer.getTime()
+    vp.main.setVSSeed(123456)
+    vp.main.setVSSeconds(5)
+    vp.main.load()
+}
+public^let^update = p^dt:number^{
+    vp.netguest.poll() vp.netthird.poll()
+    # Matches run several frames a frame; menus one.
+    let^s0 = vp.main.status()
+    let^fast = phase < 10 and^(s0.phase = "battle" or^s0.phase = "match-intro")
+    for^i from^1 to^(if^fast: 16 el^: 1;) {
+        vp.main.update(0.01)
+        let^now = vp.main.status()
+        if^now.replaying and^now.phase = "battle" and^!now.loading {
+            let^signature = vp.main.signature()
+            let^state = signature.substring(signature.find(" ") ?? 0)
+            if^!partial { expected[now.replayFrame] := state
+            else^:
+                if^now.replayFrame < first { fail("partial playback simulated an earlier round") }
+                let^before = expected[now.replayFrame]
+                if^before != nil^ and^before != state { fail($"round-start state mismatch at {now.replayFrame}: {before} != {state}") }
+                if^before != nil^ { compared += 1 }
+            }
+        }
+    }
+    let^s = vp.main.status()
+    let^where = vp.arena.names()
+    if^phase = 0 and^where = "system / opening" { press(Key.z) phase := 1
+    elseif^phase = 1: press(Key.z) phase := 2
+    elseif^phase = 2 and^where = "system / title":
+        wait += 1
+        if^wait = 20 { press(Key.down) }
+        if^wait = 30 { press(Key.z) phase := 3 wait := 0 }
+    elseif^phase = 3 and^s.phase = "select" and^!s.loading:
+        press(Key.f3)
+        press(Key.f4)
+        press(Key.z)
+        phase := 4
+    elseif^phase = 4:
+        press(Key.l) phase := 5
+    elseif^phase = 5 and^s.phase = "battle":
+        if^!s.recording { fail("VS did not record") }
+        if^!s.cpuFirst or^!s.cpuSecond { fail("F3 / F4 did not hand both sides to the CPU") }
+        phase := 6
+    elseif^phase = 6 and^s.phase = "select":
+        saved := s.lastReplay
+        if^saved = "" or^love.filesystem.getInfo($"replays/{saved}") is^nil^ { fail("no replay was saved") }
+        let^tape = vp.replay.load(saved)
+        if^tape is^nil^ { fail("recorded replay could not be read") return^ }
+        if^tape.legacy or^tape.rounds.length^ < 2 { fail("match was not divided into rounds") }
+        var^total = 0
+        for^r in^tape.rounds {
+            if^r.number != index^ + 1 or^r.first != total or^r.random = 0 { fail("invalid recorded round boundary") }
+            let^length = tape.roundFrames(index^)
+            if^length <= 0 { fail("empty recorded round") }
+            total += length
+        }
+        if^total != tape.frames() { fail("round blocks do not cover the match") }
+        print($"round blocks: {tape.rounds.length^}, {total} total frames")
+        print($"recorded {saved}: wins {s.wins}-{s.losses}")
+        press(Key.escape)
+        phase := 7
+        wait := 0
+    elseif^phase = 7 and^where = "system / title" and^!s.loading:
+        vp.main.playReplay(saved,1) phase := 8
+    elseif^phase = 8 and^s.replaying: phase := 9
+    elseif^phase = 9 and^!s.replaying and^!s.loading and^where = "system / title":
+        if^!s.replayMatched { fail("baseline replay failed") }
+        source := vp.replay.load(saved)
+        vp.net.openOnlineDevice() vp.netguest.openOnline() vp.netthird.openOnlineDevice() phase := 10
+    elseif^phase = 10 and^vp.net.status() = "ready" and^vp.netguest.status() = "ready" and^vp.netthird.status() = "ready":
+        if^REMOTE_VIEWER { vp.netguest.hostRoom("Spectator test","","Player host")
+        else^: vp.net.hostRoom("Spectator test","","Observer host") }
+        phase := 11
+    elseif^phase = 11 and^(if^REMOTE_VIEWER: vp.onlineguest.inRoom() el^: vp.online.inRoom();):
+        if^REMOTE_VIEWER { vp.net.searchOnline() else^: vp.netguest.searchOnline() }
+        vp.netthird.searchOnline() phase := 12
+    elseif^phase = 12:
+        let^a = if^REMOTE_VIEWER: vp.net.hostsShown()[0] el^: vp.netguest.hostsShown()[0];
+        let^b = vp.netthird.hostsShown()[0]
+        if^a != nil^ and^b != nil^ {
+            if^REMOTE_VIEWER { vp.net.joinRoom(a,"","Viewer") else^: vp.netguest.joinRoom(a,"","1P") }
+            vp.netthird.joinRoom(b,"","2P") phase := 13
+        }
+    elseif^phase = 13 and^vp.online.inRoom() and^vp.onlineguest.inRoom() and^vp.onlinethird.inRoom():
+        vp.onlineguest.sit(1) vp.onlinethird.sit(2) wait := 0 phase := 14
+    elseif^phase = 14:
+        wait += 1
+        if^wait = 30 { vp.onlineguest.sit(1) vp.onlinethird.sit(2) phase := 15 }
+    elseif^phase = 15 and^vp.netguest.active() and^vp.netthird.active():
+        let^t = source
+        if^t is^nil^ { fail("no recorded source") return^ }
+        let^r = t.rounds[1]
+        if^r is^nil^ { fail("no second round") return^ }
+        first := r.first sent := first + 180
+        vp.onlineguest.publish(t,sent,false^) wait := 0 phase := 16
+    elseif^phase = 16:
+        wait += 1
+        if^wait > 180 {
+            partial := true^
+            vp.lanmenu.openRoom() vp.roommenu.step(false^,false^,1) phase := 17
+        }
+    elseif^phase = 17 and^s.replaying and^s.phase = "battle" and^!s.loading:
+        if^s.netplay or^s.replayStartRound != 2 or^s.replayFrame < first { fail("observation did not start independently at round 2") }
+        wait := 0 stalledAt := -1 phase := 18
+    elseif^phase = 18:
+        wait += 1
+        if^wait = 20 { press(Key.return) press(Key.up) press(Key.down) }
+        if^s.paused { fail("observer controls paused the stream") }
+        if^s.replayFrame >= sent { fail("viewer simulated beyond received inputs") }
+        if^stalledAt < 0 and^s.replayFrame = sent - 1 { stalledAt := s.replayFrame wait := 0 }
+        if^stalledAt >= 0 {
+            if^s.replayFrame != stalledAt { fail("viewer advanced while input-starved") }
+            if^wait >= 40 { stalled := wait phase := 19 }
+        }
+    elseif^phase = 19:
+        let^t = source
+        if^t != nil^ {
+            sent := std.math.min(sent + 4,t.frames())
+            vp.onlineguest.publish(t,sent,sent = t.frames())
+        }
+        if^!s.replaying and^vp.online.watching() = 0 {
+            if^!s.replayMatched { fail("spectator final state did not match source") }
+            if^compared < 100 or^stalled = 0 { fail("insufficient observation coverage") }
+            if^vp.roommenu.status() != "room" or^!vp.online.inRoom() { fail("observation did not return to the same room") }
+            if^s.loading { return^ }
+            # Subscribe again, then cancel during asset loading. In-flight
+            # fragments from the previous subscription must not poison it.
+            vp.roommenu.step(false^,false^,1) phase := 20
+        }
+    elseif^phase = 20 and^s.replaying and^s.loading:
+        press(Key.escape)
+        if^vp.online.watching() != 0 or^vp.roommenu.status() != "room" { fail("ESC during observer loading did not return to room") }
+        phase := 21
+    elseif^phase = 21 and^!s.replaying and^!s.loading and^where = "system / title":
+        if^!vp.online.inRoom() { fail("ESC destroyed observer room") }
+        vp.roommenu.step(false^,false^,1) phase := 22
+    elseif^phase = 22 and^s.replaying and^s.loading:
+        if^REMOTE_VIEWER { vp.netguest.leave() else^: vp.net.leave() }
+        phase := 23
+    elseif^phase = 23 and^!s.replaying and^!s.loading and^!vp.online.inRoom() and^where = "system / title":
+        let^_^ = love.filesystem.remove($"replays/{saved}")
+        print($"SPECTATOR_GAME_OK: remote viewer {REMOTE_VIEWER}, round 2 start, {compared} states match, starvation/resume, result, controls, resubscription, loading cancellation and host departure")
+        vp.netguest.leave() vp.netthird.leave() love.event.quit()
+    }
+    if^love.timer.getTime() - began > 300 { fail($"spectator game timeout at phase {phase}, sent {sent}, replay {s.replayFrame}") }
+}
+public^let^draw = p^{ vp.main.draw() }
+public^let^quit = p^-> bool^{ vp.netguest.leave() vp.netthird.leave() vp.onlineguest.shutdown() vp.onlinethird.shutdown() return^vp.main.quit() }

@@ -1,0 +1,77 @@
+# Four separate processes: idle host, two fighters, and a remote observer.
+module^vp.mockonlinecheck
+import^love.filesystem
+import^love.timer
+require^"src/net.lh"
+require^"src/online.lh"
+require^"src/replay.lh"
+let^PLAYER = __PLAYER__
+var^phase = 0
+var^began = 0
+var^joined = 0
+var^reported = false^
+let^check = p^ok:bool^, why:string^{ if^!ok { panic^why } }
+public^let^load = p^{ began := love.timer.getTime() vp.net.openOnlineDevice() }
+public^let^update = p^dt:number^{
+    vp.net.poll()
+    check(vp.net.status() != "failed",vp.net.problemText())
+    if^phase = 0 and^vp.net.status() = "ready" {
+        if^PLAYER = 1 { vp.net.hostRoom("Local launcher check","1234","Host")
+        else^: vp.net.searchOnline() }
+        phase := 1
+    }
+    if^phase = 1 and^PLAYER != 1 {
+        let^h = vp.net.hostsShown()[0]
+        if^h != nil^ { vp.net.joinRoom(h,"1234",$"Player {PLAYER}") phase := 2 }
+    }
+    if^phase <= 2 and^vp.online.inRoom() {
+        joined := love.timer.getTime()
+        if^PLAYER = 2 or^PLAYER = 3 { vp.online.sit(PLAYER - 1) }
+        phase := 3
+    }
+    if^phase = 3 and^(PLAYER = 2 or^PLAYER = 3) and^love.timer.getTime() - joined > 0.3 {
+        vp.online.sit(PLAYER - 1) phase := 4
+    }
+    if^phase = 4 and^vp.net.active() {
+        vp.net.resetMatch(1)
+        for^i from^3 to^15 { vp.net.sample(i,i * PLAYER) }
+        if^PLAYER = 2 {
+            let^t = vp.replay.Tape.new() t.seed := 123 t.seconds := 5
+            var^checkpoint = ""
+            for^i from^1 to^150 { checkpoint := checkpoint .. "日本語\\\"\n" }
+            for^i from^0 to^299 {
+                t.markRound(i,(i / 100).floor() + 1,0,0,i + 1,0,0)
+                let^r = t.rounds[t.rounds.length^ - 1]
+                if^r != nil^ and^r.first = i and^i > 0 { r.checkpoint := checkpoint }
+                t.push(i,(i * 3) % 2048)
+            }
+            t.wins1 := 2 t.wins2 := 1 t.life1 := 500 t.life2 := 123
+            vp.online.publish(t,300,true^)
+        }
+        phase := 5
+    }
+    let^seat = vp.online.atSeat(1)
+    if^phase = 3 and^(PLAYER = 1 or^PLAYER = 4) and^seat != nil^ and^seat.battle > 0 {
+        if^PLAYER = 1 or^love.timer.getTime() - joined > 3 { vp.online.watch(seat.battle) phase := 6 }
+    }
+    var^done = false^
+    if^phase = 5 and^vp.net.remote(15) != nil^ {
+        check(vp.net.remote(15) = 15 * (if^PLAYER = 2: 3 el^: 2;),"cross-process binary input mismatch") done := true^
+    }
+    if^phase = 6 {
+        let^s = vp.online.watchStream()
+        if^s != nil^ and^s.finished {
+            check(s.available = 300 and^s.tape?.wins1 = 2,"cross-process observation result mismatch")
+            check(s.tape?.rounds[2]?.checkpoint.find("日本語") = 0,"fragmented checkpoint corrupted")
+            check(s.tape?.side1[201] = 201,"observer input changed")
+            if^PLAYER = 4 { check(s.firstRound = 3 and^s.tape?.side1[101] = 0,"late viewer did not skip earlier inputs") }
+            done := true^
+        }
+    }
+    if^done and^!reported {
+        let^_^ = love.filesystem.write("mock-check.ok",$"Player {PLAYER}: cross-process room, battle and observation OK") catch^panic^it^
+        reported := true^
+    }
+    if^!reported and^love.timer.getTime() - began > 25 { panic^$"mock launcher check timeout: player {PLAYER}, phase {phase}, link {vp.net.status()}" }
+}
+public^let^quit = p^-> bool^{ vp.net.leave() vp.online.shutdown() return^false^ }

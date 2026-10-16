@@ -1,0 +1,112 @@
+# Development-only EOS interface over a loopback broker. Staged online.lh
+# requires this module instead of importing the native extension.
+module^eos
+import^std.net
+import^std.json
+import^std.binary
+import^love.filesystem
+import^love.timer
+public^let^EventKind = {login="login",search="search",created="created",joined="joined",left="left",memberJoined="memberJoined",memberLeft="memberLeft",ownerChanged="ownerChanged",lobbyClosed="lobbyClosed",authExpired="authExpired",loggedOut="loggedOut",roomUpdated="roomUpdated",kicked="kicked",overflow="overflow",internalError="internalError"}
+public^let^Reliability = {unreliable="unreliable",reliableOrdered="reliableOrdered"}
+let^Event = t^{kind:string^,ok:bool^,peerId:string^,code:string^}
+let^Room = t^{id:string^,owner:string^,bucket:string^,capacity:number^,available:number^,name:string^,locked:bool^}
+let^Packet = t^{peerId:string^,channel:number^,data:string^}
+let^BYTE = std.binary.format(t^{value:number^},{{"value",std.binary.uint(8)}})
+let^encodeBytes = p^text:string^-> t^{number^[]} {
+    var^out:t^{number^[]} = {}
+    for^i from^0 to^text.size - 1 { let^b, next = BYTE.decode(text,i) catch^panic^it^ out.push^(b.value) }
+    return^out
+}
+let^decodeBytes = p^bytes:t^{number^[]}-> string^{
+    var^out:t^{string^[]} = {}
+    for^b in^bytes { out.push^(BYTE.encode({value=b})) }
+    return^out.join^("")
+}
+public^let^Client = def^{
+    self^{
+        abstract^sock:std.net.Udp, port=0, token="", player="", sequence=0, next=1, ping=0,
+        pending:t^{[number^]:t^{text:string^,sent:number^}|nil^} = {},
+        waiting:t^{[number^]:string^|nil^} = {},
+        events:t^{Event[]} = {}, packets:t^{Packet[]} = {}, found:t^{Room[]} = {}, people:t^{string^[]} = {},
+        room:Room={id="",owner="",bucket="",capacity=16,available=16,name="",locked=false^},
+    },
+    override^new = f^sock:std.net.Udp, port:number^, token:string^, player:string^{ self^{sock=sock,port=port,token=token,player=player} },
+    wire = p^self^, text:string^-> nil^|std.net.Error{ try^self^.sock.sendTo(text,"127.0.0.1",self^.port) },
+    command = p^self^, body:t^{}-> number^|std.net.Error{
+        self^.sequence += 1
+        let^text = std.json.encode({token=self^.token,player=self^.player,seq=self^.sequence,body=body}) catch^panic^it^
+        self^.pending[self^.sequence] := {text=text,sent=love.timer.getTime()}
+        try^self^.wire(text)
+        return^self^.sequence
+    },
+    loginDevice = p^self^, name:string^-> number^|std.net.Error{ return^try^self^.command({op="login"}) },
+    loginEpic = p^self^, portal:bool^-> number^|std.net.Error{ return^try^self^.command({op="login"}) },
+    createLobby = p^self^, bucket:string^, capacity:number^-> number^|std.net.Error{ return^try^self^.command({op="create",bucket=bucket,capacity=capacity}) },
+    search = p^self^, bucket:string^, limit:number^-> number^|std.net.Error{ return^try^self^.command({op="search",bucket=bucket,limit=limit}) },
+    join = p^self^, id:string^-> number^|std.net.Error{ return^try^self^.command({op="join",room=id}) },
+    leave = p^self^-> number^|std.net.Error{ return^try^self^.command({op="leave"}) },
+    kick = p^self^, peer:string^-> number^|std.net.Error{ return^try^self^.command({op="kick",peer=peer}) },
+    setRoom = p^self^, name:string^, locked:bool^-> number^|std.net.Error{ return^try^self^.command({op="setRoom",name=name,locked=locked}) },
+    send = p^self^, peer:string^, data:string^, channel:number^, reliability:string^-> nil^|std.net.Error{
+        if^data.size > 1170 { panic^"Mock EOS packet exceeds 1170 bytes" }
+        let^_^ = try^self^.command({op="packet",peer=peer,channel=channel,bytes=encodeBytes(data)})
+    },
+    userId = f^self^-> string^|std.net.Error{ self^.player },
+    displayName = f^self^-> string^|std.net.Error{ self^.player },
+    lobby = f^self^-> Room|std.net.Error{ self^.room },
+    members = f^self^-> t^{string^[]}|std.net.Error{ self^.people },
+    results = f^self^-> t^{Room[]}|std.net.Error{ self^.found },
+    poll = p^self^-> Event|nil^|std.net.Error{
+        let^e = self^.events[0] if^e != nil^ { self^.events.remove^(0) } return^e
+    },
+    receive = p^self^-> Packet|nil^|std.net.Error{
+        let^p = self^.packets[0] if^p != nil^ { self^.packets.remove^(0) } return^p
+    },
+    apply = p^self^, text:string^{
+        let^decoded = std.json.decode(text) catch^nil^
+        if^!(decoded fits^t^{op:string^}) { return^ }
+        let^kind = decoded.op let^raw:any^ = decoded
+        if^kind = "event" and^raw fits^Event { self^.events.push^(raw)
+        elseif^kind = "roster" and^raw fits^t^{room:Room,members:t^{string^[]}}: self^.room := raw.room self^.people := raw.members
+        elseif^kind = "results" and^raw fits^t^{rooms:t^{Room[]}}: self^.found := raw.rooms
+        elseif^kind = "packet" and^raw fits^t^{peerId:string^,channel:number^,bytes:t^{number^[]}}:
+            self^.packets.push^({peerId=raw.peerId,channel=raw.channel,data=decodeBytes(raw.bytes)})
+        }
+    },
+    tick = p^self^-> nil^|std.net.Error{
+        let^now = love.timer.getTime()
+        if^now - self^.ping >= 1 { let^_^ = try^self^.command({op="ping"}) self^.ping := now }
+        for^i from^1 to^512 {
+            let^text, host, port = try^self^.sock.receive()
+            if^text is^nil^ { break^ }
+            if^host != "127.0.0.1" or^port != self^.port { continue^ }
+            let^decoded = std.json.decode(text) catch^nil^
+            if^!(decoded fits^t^{token:string^}) or^decoded.token != self^.token { continue^ }
+            let^raw:any^ = decoded
+            if^raw fits^t^{ack:number^} { self^.pending[raw.ack] := nil^ }
+            if^raw fits^t^{seq:number^,body:t^{}} {
+                try^self^.wire(std.json.encode({token=self^.token,player=self^.player,ack=raw.seq}) catch^panic^it^)
+                if^raw.seq >= self^.next { self^.waiting[raw.seq] := std.json.encode(raw.body) catch^panic^it^ }
+            }
+        }
+        repeat^{
+            let^body = self^.waiting[self^.next]
+            if^body is^nil^ { break^ }
+            self^.waiting[self^.next] := nil^ self^.next += 1 self^.apply(body)
+        }
+        for^seq, packet in^self^.pending {
+            if^packet != nil^ and^now - packet.sent >= 0.2 { try^self^.wire(packet.text) packet.sent := now }
+        }
+    },
+    close = p^self^-> nil^|std.net.Error{
+        try^self^.wire(std.json.encode({token=self^.token,player=self^.player,op="disconnect"}) catch^panic^it^)
+        self^.sock.dispose()
+    },
+}
+public^let^create = p^config:t^{}-> Client|std.net.Error{
+    let^text = love.filesystem.read("mock-online.json") catch^panic^it^
+    let^raw = std.json.decode(text) catch^panic^it^
+    if^!(raw fits^t^{port:number^,token:string^,player:string^}) { panic^"Missing development broker configuration" }
+    let^sock = try^std.net.udp() try^sock.bind("127.0.0.1",0)
+    return^Client.new(sock,raw.port,raw.token,raw.player)
+}

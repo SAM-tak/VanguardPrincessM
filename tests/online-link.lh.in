@@ -17,6 +17,7 @@ require^"src/onlinefifth.lh"
 require^"src/roommenu.lh"
 require^"src/lobby.lh"
 require^"src/settings.lh"
+require^"src/replay.lh"
 let^check = p^ok:bool^, why:string^{ if^!ok { panic^why } }
 let^pump = p^{
     for^i from^0 to^49 {
@@ -130,6 +131,30 @@ public^let^load = p^{
     check(vp.netguest.active() and^vp.netthird.active(), "Both READY start table 1")
     check(vp.netguest.localSide() = 0 and^vp.netthird.localSide() = 1, "Seat determines 1P/2P independently of lobby owner")
     check(!vp.net.active(), "Room owner does not enter another table's match")
+    let^tape = vp.replay.Tape.new() tape.seed := 123456 tape.seconds := 5
+    var^checkpoint = ""
+    for^i from^1 to^150 { checkpoint := checkpoint .. "日本語\\\"\n" }
+    for^i from^0 to^299 {
+        tape.markRound(i,(i / 100).floor() + 1,0,0,i + 1,0,0)
+        let^r = tape.rounds[tape.rounds.length^ - 1]
+        if^r != nil^ and^r.first = i and^i > 0 { r.checkpoint := checkpoint }
+        tape.push(i % 2048,(i * 3) % 2048)
+    }
+    vp.onlineguest.publish(tape,150,false^) pump()
+    # Selecting an occupied, running table watches it rather than taking its seat.
+    vp.roommenu.openRoom() vp.roommenu.step(false^,false^,1)
+    check(vp.online.watching() = vp.onlineguest.battleId(), "A on an active table starts host observation")
+    let^hostStream = vp.online.watchStream()
+    check(hostStream != nil^ and^hostStream.available = 150 and^hostStream.firstRound = 1, "Host retains confirmed inputs from the beginning")
+    vp.onlinefourth.watch(vp.onlineguest.battleId()) pump()
+    let^viewer = vp.onlinefourth.watchStream()
+    check(viewer != nil^ and^viewer.available = 150 and^viewer.firstRound = 2, "Third-party viewer starts from the latest round")
+    check(viewer?.tape?.rounds[1]?.checkpoint = checkpoint, "Fragmented UTF-8 checkpoint relayed intact")
+    check(viewer?.tape?.side1[101] = 101 and^viewer?.tape?.side1[1] = 0, "Relay omits completed round inputs")
+    tape.wins1 := 2 tape.wins2 := 1 tape.life1 := 875 tape.life2 := 123
+    vp.onlineguest.publish(tape,300,true^) pump()
+    check(viewer != nil^ and^viewer.finished and^viewer.available = 300 and^viewer.tape?.wins1 = 2, "Live continuation and final result reach viewer")
+    vp.online.stopWatching() vp.onlinefourth.stopWatching() vp.roommenu.hide() pump()
     vp.online.sit(3) vp.onlinefourth.sit(4) pump()
     vp.online.sit(3) vp.onlinefourth.sit(4) pump()
     check(vp.net.active() and^vp.netfourth.active(), "Table 2 can play concurrently")
@@ -154,13 +179,16 @@ public^let^load = p^{
     vp.onlineguest.sit(1) vp.onlinethird.sit(2) pump()
     check(vp.netguest.active() and^vp.onlineguest.battleId() > previousBattle, "Rematch uses a fresh epoch without recreating room")
     check(vp.netguest.remote(3) = nil^, "Rematch discards previous match inputs")
+    vp.online.watch(vp.onlineguest.battleId()) vp.onlinefourth.watch(vp.onlineguest.battleId()) pump()
     vp.netthird.leave() pump()
     check(vp.online.inRoom() and^vp.online.players().length^ = 3, "Non-owner departure keeps room open")
     check(!vp.netguest.active() and^vp.online.atSeat(2) = nil^, "Opponent departure clears table")
+    check(vp.online.watchStream()?.failed = true^ and^vp.onlinefourth.watchStream()?.failed = true^, "Departure while selecting ends waiting observers")
+    vp.online.stopWatching() vp.onlinefourth.stopWatching()
     vp.net.leave() pump()
     check(!vp.onlineguest.inRoom() and^!vp.onlinefourth.inRoom(), "Owner departure closes room for everyone")
     vp.netguest.leave() vp.netfourth.leave() vp.netfifth.leave() pump()
     vp.online.shutdown() vp.onlineguest.shutdown() vp.onlinethird.shutdown() vp.onlinefourth.shutdown() vp.onlinefifth.shutdown()
-    print("ONLINE_LINK_OK: UTF-8 forms, named/PIN rooms, admission rejection, roster, seat collision, READY, concurrent tables, binary input isolation, room return, rematch, departures")
+    print("ONLINE_LINK_OK: rooms, admission, READY, concurrent tables, binary input isolation, host/guest observation, fragmented checkpoints, live results, rematch and observer departure cleanup")
     love.event.quit()
 }

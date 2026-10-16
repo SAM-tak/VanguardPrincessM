@@ -20,7 +20,7 @@ foreach ($name in 'net', 'online') {
         [IO.File]::WriteAllText("$stage/src/$name$suffix.lh", $copy)
     }
 }
-foreach ($name in 'lanmenu', 'roommenu', 'lobby', 'locale', 'settings') {
+foreach ($name in 'lanmenu', 'roommenu', 'lobby', 'locale', 'settings', 'replay', 'spectator') {
     Copy-Item -LiteralPath "$root/src/$name.lh" -Destination "$stage/src/$name.lh"
 }
 'productId = "test", sandboxId = "test", deploymentId = "test", clientId = "test", clientSecret = "test",' |

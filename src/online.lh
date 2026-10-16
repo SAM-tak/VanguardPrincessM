@@ -8,8 +8,10 @@ import^love.filesystem
 import^love.timer
 
 require^"lobby.lh"
+require^"spectator.lh"
+require^"replay.lh"
 
-let^BUCKET = "vanguard-m-0164-room-v1"
+let^BUCKET = "vanguard-m-0171-room-v2"
 let^SOCKET = "vanguard-room-v1"
 
 public^let^RoomInfo = t^{id:string^, owner:string^, bucket:string^, capacity:number^, available:number^, name:string^, locked:bool^}
@@ -55,6 +57,11 @@ var^commands:t^{[string^]:number^|nil^} = {}
 var^sequence = 0
 var^rooms:t^{RoomInfo[]} = {}
 var^battlePackets:t^{string^[]} = {}
+var^view = vp.spectator.Relay.new()
+public^let^watching = f^-> number^{ view.watching }
+public^let^watchStream = f^-> vp.spectator.Stream|nil^{
+    return^if^view.watching = 0: nil^ el^owner: view.streams[view.watching] ?? view.viewer el^: view.viewer;
+}
 public^let^status = f^-> string^{ state }
 public^let^problemText = f^-> string^{ problem }
 public^let^peerId = f^-> string^{ peer }
@@ -81,6 +88,7 @@ let^dispose = p^{
     if^c != nil^ { c.close() catch^nil^ }
     client := nil^ closing := false^ inLobby := false^ searchPending := false^ mutationPending := false^
     peer := "" admitted := false^ roomId := "" battlePackets := {}
+    view := vp.spectator.Relay.new()
 }
 public^let^stop = p^{
     state := "" peer := "" rooms := {} battlePackets := {}
@@ -117,6 +125,7 @@ public^let^hostRoom = p^name:string^, pin:string^, display:string^{
     if^!validPin(pin) { problem := "PIN must contain 4 to 8 digits" return^ }
     roomName := vp.lobby.name(name) roomPin := pin roomLocked := pin != "" profile := vp.lobby.name(display)
     roster := vp.lobby.Room.new() waiting := {} commands := {} sequence := 0
+    view := vp.spectator.Relay.new()
     epoch := 0 finishedEpoch := 0 revision := 0 appliedRevision := -1
     owner := true^ admitted := false^ state := "creating" mutationPending := true^
     deadline := love.timer.getTime() + 30
@@ -139,6 +148,7 @@ public^let^joinRoom = p^id:string^, pin:string^, display:string^{
     if^c is^nil^ or^state != "searching" { return^ }
     owner := false^ admitted := false^ profile := vp.lobby.name(display) joinPin := pin
     roster := vp.lobby.Room.new() sequence := 0 epoch := 0 finishedEpoch := 0 appliedRevision := -1 incomingRevision := -1
+    view := vp.spectator.Relay.new()
     peer := "" roomId := "" lastHello := -100
     state := "joining" mutationPending := true^ deadline := love.timer.getTime() + 30
     try^c.join(id)
@@ -158,6 +168,159 @@ let^control = p^id:string^, message:t^{}{
     try^c.send(id, text, 1, eos.Reliability.reliableOrdered)
 catch^:
     problem := "A room message could not be sent"
+}
+# Channel 2 is reliable and independent of gameplay. Fragment by characters
+# (including JSON escaping) to stay below EOS's 1170-byte packet ceiling.
+let^queueView = p^id:string^, battle:number^, token:number^, text:string^{
+    var^parts:t^{string^[]} = {}
+    let^count = (text.length / 120).ceil()
+    for^i from^0 to^count - 1 {
+        parts.push^(std.json.encode({room=roomId,battle=battle,token=token,part=i,count=count,text=text.substring(i * 120,std.math.min(text.length - 1,(i + 1) * 120 - 1))}) catch^"")
+    }
+    view.queues[id] := parts
+}
+let^acceptView = p^from:string^, battle:number^, text:string^{
+    if^owner {
+        let^p = roster.get(from)
+        if^p is^nil^ { return^ }
+        if^view.sources[battle] != from and^(p.battle != battle or^p.seat % 2 != 1) { return^ }
+        var^stream = view.streams[battle]
+        if^stream is^nil^ {
+            # Replace the table's cache, letting existing viewers finish an
+            # older match. pumpView frees caches with no table or viewer.
+            let^table = ((p.seat - 1) / 2).floor()
+            stream := vp.spectator.Stream.new() view.streams[battle] := stream view.tables[table] := battle
+            view.sources[battle] := from
+        }
+        let^target = stream
+        if^target != nil^ and^!target.apply(text) { target.failed := true^ }
+    elseif^from = ownerId and^battle = view.watching and^battle > 0:
+        if^!view.viewer.apply(text) { view.viewer.failed := true^ }
+    }
+}
+public^let^watch = p^battle:number^{
+    let^me = localPlayer()
+    if^!inRoom() or^me is^nil^ or^me.battle != 0 or^battle <= 0 { return^ }
+    var^found = false^
+    for^p in^roster.players { if^p.battle = battle { found := true^ } }
+    if^!found { return^ }
+    if^me.seat > 0 { stand() }
+    view.watching := battle view.watchSerial += 1 view.viewer := vp.spectator.Stream.new()
+    if^!owner { control(ownerId,{kind="watch",room=roomId,battle=battle,token=view.watchSerial}) }
+}
+public^let^stopWatching = p^{
+    if^view.watching > 0 and^!owner { control(ownerId,{kind="watch",room=roomId,battle=0,token=view.watchSerial}) }
+    view.watching := 0 view.viewer := vp.spectator.Stream.new()
+}
+public^let^publish = p^tape:vp.replay.Tape, confirmed:number^, finished:bool^{
+    if^!inRoom() or^side != 0 or^epoch <= 0 { return^ }
+    if^view.publishedBattle != epoch {
+        view.publishedBattle := epoch view.publishing := vp.spectator.Stream.new()
+        view.upload := vp.spectator.Cursor.new() view.upload.latest := false^
+    }
+    view.publishing.tape := tape view.publishing.available := confirmed view.publishing.finished := finished
+}
+let^heardView = p^from:string^, data:string^{
+    let^raw:any^ = std.json.decode(data) catch^nil^
+    if^!(raw fits^t^{room:string^,battle:number^,token:number^,part:number^,count:number^,text:string^}) or^raw.room != roomId or^raw.count < 1 or^raw.count > 12000 or^raw.count != raw.count.floor() or^raw.part < 0 or^raw.part != raw.part.floor() or^raw.text.length > 120 { return^ }
+    if^owner {
+        let^p = roster.get(from)
+        if^p is^nil^ { return^ }
+        if^view.sources[raw.battle] != from and^(p.battle != raw.battle or^p.seat % 2 != 1) { return^ }
+        if^p.battle != raw.battle { view.ended[raw.battle] := love.timer.getTime() }
+    elseif^from != ownerId or^raw.battle != view.watching or^view.watching = 0 or^raw.token != view.watchSerial: return^
+    }
+    if^raw.part = 0 { view.incoming[from] := {battle=raw.battle,count=raw.count,parts={}} }
+    let^pending = view.incoming[from]
+    if^pending is^nil^ or^pending.battle != raw.battle or^pending.count != raw.count or^pending.parts.length^ != raw.part { return^ }
+    pending.parts.push^(raw.text)
+    if^pending.parts.length^ = raw.count {
+        view.incoming[from] := nil^
+        acceptView(from,raw.battle,pending.parts.join^(""))
+    }
+}
+let^sendView = p^c:eos.Client, id:string^, packet:string^-> bool^{
+    try^c.send(id,packet,2,eos.Reliability.reliableOrdered)
+    return^true^
+catch^:
+    problem := "A spectator packet could not be sent"
+    return^false^
+}
+let^dropView = p^id:string^{
+    view.watchers[id] := nil^ view.tokens[id] := nil^ view.cursors[id] := nil^
+    view.queues[id] := nil^ view.incoming[id] := nil^
+}
+let^pumpView = p^{
+    let^c = client
+    if^c is^nil^ { return^ }
+    # Only one logical message per destination is queued at a time. Slow
+    # watchers cannot grow queues or block a player's battle connection.
+    if^view.publishedBattle > 0 and^view.queues[ownerId] is^nil^ {
+        for^i from^1 to^(if^owner: 16 el^: 1;) {
+            let^text = view.upload.next(view.publishing)
+            if^text = "" { break^ }
+            if^owner { acceptView(localId,view.publishedBattle,text)
+            else^: queueView(ownerId,view.publishedBattle,0,text) }
+        }
+    }
+    if^owner {
+        if^view.watching > 0 and^view.streams[view.watching] is^nil^ {
+            var^active = false^
+            for^p in^roster.players { if^p.battle = view.watching { active := true^ } }
+            if^!active { view.viewer.failed := true^ }
+        }
+        for^id, battle in^view.watchers {
+            if^battle is^nil^ { continue^ }
+            let^p = roster.get(id)
+            if^p is^nil^ or^p.battle > 0 {
+                dropView(id) continue^
+            }
+            let^stream = view.streams[battle]
+            if^stream is^nil^ {
+                var^active = false^
+                for^q in^roster.players { if^q.battle = battle { active := true^ } }
+                if^!active { control(id,{kind="watchEnd",room=roomId,battle=battle,token=view.tokens[id] ?? 0}) view.watchers[id] := nil^ }
+            }
+            let^cursor = view.cursors[id]
+            if^stream != nil^ and^stream.failed {
+                control(id,{kind="watchEnd",room=roomId,battle=battle,token=view.tokens[id] ?? 0})
+                view.watchers[id] := nil^ view.queues[id] := nil^ continue^
+            }
+            if^stream != nil^ and^cursor != nil^ and^view.queues[id] is^nil^ {
+                let^text = cursor.next(stream)
+                if^text != "" { queueView(id,battle,view.tokens[id] ?? 0,text) }
+            }
+        }
+        for^battle, stream in^view.streams {
+            if^stream is^nil^ { continue^ }
+            var^needed = view.watching = battle
+            for^table, cached in^view.tables { if^cached = battle { needed := true^ } }
+            for^id, watched in^view.watchers { if^watched = battle { needed := true^ } }
+            if^!needed { view.streams[battle] := nil^ view.ended[battle] := nil^ view.sources[battle] := nil^ continue^ }
+            if^stream.finished or^stream.failed { continue^ }
+            var^active = false^
+            for^p in^roster.players { if^p.battle = battle { active := true^ } }
+            if^active { view.ended[battle] := nil^
+            else^:
+                let^since = view.ended[battle]
+                if^since is^nil^ { view.ended[battle] := love.timer.getTime()
+                elseif^love.timer.getTime() - since > 5:
+                    stream.failed := true^
+                }
+            }
+        }
+    }
+    for^id, packets in^view.queues {
+        if^packets is^nil^ { continue^ }
+        if^!isMember(id) { view.queues[id] := nil^ continue^ }
+        for^i from^1 to^8 {
+            let^packet = packets[0]
+            if^packet is^nil^ { break^ }
+            if^!sendView(c,id,packet) { break^ }
+            packets.remove^(0)
+        }
+        if^packets.length^ = 0 { view.queues[id] := nil^ }
+    }
 }
 let^snapshot = p^{
     revision += 1
@@ -209,7 +372,18 @@ let^heardControl = p^from:string^, data:string^{
     let^kind = decoded.kind
     let^raw:any^ = decoded
     if^owner {
-        if^kind = "enter" and^raw fits^t^{name:string^,pin:string^} {
+        if^kind = "watch" and^raw fits^t^{battle:number^,token:number^} {
+            let^p = roster.get(from)
+            if^p != nil^ and^p.battle = 0 {
+                var^found = raw.battle = 0
+                for^q in^roster.players { if^q.battle = raw.battle { found := true^ } }
+                if^found {
+                    view.watchers[from] := if^raw.battle > 0: raw.battle el^: nil^;
+                    view.tokens[from] := raw.token
+                    view.cursors[from] := vp.spectator.Cursor.new() view.queues[from] := nil^
+                }
+            }
+        elseif^kind = "enter" and^raw fits^t^{name:string^,pin:string^}:
             if^roster.get(from) != nil^ { lastBroadcast := -100 return^ }
             if^raw.pin != roomPin {
                 control(from, { kind="reject",room=roomId })
@@ -235,6 +409,7 @@ let^heardControl = p^from:string^, data:string^{
     }
     if^from != ownerId { return^ }
     lastOwner := love.timer.getTime()
+    if^kind = "watchEnd" and^raw fits^t^{battle:number^,token:number^} and^raw.battle = view.watching and^raw.token = view.watchSerial { view.viewer.failed := true^ return^ }
     if^kind = "reject" { fail("Incorrect room PIN") return^ }
     if^kind = "begin" and^raw fits^t^{rev:number^,name:string^,locked:bool^} {
         if^raw.rev <= appliedRevision { return^ }
@@ -309,6 +484,7 @@ public^let^tick = p^{
         elseif^e.kind = eos.EventKind.ownerChanged or^e.kind = eos.EventKind.lobbyClosed:
             if^state != "returning" and^inLobby { fail("The room host left") return^ }
         elseif^e.kind = eos.EventKind.memberLeft:
+            dropView(e.peerId)
             if^e.peerId = localId and^state != "returning" { fail("You left the room or the PIN was rejected") return^ }
             if^owner { roster.drop(e.peerId) waiting[e.peerId] := nil^ commands[e.peerId] := nil^ lastBroadcast := -100 }
         elseif^e.kind = eos.EventKind.overflow or^e.kind = eos.EventKind.internalError:
@@ -328,7 +504,7 @@ public^let^tick = p^{
         if^owner {
             var^gone:t^{string^[]} = {}
             for^p in^roster.players { if^!isMember(p.id) { gone.push^(p.id) } }
-            for^id in^gone { roster.drop(id) commands[id] := nil^ lastBroadcast := -100 }
+            for^id in^gone { roster.drop(id) commands[id] := nil^ dropView(id) lastBroadcast := -100 }
             for^id in^members {
                 if^roster.get(id) != nil^ { continue^ }
                 let^since = waiting[id]
@@ -344,6 +520,7 @@ public^let^tick = p^{
             if^packet is^nil^ { break^ }
             if^!isMember(packet.peerId) { continue^ }
             if^packet.channel = 1 { heardControl(packet.peerId, packet.data) }
+            if^packet.channel = 2 { heardView(packet.peerId, packet.data) }
             if^state = "failed" { return^ }
             if^packet.channel = 0 and^packet.peerId = peer and^epoch > 0 {
                 let^prefix = $"{roomId}:{epoch}|"
@@ -356,6 +533,7 @@ public^let^tick = p^{
         }
         if^owner and^admitted and^now - lastBroadcast >= 0.5 { snapshot() }
         if^!owner and^admitted and^now - lastOwner > 15 { fail("The room host stopped responding") return^ }
+        pumpView()
         let^me = roster.get(localId)
         if^me != nil^ and^me.battle > finishedEpoch and^!me.done {
             let^mate = roster.at(if^me.seat % 2 = 1: me.seat + 1 el^: me.seat - 1;)

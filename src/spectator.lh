@@ -1,0 +1,100 @@
+# Confirmed replay stream shared by the publisher, room relay and viewers.
+# No EOS or game simulation here; a cursor can start at the newest portable
+# round, then delivers each boundary before that round's input frames.
+module^vp.spectator
+import^std.json
+import^std.math
+require^"replay.lh"
+let^Round = vp.replay.Round
+public^let^Stream = def^{
+    self^{ tape:vp.replay.Tape|nil^= nil^, available = 0, firstRound = 1, finished = false^, failed = false^ },
+    apply = p^self^, text:string^-> bool^{
+        let^decoded = std.json.decode(text) catch^nil^
+        if^decoded fits^t^{kind:string^} {
+            let^kind = decoded.kind
+            let^raw:any^ = decoded
+            if^kind = "head" and^raw fits^t^{seed:number^,char1:number^,char2:number^,colour1:number^,colour2:number^,support1:number^,support2:number^,stage:number^,seconds:number^,toWin:number^} {
+                if^self^.tape != nil^ or^raw.char1 < 0 or^raw.char1 > 9 or^raw.char2 < 0 or^raw.char2 > 9 or^raw.stage < 0 or^raw.stage > 6 or^raw.seconds < 0 or^raw.seconds > 999 or^raw.toWin < 1 or^raw.toWin > 9 { return^false^ }
+                let^t = vp.replay.Tape.new()
+                t.seed := raw.seed t.char1 := raw.char1 t.char2 := raw.char2
+                t.colour1 := raw.colour1 t.colour2 := raw.colour2 t.support1 := raw.support1 t.support2 := raw.support2
+                t.stage := raw.stage t.seconds := raw.seconds t.toWin := raw.toWin
+                self^.tape := t return^true^
+            }
+            let^t = self^.tape
+            if^t is^nil^ or^self^.finished { return^false^ }
+            if^kind = "round" and^raw fits^t^{round:Round} {
+                let^r = raw.round
+                if^r.first < 0 or^r.first > 360000 or^r.first != r.first.floor() or^r.number < 1 or^r.number > 99 or^r.number != r.number.floor() or^r.checkpoint.size > 1048576 { return^false^ }
+                if^t.rounds.length^ = 0 {
+                    if^r.number > 1 and^r.checkpoint = "" { return^false^ }
+                    self^.firstRound := r.number
+                    # Keep absolute frame/round indexes used by replay restoration.
+                    repeat^while^t.frames() < r.first { t.push(0, 0) }
+                    for^i from^1 to^r.number - 1 { t.rounds.push^({ first=0,number=i,wins1=0,wins2=0,random=0,special1=0,special2=0,checkpoint="" }) }
+                }
+                if^r.number != t.rounds.length^ + 1 or^r.first != t.frames() { return^false^ }
+                t.rounds.push^(r) self^.available := t.frames() return^true^
+            }
+            if^kind = "input" and^raw fits^t^{first:number^,one:t^{number^[]},two:t^{number^[]}} {
+                if^t.rounds.length^ = 0 or^raw.first != t.frames() or^raw.one.length^ != raw.two.length^ or^raw.one.length^ > 32 or^t.frames() + raw.one.length^ > 360000 { return^false^ }
+                for^v in^raw.one {
+                    let^two = raw.two[index^] ?? -1
+                    if^v < 0 or^v > 2047 or^v != v.floor() or^two < 0 or^two > 2047 or^two != two.floor() { return^false^ }
+                }
+                for^v in^raw.one { t.push(v, raw.two[index^] ?? 0) }
+                self^.available := t.frames() return^true^
+            }
+            if^kind = "end" and^raw fits^t^{frames:number^,wins1:number^,wins2:number^,life1:number^,life2:number^} and^raw.frames = t.frames() {
+                t.wins1 := raw.wins1 t.wins2 := raw.wins2 t.life1 := raw.life1 t.life2 := raw.life2
+                self^.finished := true^ return^true^
+            }
+        }
+        return^false^
+    },
+}
+public^let^Cursor = def^{
+    self^{ began = false^, frame = 0, round = 0, ended = false^, latest = true^ },
+    next = p^self^, stream:Stream-> string^{
+        let^t = stream.tape
+        if^t is^nil^ or^stream.available <= 0 or^self^.ended { return^"" }
+        if^!self^.began {
+            var^start = stream.firstRound - 1
+            if^self^.latest {
+                for^r in^t.rounds { if^r.first < stream.available and^r.checkpoint != "" { start := index^ } }
+            }
+            let^r = t.rounds[start]
+            if^r is^nil^ { return^"" }
+            self^.frame := r.first self^.round := start self^.began := true^
+            return^std.json.encode({kind="head",seed=t.seed,char1=t.char1,char2=t.char2,colour1=t.colour1,colour2=t.colour2,support1=t.support1,support2=t.support2,stage=t.stage,seconds=t.seconds,toWin=t.toWin}) catch^""
+        }
+        let^r = t.rounds[self^.round]
+        if^r != nil^ and^r.first = self^.frame and^r.first < stream.available {
+            self^.round += 1
+            return^std.json.encode({kind="round",round=r}) catch^""
+        }
+        let^until = std.math.min(std.math.min(stream.available, self^.frame + 32), t.rounds[self^.round]?.first ?? stream.available)
+        if^until > self^.frame {
+            let^first = self^.frame self^.frame := until
+            return^std.json.encode({kind="input",first=first,one=t.side1.slice^(first,until - 1),two=t.side2.slice^(first,until - 1)}) catch^""
+        }
+        if^stream.finished and^self^.frame = stream.available {
+            self^.ended := true^
+            return^std.json.encode({kind="end",frames=stream.available,wins1=t.wins1,wins2=t.wins2,life1=t.life1,life2=t.life2}) catch^""
+        }
+        return^""
+    },
+}
+public^let^Relay = def^{ self^{
+    streams:t^{[number^]:Stream|nil^} = {},
+    tables:t^{[number^]:number^|nil^} = {},
+    watchers:t^{[string^]:number^|nil^} = {},
+    tokens:t^{[string^]:number^|nil^} = {},
+    cursors:t^{[string^]:Cursor|nil^} = {},
+    queues:t^{[string^]:t^{string^[]}|nil^} = {},
+    incoming:t^{[string^]:t^{battle:number^,count:number^,parts:t^{string^[]}}|nil^} = {},
+    ended:t^{[number^]:number^|nil^} = {},
+    sources:t^{[number^]:string^|nil^} = {},
+    abstract^publishing:Stream, abstract^upload:Cursor, publishedBattle = 0,
+    watching = 0, watchSerial = 0, abstract^viewer:Stream,
+}, override^new = f^{ self^{publishing=Stream.new(),upload=Cursor.new(),viewer=Stream.new()} } }

@@ -33,8 +33,10 @@ public^let^openRoom = p^{
     item := if^p != nil^ and^p.seat > 0: p.seat - 1 el^: 0;
 }
 public^let^close = p^{ textMode(false^) if^!vp.net.active() { vp.net.leave() } mode := "" }
+public^let^hide = p^{ textMode(false^) mode := "" }
 public^let^showMessage = p^text:string^{ textMode(false^) mode := "message" message := text }
 public^let^back = p^{
+    if^mode = "watching" { vp.online.stopWatching() openRoom() return^ }
     if^mode = "create" { textMode(false^) mode := "menu" item := 0 message := "" return^ }
     if^mode = "password" { textMode(false^) mode := "searching" item := 0 message := "" return^ }
     if^mode = "room" {
@@ -162,7 +164,14 @@ public^let^step = p^up:bool^, down:bool^, pressed:number^{
         if^confirm and^h != nil^ { chosen := h mode := "password" field := 0 pin := "" message := "" textMode(true^) }
     elseif^mode = "room":
         if^up or^down { item := (item + (if^down: 2 el^: 6;)) % 8 }
-        if^confirm { vp.online.sit(item + 1) }
+        if^confirm {
+            let^p = vp.online.atSeat(item + 1)
+            let^me = vp.online.localPlayer()
+            if^p != nil^ and^p.battle > 0 and^me != nil^ and^me.battle = 0 {
+                vp.online.watch(p.battle)
+                if^vp.online.watching() > 0 { mode := "watching" }
+            else^: vp.online.sit(item + 1) }
+        }
     }
 }
 let^font = p^size:number^-> love.graphics.Font {
@@ -233,7 +242,7 @@ public^let^draw = p^{
             label(place, x + 1010, py, 18)
         }
         love.graphics.setColor(0.9, 0.87, 0.98, 1)
-        label(word("↑↓ 対戦台  ←→ 1P/2P  A 着席・READY切替", "Up/Down: table  Left/Right: side  A: sit / READY"), x + 28, y + 716, 20)
+        label(word("↑↓ 対戦台  ←→ 1P/2P  A 着席・READY切替（対戦中の台は観戦）", "Up/Down: table  Left/Right: side  A: sit / READY / watch a match"), x + 28, y + 716, 20)
         label(word("B / D READY解除・離席   Esc / Back 離席（待機中はルーム退出）", "B / D: cancel READY / stand   Esc / Back: stand / leave room when idle"), x + 28, y + 750, 20)
     else^:
         var^lines:t^{string^[]} = {}
@@ -248,6 +257,7 @@ public^let^draw = p^{
         elseif^mode = "login": lines := { word("オンラインに接続しています…", "Connecting online...") }
         elseif^mode = "hosting": lines := { word("ルームを作成しています…", "Creating room...") }
         elseif^mode = "joining": lines := { word("ルームに参加しています…", "Joining room...") }
+        elseif^mode = "watching": lines := { word("観戦データを待っています…（キャラクター選択中は対戦開始まで待機）", "Waiting for the match stream (character selection may still be in progress)...") }
         elseif^mode = "message": lines := { message }
         }
         for^line in^lines {

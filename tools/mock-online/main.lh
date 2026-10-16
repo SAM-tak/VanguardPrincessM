@@ -1,0 +1,31 @@
+# Interactive entry; gameplay and menus are the unchanged game modules.
+module^vp.mocklauncher
+import^love.keyboard
+import^love.filesystem
+require^"game.lh"
+require^"src/arena.lh"
+require^"src/lanmenu.lh"
+require^"src/roommenu.lh"
+require^"src/settings.lh"
+require^"src/net.lh"
+var^phase = 0
+public^let^load = p^{ vp.settings.setPlayerName("Local Player __PLAYER__") vp.main.load() }
+public^let^update = p^dt:number^{
+    vp.main.update(dt)
+    let^where = vp.arena.names()
+    let^Key = love.keyboard.Key
+    if^phase = 0 and^where = "system / opening" {
+        vp.main.keypressed(Key.z,love.keyboard.Scancode.unknown,false^) phase := 1
+    elseif^phase = 1:
+        vp.main.keypressed(Key.z,love.keyboard.Scancode.unknown,false^) phase := 2
+    elseif^phase = 2 and^where = "system / title":
+        vp.lanmenu.openOnline() vp.roommenu.step(false^,false^,1) phase := 3
+    elseif^phase = 3 and^vp.net.status() = "ready":
+        let^_^ = love.filesystem.write("mock-ready.ok","Local Player __PLAYER__: interactive online menu ready") catch^panic^it^
+        phase := 4
+    }
+}
+public^let^draw = p^{ vp.main.draw() }
+public^let^keypressed = p^key:love.keyboard.Key, scancode:love.keyboard.Scancode, repeat:bool^{ vp.main.keypressed(key,scancode,repeat) }
+public^let^textinput = p^text:string^{ vp.main.textinput(text) }
+public^let^quit = p^-> bool^{ return^vp.main.quit() }

@@ -20,3 +20,5 @@ zip もしくは tar.gz を解凍後、中にある [README](distribution/README
 
 開発版のOnline VS（アカウント不要接続・Epicアカウント / EOS）の設定・起動手順は
 [技術メモ](TechnicalDocuments/0162-online-vs-eos.md)を参照。ソースから起動する場合、エンジンとABIが一致するEOS拡張とSDKランタイムを `native/` に配置する必要がある。
+
+同じPCで3人以上の対戦・観戦を試す場合は、`pwsh -File tools/start-mock-online.ps1` で独立した模擬ユーザーのゲーム画面を3つ起動できる。このローカルテストにはEpicアカウントやEOS拡張は不要。[操作と起動オプション](TechnicalDocuments/0172-local-mock-online-launcher.md)を参照。

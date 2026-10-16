@@ -20,3 +20,7 @@ Extract the zip or tar.gz, then follow the [README](distribution/README.md) insi
 The development build's Online VS uses EOS with accountless Device ID or Epic account login. Running from source
 requires an engine-compatible EOS extension and SDK runtime in `native/`; see the
 [setup notes (Japanese)](TechnicalDocuments/0162-online-vs-eos.md).
+
+To test matches and spectating with three local users, run `pwsh -File tools/start-mock-online.ps1`.
+It opens three independent game windows using a local mock service, without Epic accounts or an EOS extension.
+See the [launcher instructions (Japanese)](TechnicalDocuments/0172-local-mock-online-launcher.md).

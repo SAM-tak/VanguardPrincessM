@@ -254,3 +254,5 @@
 - [0168-room-cancel-controls.md](0168-room-cancel-controls.md) — ロビーのB/DでREADY解除・離席を一段ずつ行い、未着席からのルーム退出を防ぐ。
 - [0169-replay-round-blocks.md](0169-replay-round-blocks.md) — リプレイv2でラウンド別の入力と開始ゲージ・勝利数・乱数状態を記録。旧形式読込と通し再生を維持。
 - [0170-replay-round-start.md](0170-replay-round-start.md) — リプレイv3の開始状態で再生中の上下キーからラウンド移動。ステージ演出の継続、開始前演出中の戻り判定、旧形式互換と検証。
+- [0171-online-spectating.md](0171-online-spectating.md) — 各台の確定リプレイをホストへ蓄積し、最新ラウンドからの観戦と第三者へのストリーミングを追加。
+- [0172-local-mock-online-launcher.md](0172-local-mock-online-launcher.md) — Epicアカウント不要で独立した模擬ユーザーのゲーム画面を複数起動し、ローカルで対戦・観戦を試す開発用ランチャー。

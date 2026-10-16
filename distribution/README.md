@@ -164,3 +164,9 @@ Run the game once to create the file, then close the game before editing it. Ope
 VS matches are saved automatically. Open **WATCH REPLAY**, use Up/Down to choose a file, and press a confirm button to play it from the beginning. Older recordings can still be played.
 
 During playback, Up jumps to the next round. Down jumps to the previous round's beginning during the opening presentation, or to the current round's beginning once fighting has started. Round jumping is available for newly recorded replays. Hold Right to fast-forward or Left to rewind, and press Esc to stop playback.
+
+### Spectating online matches
+
+In an ONLINE VS room, select a table with a match in progress and press a confirm button to watch it. You join from the latest round's beginning and automatically fast-forward to the received action, then watch at normal speed. Playback waits if incoming data runs out and resumes when more arrives. If the players are still choosing characters, observation waits for the match to start.
+
+Press Esc (Back on a gamepad) to return to the same room. You also return when the match ends. The room host can spectate too. Starting observation leaves your seat, so you cannot become READY while watching.

@@ -767,6 +767,9 @@ public^let^playReplay = p^name:string^, number:number^{
     if^pending != nil^ or^replayState.playing != nil^ or^netplay or^scene is^nil^ { return^ }
     let^tape = vp.replay.load(name)
     if^tape is^nil^ { return^ }
+    beginReplay(tape, number)
+}
+let^beginReplay = p^tape:vp.replay.Tape, number:number^{
     if^number < 1 or^number != number.floor() { return^ }
     if^number > 1 {
         let^r = tape.rounds[number - 1]
@@ -774,8 +777,9 @@ public^let^playReplay = p^name:string^, number:number^{
     }
     let^name1 = vp.select.CHARACTERS[tape.char1]
     let^name2 = vp.select.CHARACTERS[tape.char2]
-    if^name1 is^nil^ or^name2 is^nil^ { print($"Replay of unknown characters: {name}") return^ }
+    if^name1 is^nil^ or^name2 is^nil^ { print("Replay of unknown characters") return^ }
     replayState.playing := tape
+    replayState.spectating := vp.online.watching() > 0
     replayState.replayFrame := 0
     replayState.replayStartRound := number replayState.replayFirstFrame := 0
     replaySnapshots := {}
@@ -796,6 +800,7 @@ public^let^playReplay = p^name:string^, number:number^{
 
 # The played replay is over (or ESC stopped it): back to the mode menu.
 let^endReplay = p^finished:bool^{
+    let^spectating = replayState.spectating
     let^tape = replayState.playing
     if^tape != nil^ {
         replayState.replayMatched := finished and^replayState.replayFrame = tape.frames() and^flow.wins1 = tape.wins1 and^flow.wins2 = tape.wins2 and^
@@ -806,14 +811,21 @@ let^endReplay = p^finished:bool^{
         }
     }
     replayState.playing := nil^
+    replayState.spectating := false^
+    if^spectating { vp.online.stopWatching() }
     replaySnapshots := {}
     fastForward := false^
     love.audio.stop()
     if^matchArena != nil^ { vp.arena.pop() matchArena := nil^ }
     matchLoading := false^
     paused := false^
+    let^loading = pending
+    if^loading != nil^ { loading.batch.cancel() pending := nil^ }
+    matchIntro := false^ introCatchup := 0 flow.preparing := false^ flow.externalPresentation := false^
     releaseBattle()
     leavingReplay := true^
+    if^spectating and^vp.online.inRoom() { vp.lanmenu.openRoom() }
+    if^spectating and^!vp.online.inRoom() { vp.lanmenu.showMessage(vp.net.problemText()) }
     prepare("title")
 }
 
@@ -870,6 +882,7 @@ let^saveRecording = p^{
     rec.wins2 := flow.wins2
     rec.life1 := me.life
     rec.life2 := foe.life
+    if^netplay and^vp.net.isOnline() { vp.online.publish(rec, rec.frames(), true^) }
     replayState.lastReplay := vp.replay.save(rec, nameOf(me), nameOf(foe))
 }
 
@@ -1507,7 +1520,7 @@ let^battleStep = p^one:number^, two:number^{
     # The sides' input this frame: the played replay's, or the keys' and pads'
     # (and F3 / F4's CPU in VS), recorded when VS records.
     let^tape = replayState.playing
-    if^tape != nil^ and^replaySnapshots[replayState.replayFrame] is^nil^ {
+    if^tape != nil^ and^vp.online.watching() = 0 and^replaySnapshots[replayState.replayFrame] is^nil^ {
         var^boundary = replayState.replayFrame % SNAPSHOT_EVERY = 0
         for^r in^tape.rounds { if^r.first = replayState.replayFrame { boundary := true^ break^ } }
         if^boundary { replaySnapshots[replayState.replayFrame] := snapshot(nil^) }
@@ -1657,6 +1670,8 @@ let^netTick = p^{
         }
         if^confirmed >= netFrame and^(!vp.net.isOnline() or^vp.net.peerConfirmed() >= netFrame) { rollback.saved := nil^ }
     }
+    let^recording = replayState.recording
+    if^vp.net.isOnline() and^recording != nil^ { vp.online.publish(recording, std.math.min(netFrame, confirmed), false^) }
     # Publish only confirmed states; speculative summaries are overwritten
     # during correction before they can be compared with the peer's.
     repeat^while^rollback.sentSum + vp.net.SUM_EVERY <= std.math.min(netFrame, confirmed) {
@@ -1757,6 +1772,9 @@ let^tick = p^{
     var^one = 0
     var^two = 0
     if^tape != nil^ {
+        let^stream = vp.online.watchStream()
+        if^replayState.spectating and^stream is^nil^ { return^ }
+        if^stream != nil^ and^(replayState.replayFrame >= stream.available or^(!stream.finished and^replayState.replayFrame + 1 >= stream.available)) { return^ }
         one := tape.side1[replayState.replayFrame] ?? 0
         two := tape.side2[replayState.replayFrame] ?? 0
         # battleStep takes the checkpoint before advancing the replay frame.
@@ -1779,6 +1797,20 @@ public^let^update = p^dt:number^{
     for^key in^vp.input.poll() { logicalKeypressed(key, false^) }
     vp.net.poll()
     if^netplay and^!vp.net.active() { endNet(vp.net.problemText()) }
+    if^replayState.spectating and^!vp.online.inRoom() { endReplay(false^) }
+    if^vp.online.watching() > 0 {
+        let^stream = vp.online.watchStream()
+        if^!vp.online.inRoom() or^(stream != nil^ and^stream.failed) {
+            if^replayState.playing != nil^ { endReplay(false^)
+            else^: vp.online.stopWatching() if^vp.online.inRoom() { vp.lanmenu.openRoom() } }
+        elseif^stream != nil^ and^stream.tape != nil^ and^replayState.playing is^nil^ and^pending is^nil^ and^scene != nil^:
+            let^tape = stream.tape
+            var^number = stream.firstRound
+            for^r in^tape.rounds { if^r.first < stream.available and^r.checkpoint != "" { number := r.number } }
+            let^r = tape.rounds[number - 1]
+            if^r != nil^ and^stream.available > r.first + 2 { vp.roommenu.hide() beginReplay(tape,number) }
+        }
+    }
     # The host stops the pool at the reload boundary. Do not start it again
     # in this retiring frame, leaving resource.started out of sync.
     if^reloadPending or^paused { return^ }
@@ -1872,7 +1904,27 @@ public^let^update = p^dt:number^{
     }
     # A played replay: left steps back to a snapshot (again while held),
     # right holds fast forward.
-    let^watching = replayState.playing != nil^ and^inBattle()
+    let^live = vp.online.watchStream()
+    if^live != nil^ and^inBattle() {
+        fastForward := live.available - replayState.replayFrame > 12
+        # Spend up to 50ms catching up, allowing rendering around 15 FPS.
+        # Pump networking within the batch so an observing room host keeps
+        # forwarding other tables' streams while simulation runs flat out.
+        let^until = love.timer.getTime() + 0.050
+        var^pollAt = love.timer.getTime() + 0.008
+        var^steps = 0
+        vp.fighter.setResimulating(fastForward)
+        repeat^while^fastForward and^live.available - replayState.replayFrame > 4 and^steps < 4096 and^love.timer.getTime() < until and^replayState.playing != nil^ and^!live.failed and^vp.online.inRoom() {
+            tick() steps += 1
+            if^love.timer.getTime() >= pollAt {
+                vp.net.poll()
+                pollAt := love.timer.getTime() + 0.008
+            }
+        }
+        vp.fighter.setResimulating(false^)
+        if^fastForward { clock := 0 return^ }
+    }
+    let^watching = live is^nil^ and^replayState.playing != nil^ and^inBattle()
     fastForward := watching and^vp.input.isDown(Key.right)
     if^watching and^vp.input.isDown(Key.left) {
         rewindTimer -= dt
@@ -2148,7 +2200,9 @@ let^drawReplayBar = p^{
     let^seconds = (replayState.replayFrame / 100).floor()
     let^total = (tape.frames() / 100).floor()
     let^mode = if^fastForward: ">> x4" el^vp.input.isDown(Key.left): "<<" el^: ">";
-    let^text = $"REPLAY  {mode}  {(seconds / 60).floor()}:{seconds % 60:%02d} / {(total / 60).floor()}:{total % 60:%02d}    UP/DOWN: round   LEFT: rewind   RIGHT: fast forward   ESC: stop"
+    let^live = vp.online.watchStream()
+    let^text = if^live != nil^: (if^fastForward: "SPECTATING: catching up" el^live.available - replayState.replayFrame <= 1: "SPECTATING: buffering" el^: "SPECTATING: live";) .. "    ESC: return to room"
+        el^: $"REPLAY  {mode}  {(seconds / 60).floor()}:{seconds % 60:%02d} / {(total / 60).floor()}:{total % 60:%02d}    UP/DOWN: round   LEFT: rewind   RIGHT: fast forward   ESC: stop";
     love.graphics.setColor(0, 0, 0, 0.6)
     love.graphics.rectangle(love.graphics.DrawMode.fill, 0, WINDOW_H - 28, WINDOW_W, 28)
     love.graphics.setColor(1, 1, 1, 1)
@@ -2202,6 +2256,10 @@ let^logicalKeypressed = p^key:love.keyboard.Key, isrepeat:bool^{
         return^
     }
     if^key = Key.f8 { if^!isrepeat { debugReload() } return^ }
+    if^vp.online.watching() > 0 and^replayState.playing != nil^ {
+        if^key = Key.escape and^!isrepeat { endReplay(false^) }
+        return^
+    }
     if^attract {
         let^action = key = Key.z or^key = Key.x or^key = Key.c or^key = Key.a or^key = Key.s or^key = Key.d or^
             key = Key.l or^key = Key.semicolon or^key = Key.quote or^key = Key.o or^key = Key.p or^key = Key.leftbracket or^key = Key.return

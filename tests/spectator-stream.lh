@@ -1,0 +1,48 @@
+module^vp.spectatorstreamtest
+import^love.event
+import^std.json
+require^"../src/replay.lh"
+require^"../src/spectator.lh"
+let^check = p^ok:bool^, why:string^{ if^!ok { panic^why } }
+public^let^load = p^{
+    let^t = vp.replay.Tape.new()
+    t.seed := 123 t.seconds := 5
+    for^i from^0 to^299 {
+        t.markRound(i, (i / 100).floor() + 1, 0, 0, i + 1, 0, 0)
+        let^r = t.rounds[t.rounds.length^ - 1]
+        if^r != nil^ and^r.first = i and^i > 0 { r.checkpoint := "日本語\\\"\nportable" }
+        t.push(i % 2048, (i * 3) % 2048)
+    }
+    let^source = vp.spectator.Stream.new() source.tape := t source.available := 150
+    let^cursor = vp.spectator.Cursor.new()
+    let^viewer = vp.spectator.Stream.new()
+    for^i from^1 to^30 {
+        let^text = cursor.next(source)
+        if^text = "" { break^ }
+        check(viewer.apply(text), "late join message rejected")
+    }
+    check(viewer.firstRound = 2 and^viewer.available = 150, "latest confirmed portable round not selected")
+    check(viewer.tape?.side1[0] = 0 and^viewer.tape?.side1[101] = 101, "earlier inputs must not be transmitted")
+    check(viewer.tape?.rounds[1]?.checkpoint = "日本語\\\"\nportable", "checkpoint text changed")
+    source.available := 300 source.finished := true^
+    t.wins1 := 2 t.wins2 := 1 t.life1 := 875 t.life2 := 123
+    for^i from^1 to^30 {
+        let^text = cursor.next(source)
+        if^text = "" { break^ }
+        check(viewer.apply(text), "stream continuation rejected")
+    }
+    check(viewer.finished and^viewer.available = 300 and^viewer.tape?.wins1 = 2, "end result not delivered")
+    for^i from^100 to^299 { check(viewer.tape?.side1[i] = t.side1[i] and^viewer.tape?.side2[i] = t.side2[i], "stream input changed") }
+    let^all = vp.spectator.Cursor.new() all.latest := false^
+    let^relay = vp.spectator.Stream.new()
+    for^i from^1 to^30 {
+        let^text = all.next(source)
+        if^text = "" { break^ }
+        check(relay.apply(text), "full publisher stream rejected")
+    }
+    check(relay.finished and^relay.firstRound = 1 and^relay.available = 300, "host must retain all rounds")
+    let^bad = vp.spectator.Stream.new()
+    check(!bad.apply("{}"), "invalid message accepted")
+    print("PASS: spectator stream, confirmed prefix, latest round, continuation, UTF-8 checkpoint and final result")
+    love.event.quit()
+}
