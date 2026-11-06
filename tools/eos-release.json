@@ -1,9 +1,9 @@
 {
   "repository": "SAM-tak/eos-lhat",
-  "tag": "v0.1.4",
+  "tag": "v0.6.0",
   "sha256": {
-    "eos_lhat.dll": "35c98b7785d81d8a5dbb0c02053c7efac99f2e48315ac460ed394acf29c86b85",
-    "eos_lhat.so": "8e7ebed61d2ac95bd815bb5721ef8364714b8a5b76e5bd899765e55ad7eb39fe",
-    "eos_lhat.dylib": "c3a258081e4f89df256e20494f9fbf9ae9cfed08091bdb5fa93e4f3824f57ac8"
+    "eos_lhat.dll": "8593b163d9ff53e7655f520cacabd2686a18a53c644a465a9799f80522bf4f46",
+    "eos_lhat.so": "618a7d9d43a300020e41307a52fd4920a29e2fef8a46d4639338462304d2910f",
+    "eos_lhat.dylib": "83b19c886cfb78f66b0a78158ace23efae8dc4a0cd3275388e34cfe74bdc3c3b"
   }
 }
